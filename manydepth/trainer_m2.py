@@ -88,8 +88,6 @@ class Trainer_Monodepth:
         self.models["depth"].to(self.device)"""
         self.parameters_to_train += list(self.models["depth"].parameters())
         
-
-
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
                 self.models["pose_encoder"] = networks.ResnetEncoder(
