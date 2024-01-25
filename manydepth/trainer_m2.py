@@ -461,7 +461,7 @@ class Trainer_Monodepth:
                     outputs[("sample", frame_id, scale)],
                     padding_mode="border",align_corners=True)
 
-                outputs[("color", frame_id, scale)] = self.spatial_transform(outputs[("color", frame_id, scale)],outputs["mf_"+str(0)+"_"+str(frame_id)])
+                #outputs[("color", frame_id, scale)] = self.spatial_transform(outputs[("color", frame_id, scale)],outputs["mf_"+str(0)+"_"+str(frame_id)])
 
 
     def compute_reprojection_loss(self, pred, target):
