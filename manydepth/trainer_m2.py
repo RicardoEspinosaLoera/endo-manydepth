@@ -70,22 +70,22 @@ class Trainer_Monodepth:
         
         
         #Transformer
-        self.models["encoder"] = networks.mpvit_small()            
-        self.models["encoder"].num_ch_enc = [64,64,128,216,288]
+        """self.models["encoder"] = networks.mpvit_small()            
+        self.models["encoder"].num_ch_enc = [64,64,128,216,288]"""
         
         #Normal Depth
-        """
         self.models["encoder"] = networks.ResnetEncoder(
-            self.opt.num_layers, self.opt.weights_init == "pretrained")"""
+            self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
-        #self.parameters_to_train += list(self.models["encoder"].parameters()) 
-        """
+        self.parameters_to_train += list(self.models["encoder"].parameters()) 
+        
         self.models["depth"] = networks.DepthDecoder(
-            self.models["encoder"].num_ch_enc, self.opt.scales)"""
+            self.models["encoder"].num_ch_enc, self.opt.scales)
         
         #Transformer
+        """
         self.models["depth"] = networks.DepthDecoderT()
-        self.models["depth"].to(self.device)
+        self.models["depth"].to(self.device)"""
         self.parameters_to_train += list(self.models["depth"].parameters())
         
 
@@ -137,7 +137,7 @@ class Trainer_Monodepth:
         print("Models and tensorboard events files are saved to:\n  ", self.opt.log_dir)
         print("Training is using:\n  ", self.device)
 
-                # DATA
+        # DATA
         datasets_dict = {"kitti": datasets.KITTIRAWDataset,
                          "cityscapes_preprocessed": datasets.CityscapesPreprocessedDataset,
                          "kitti_odom": datasets.KITTIOdomDataset,
