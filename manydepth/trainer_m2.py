@@ -81,7 +81,7 @@ class Trainer_Monodepth:
         
         self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
-        
+        self.models["depth"].to(self.device)
         #Transformer
         """
         self.models["depth"] = networks.DepthDecoderT()
