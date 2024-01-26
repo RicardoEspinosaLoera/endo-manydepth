@@ -91,7 +91,7 @@ class SCAREDDataset(MonoDataset):
         #COLON10k
 
         f_str=str(frame_index) + self.img_ext
-        image_path = os.path.join(self.data_path, folder, f_str)
+        image_path = os.path.join(self.data_path, folder,"rgb" f_str)
             
         return image_path
 
