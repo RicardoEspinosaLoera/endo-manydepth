@@ -483,6 +483,7 @@ class Trainer_Monodepth:
         """abs_diff = torch.abs(features_t - features_p)
         l1_loss = abs_diff.mean(1, True)"""
         #print(features_p.shape)
+        """
         wandb.log({"1": wandb.Image(features_t[0][0].data)},step=self.step)
         wandb.log({"2": wandb.Image(features_t[0][1].data)},step=self.step)
         wandb.log({"3": wandb.Image(features_t[0][2].data)},step=self.step)
@@ -490,7 +491,7 @@ class Trainer_Monodepth:
         wandb.log({"5": wandb.Image(features_t[0][4].data)},step=self.step)
         wandb.log({"6": wandb.Image(features_t[0][5].data)},step=self.step)
         wandb.log({"7": wandb.Image(features_t[0][6].data)},step=self.step)
-        wandb.log({"8": wandb.Image(features_t[0][7].data)},step=self.step)
+        wandb.log({"8": wandb.Image(features_t[0][7].data)},step=self.step)"""
         ssim_loss = self.ssim(features_p, features_t).mean(1, True)
         #ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
