@@ -546,7 +546,7 @@ class Trainer_Monodepth:
                 rep_identity = self.compute_reprojection_loss(pred, target)
 
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
-                wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
+                #wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
                 #reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 #print(reprojection_loss_mask.shape)
                 #if scale == 0:
@@ -558,7 +558,7 @@ class Trainer_Monodepth:
                 #outputs[("color_refined", frame_id)] = outputs[("color_refined", frame_id)] * reprojection_loss_mask + inputs[("color", 0, 0)]
                 #outputs[("color_refined", frame_id)] = torch.clamp(outputs[("color_refined", frame_id)], min=0.0, max=1.0)
                 #Losses
-                target = outputs[("color_refined", frame_id, scale)] #Lighting               
+                #target = outputs[("color_refined", frame_id, scale)] #Lighting               
                 pred = outputs[("color", frame_id, scale)]
                 loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
