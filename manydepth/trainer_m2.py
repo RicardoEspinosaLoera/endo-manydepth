@@ -351,7 +351,7 @@ class Trainer_Monodepth:
                     wandb.log({"input_"+str(f_i): wandb.Image(pose_feats[f_i][0].data)},step=self.step)
                     wandb.log({"input_0": wandb.Image(pose_feats[0][0].data)},step=self.step)"""
 
-                    
+                    """
                     for scale in self.opt.scales:
                         outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
                         outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,1,None,:, :]
@@ -373,7 +373,7 @@ class Trainer_Monodepth:
                     outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]
 
                     #outputs["refinedCB_"+str(f_i)+"_"+str(scale)] = outputs[("ch",scale, f_i)] * outputs["color_motion_"+str(f_i)+"_"+str(scale)] + outputs[("bh",scale, f_i)]
-                    #outputs[("color_refined", f_i, scale)] = outputs["c_"+str(0)+"_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(0)+"_"+str(f_i)]
+                    #outputs[("color_refined", f_i, scale)] = outputs["c_"+str(0)+"_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(0)+"_"+str(f_i)]"""
                     
 
 
@@ -520,7 +520,7 @@ class Trainer_Monodepth:
 
         losses = {}
         loss_reprojection = 0
-        loss_ilumination_invariant = 0
+        #loss_ilumination_invariant = 0
         total_loss = 0
         #loss_motion_flow = 0
 
@@ -547,7 +547,7 @@ class Trainer_Monodepth:
 
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
                 wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
-                reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
+                #reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 #print(reprojection_loss_mask.shape)
                 #if scale == 0:
                 #outputs["c_"+str(frame_id)] = outputs["c_"+str(frame_id)] * reprojection_loss_mask 
@@ -563,8 +563,8 @@ class Trainer_Monodepth:
                 loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
                 #Illuminations invariant loss
-                target = inputs[("color", 0, 0)]
-                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
+                #target = inputs[("color", 0, 0)]
+                #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Motion Flow
                 #loss_motion_flow += (self.get_motion_flow_loss(outputs["mf_"+str(scale)+"_"+str(frame_id)]))
                 
@@ -574,7 +574,7 @@ class Trainer_Monodepth:
             
                 
             #Illumination invariant loss
-            loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
+            #loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
             norm_disp = disp / (mean_disp + 1e-7)
             smooth_loss = get_smooth_loss(norm_disp, color)
@@ -663,9 +663,9 @@ class Trainer_Monodepth:
                 
                 if s == 0 and frame_id != 0:
                     wandb.log({"color_pred_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color", frame_id, s)][j].data)},step=self.step)
-                    wandb.log({"color_pred_refined_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_refined", frame_id,s)][j].data)},step=self.step)
-                    wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("ch",s, frame_id)][j].data)},step=self.step)
-                    wandb.log({"brightness_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("bh",s, frame_id)][j].data)},step=self.step)
+                    #wandb.log({"color_pred_refined_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_refined", frame_id,s)][j].data)},step=self.step)
+                    #wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("ch",s, frame_id)][j].data)},step=self.step)
+                    #wandb.log({"brightness_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("bh",s, frame_id)][j].data)},step=self.step)
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
             """f = outputs["mf_"+str(s)+"_"+str(frame_id)][j].data
