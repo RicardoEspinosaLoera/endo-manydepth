@@ -70,22 +70,22 @@ class Trainer_Monodepth:
         
         
         #Transformer
-        """self.models["encoder"] = networks.mpvit_small()            
-        self.models["encoder"].num_ch_enc = [64,64,128,216,288]"""
+        self.models["encoder"] = networks.mpvit_small()            
+        self.models["encoder"].num_ch_enc = [64,64,128,216,288]
         
         #Normal Depth
-        self.models["encoder"] = networks.ResnetEncoder(
-            self.opt.num_layers, self.opt.weights_init == "pretrained")
+        """self.models["encoder"] = networks.ResnetEncoder(
+            self.opt.num_layers, self.opt.weights_init == "pretrained")"""
         self.models["encoder"].to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters()) 
-        
+        #self.parameters_to_train += list(self.models["encoder"].parameters()) 
+        """
         self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
-        self.models["depth"].to(self.device)
-        #Transformer
-        """
-        self.models["depth"] = networks.DepthDecoderT()
         self.models["depth"].to(self.device)"""
+        #Transformer
+        
+        self.models["depth"] = networks.DepthDecoderT()
+        self.models["depth"].to(self.device)
         self.parameters_to_train += list(self.models["depth"].parameters())
         
         if self.use_pose_net:
