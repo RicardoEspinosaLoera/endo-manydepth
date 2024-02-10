@@ -13,6 +13,15 @@ from options import MonodepthOptions
 import datasets
 import networks
 
+import matplotlib.pyplot as plt
+
+import wandb
+
+wandb.init(project="MonoViT-Testing", entity="respinosa")
+
+_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
+
+
 cv2.setNumThreads(0)  # This speeds up evaluation 5x on our unix systems (OpenCV 3.3.1)
 
 
@@ -201,6 +210,8 @@ def evaluate(opt):
         gt_height, gt_width = gt_depth.shape[:2]
 
         pred_disp = pred_disps[i]
+        disp = colormap(pred_disp)
+        wandb.log({"disp_testing": wandb.Image(disp.transpose(1, 2, 0))},step=i)
         pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
         pred_depth = 1 / pred_disp
         """
@@ -248,6 +259,35 @@ def evaluate(opt):
     print(("&{: 8.3f}  " * 7).format(*mean_errors.tolist()) + "\\\\")
     print("\n-> Done!")
 
+def colormap(inputs, normalize=True, torch_transpose=True):
+        if isinstance(inputs, torch.Tensor):
+            inputs = inputs.detach().cpu().numpy()
+
+        vis = inputs
+        if normalize:
+            ma = float(vis.max())
+            mi = float(vis.min())
+            d = ma - mi if ma != mi else 1e5
+            vis = (vis - mi) / d
+
+        if vis.ndim == 4:
+            vis = vis.transpose([0, 2, 3, 1])
+            vis = _DEPTH_COLORMAP(vis)
+            vis = vis[:, :, :, 0, :3]
+            if torch_transpose:
+                vis = vis.transpose(0, 3, 1, 2)
+        elif vis.ndim == 3:
+            vis = _DEPTH_COLORMAP(vis)
+            vis = vis[:, :, :, :3]
+            if torch_transpose:
+                vis = vis.transpose(0, 3, 1, 2)
+        elif vis.ndim == 2:
+            vis = _DEPTH_COLORMAP(vis)
+            vis = vis[..., :3]
+            if torch_transpose:
+                vis = vis.transpose(2, 0, 1)
+
+        return vis
 
 if __name__ == "__main__":
     options = MonodepthOptions()
