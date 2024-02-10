@@ -368,9 +368,9 @@ class Trainer_Monodepth:
             for f_i in self.opt.frame_ids[1:]:
                 for scale in self.opt.scales:
                     #outputs["color_motion_"+str(f_i)+"_"+str(scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
-                    outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]
+                    #outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
+                    #outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
+                    outputs[("color_refined", f_i, scale)] = outputs[("ch",0, f_i)] * inputs[("color", 0, 0)].detach()  + outputs[("bh", 0, f_i)]
 
                     #outputs["refinedCB_"+str(f_i)+"_"+str(scale)] = outputs[("ch",scale, f_i)] * outputs["color_motion_"+str(f_i)+"_"+str(scale)] + outputs[("bh",scale, f_i)]
                     #outputs[("color_refined", f_i, scale)] = outputs["c_"+str(0)+"_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(0)+"_"+str(f_i)]
@@ -443,23 +443,12 @@ class Trainer_Monodepth:
                     cam_points, inputs[("K", source_scale)], T)
 
                 outputs[("sample", frame_id, scale)] = pix_coords
-
-                """
-                outputs["mfh_"+str(scale)+"_"+str(frame_id)]= outputs["mf_"+str(0)+"_"+str(frame_id)].permute(0,2,3,1)
-                outputs["cf_"+str(scale)+"_"+str(frame_id)] = outputs[("sample", frame_id, scale)]+ outputs["mfh_"+str(scale)+"_"+str(frame_id)]
-                
-                outputs[("color", frame_id, scale)] = F.grid_sample(
-                    inputs[("color", frame_id, source_scale)],
-                    outputs["cf_"+str(scale)+"_"+str(frame_id)],
-                    padding_mode="border",align_corners=True)"""
-
                 
                 outputs[("color", frame_id, scale)] = F.grid_sample(
                     inputs[("color", frame_id, source_scale)],
                     outputs[("sample", frame_id, scale)],
                     padding_mode="border",align_corners=True)
 
-                #outputs[("color", frame_id, scale)] = self.spatial_transform(outputs[("color", frame_id, scale)],outputs["mf_"+str(0)+"_"+str(frame_id)])
 
 
     def compute_reprojection_loss(self, pred, target):
@@ -539,15 +528,7 @@ class Trainer_Monodepth:
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
                 wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
-                #print(reprojection_loss_mask.shape)
-                #if scale == 0:
-                #outputs["c_"+str(frame_id)] = outputs["c_"+str(frame_id)] * reprojection_loss_mask 
-                #outputs["b_"+str(frame_id)] = outputs["b_"+str(frame_id)] * reprojection_loss_mask
-
-                #outputs[("refined", scale, f_i)] = (outputs[("transform", "high", scale, f_i)] * outputs[("occu_mask_backward", 0, f_i)].detach()  + inputs[("color", 0, 0)])
-                #outputs[("refined", scale, f_i)] = torch.clamp(outputs[("refined", scale, f_i)], min=0.0, max=1.0)
-                #outputs[("color_refined", frame_id)] = outputs[("color_refined", frame_id)] * reprojection_loss_mask + inputs[("color", 0, 0)]
-                #outputs[("color_refined", frame_id)] = torch.clamp(outputs[("color_refined", frame_id)], min=0.0, max=1.0)
+                
                 #Losses
                 target = outputs[("color_refined", frame_id, scale)] #Lighting               
                 pred = outputs[("color", frame_id, scale)]
@@ -555,9 +536,7 @@ class Trainer_Monodepth:
                 
                 #Illuminations invariant loss
                 target = inputs[("color", 0, 0)]
-                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
-                #Motion Flow
-                #loss_motion_flow += (self.get_motion_flow_loss(outputs["mf_"+str(scale)+"_"+str(frame_id)]))
+                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()                
                 
                 
                 
@@ -570,7 +549,6 @@ class Trainer_Monodepth:
             norm_disp = disp / (mean_disp + 1e-7)
             smooth_loss = get_smooth_loss(norm_disp, color)
             loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
-            #loss += 0.001 * loss_motion_flow / (2 ** scale)
             total_loss += loss
             losses["loss/{}".format(scale)] = loss
 
