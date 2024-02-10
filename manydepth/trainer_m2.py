@@ -370,10 +370,10 @@ class Trainer_Monodepth:
                     #outputs["color_motion_"+str(f_i)+"_"+str(scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
                     #outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                     #outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    outputs[("color_refined", f_i, scale)] = outputs[("ch",0, f_i)] * inputs[("color", 0, 0)].detach()  + outputs[("bh", 0, f_i)]
+                    #outputs[("color_refined", f_i, scale)] = outputs[("c",0, f_i)] * inputs[("color", 0, 0)].detach()  + outputs[("b", 0, f_i)]
 
                     #outputs["refinedCB_"+str(f_i)+"_"+str(scale)] = outputs[("ch",scale, f_i)] * outputs["color_motion_"+str(f_i)+"_"+str(scale)] + outputs[("bh",scale, f_i)]
-                    #outputs[("color_refined", f_i, scale)] = outputs["c_"+str(0)+"_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(0)+"_"+str(f_i)]
+                    outputs[("color_refined", f_i, scale)] = outputs["c_"+str(0)+"_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(0)+"_"+str(f_i)]
                     
 
 
