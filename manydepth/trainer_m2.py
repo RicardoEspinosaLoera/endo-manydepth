@@ -351,10 +351,10 @@ class Trainer_Monodepth:
                     wandb.log({"input_"+str(f_i): wandb.Image(pose_feats[f_i][0].data)},step=self.step)
                     wandb.log({"input_0": wandb.Image(pose_feats[0][0].data)},step=self.step)"""
 
-                    """
-                    for scale in self.opt.scales:
-                        outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
-                        outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,1,None,:, :]
+                    
+                    #for scale in self.opt.scales:
+                    outputs["b_"+str(0)+"_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,0,None,:, :]
+                    outputs["c_"+str(0)+"_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,1,None,:, :]
                         #outputs["mf_"+str(scale)+"_"+str(f_i)] = outputs_mf[("flow", scale)]
                         #wandb.log({"b": wandb.Image(outputs["b_"+str(scale)+"_"+str(f_i)][0].data)},step=self.step)
                         #wandb.log({"c": wandb.Image(outputs["b_"+str(scale)+"_"+str(f_i)][0].data)},step=self.step)
@@ -362,7 +362,7 @@ class Trainer_Monodepth:
 
                     #outputs["b_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,0,None,:, :]
                     #outputs["c_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,1,None,:, :]    
-                    #outputs[("color_refined", f_i)] = outputs["c_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(f_i)]"""
+                    #outputs[("color_refined", f_i)] = outputs["c_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(f_i)]
                 
             
             for f_i in self.opt.frame_ids[1:]:
