@@ -517,9 +517,9 @@ class Trainer_Monodepth:
             #Losses & compute mask
             #for frame_id in self.opt.frame_ids[1:]:
                 # Mask
-            target = inputs[("color", 0, source_scale)]
+            #target = inputs[("color", 0, source_scale)]
             #pred = outputs[("color", frame_id, scale)]
-
+            """
             for frame_id in self.opt.frame_ids[1:]:
                 pred = outputs[("color", frame_id, scale)]
                 reprojection_losses.append(self.compute_reprojection_loss(pred, target))
@@ -542,10 +542,14 @@ class Trainer_Monodepth:
 
             identity_reprojection_loss += torch.randn(
                 identity_reprojection_loss.shape).to(device=pred.device) * 0.00001
-
+            
             reprojection_loss_mask = self.compute_loss_masks(reprojection_loss,
                                                             identity_reprojection_loss)
             """
+            """
+            target = inputs[("color", 0, source_scale)]
+            pred = outputs[("color", frame_id, scale)]
+
             rep = self.compute_reprojection_loss(pred, target)
 
             pred = inputs[("color", frame_id, source_scale)]
@@ -555,6 +559,17 @@ class Trainer_Monodepth:
 
             #wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
             for frame_id in self.opt.frame_ids[1:]:
+                #Mask
+                target = inputs[("color", 0, source_scale)]
+                pred = outputs[("color", frame_id, scale)]
+                
+                rep = self.compute_reprojection_loss(pred, target)
+
+                pred = inputs[("color", frame_id, source_scale)]
+                rep_identity = self.compute_reprojection_loss(pred, target)
+
+                reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
+
                 pred = outputs[("color", frame_id, scale)]
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 
