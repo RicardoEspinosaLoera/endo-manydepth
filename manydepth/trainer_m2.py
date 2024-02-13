@@ -532,9 +532,13 @@ class Trainer_Monodepth:
                     self.compute_reprojection_loss(pred, target))
             
             identity_reprojection_losses = torch.cat(identity_reprojection_losses, 1)
-            identity_reprojection_loss = identity_reprojection_losses.mean(1, keepdim=True)
+            #identity_reprojection_loss = identity_reprojection_losses.mean(1, keepdim=True)
+            identity_reprojection_loss, _ = torch.min(identity_reprojection_losses, dim=1,
+                                                              keepdim=True)
 
-            reprojection_loss = reprojection_losses.mean(1, keepdim=True)
+            #reprojection_loss = reprojection_losses.mean(1, keepdim=True)
+            reprojection_loss, _ = torch.min(reprojection_losses, dim=1, keepdim=True)
+            
 
             identity_reprojection_loss += torch.randn(
                 identity_reprojection_loss.shape).to(device=pred.device) * 0.00001
