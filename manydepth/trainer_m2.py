@@ -352,9 +352,9 @@ class Trainer_Monodepth:
                     wandb.log({"input_0": wandb.Image(pose_feats[0][0].data)},step=self.step)"""
 
                     
-                    #for scale in self.opt.scales:
-                    outputs["b_"+str(0)+"_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,0,None,:, :]
-                    outputs["c_"+str(0)+"_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,1,None,:, :]
+                    for scale in self.opt.scales:
+                        outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
+                        outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,1,None,:, :]
                         #outputs["mf_"+str(scale)+"_"+str(f_i)] = outputs_mf[("flow", scale)]
                         #wandb.log({"b": wandb.Image(outputs["b_"+str(scale)+"_"+str(f_i)][0].data)},step=self.step)
                         #wandb.log({"c": wandb.Image(outputs["b_"+str(scale)+"_"+str(f_i)][0].data)},step=self.step)
