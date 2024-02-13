@@ -560,13 +560,12 @@ class Trainer_Monodepth:
             #wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
             for frame_id in self.opt.frame_ids[1:]:
                 #Mask
-                #target = inputs[("color_refined", frame_id, source_scale)]
-                target = outputs[("color_refined", frame_id, scale)] #Lighting  
-                pred = outputs[("color", frame_id, scale)]
-                
+                target = outputs[("color_refined", frame_id, scale)]
+                pred = outputs[("color", frame_id, scale)]                
                 rep = self.compute_reprojection_loss(pred, target)
 
                 pred = inputs[("color", frame_id, source_scale)]
+                target = inputs[("color", 0, source_scale)]
                 rep_identity = self.compute_reprojection_loss(pred, target)
 
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
