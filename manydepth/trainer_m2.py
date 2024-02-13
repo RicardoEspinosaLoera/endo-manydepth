@@ -515,33 +515,32 @@ class Trainer_Monodepth:
             disp = outputs[("disp", scale)]
             color = inputs[("color", 0, scale)]
             #Losses & compute mask
-            for frame_id in self.opt.frame_ids[1:]:
+            #for frame_id in self.opt.frame_ids[1:]:
                 # Mask
-                target = inputs[("color", 0, source_scale)]
+            target = inputs[("color", 0, source_scale)]
+            pred = outputs[("color", frame_id, scale)]
+
+            for frame_id in self.opt.frame_ids[1:]:
                 pred = outputs[("color", frame_id, scale)]
+                reprojection_losses.append(self.compute_reprojection_loss(pred, target))
+            reprojection_losses = torch.cat(reprojection_losses, 1)
 
-                for frame_id in self.opt.frame_ids[1:]:
-                    pred = outputs[("color", frame_id, scale)]
-                    reprojection_losses.append(self.compute_reprojection_loss(pred, target))
-                    print("append")
-                reprojection_losses = torch.cat(reprojection_losses, 1)
+            identity_reprojection_losses = []
+            for frame_id in self.opt.frame_ids[1:]:
+                pred = inputs[("color", frame_id, source_scale)]
+                identity_reprojection_losses.append(
+                    self.compute_reprojection_loss(pred, target))
+            
+            identity_reprojection_losses = torch.cat(identity_reprojection_losses, 1)
+            identity_reprojection_loss = identity_reprojection_losses.mean(1, keepdim=True)
 
-                identity_reprojection_losses = []
-                for frame_id in self.opt.frame_ids[1:]:
-                    pred = inputs[("color", frame_id, source_scale)]
-                    identity_reprojection_losses.append(
-                        self.compute_reprojection_loss(pred, target))
-                
-                identity_reprojection_losses = torch.cat(identity_reprojection_losses, 1)
-                identity_reprojection_loss = identity_reprojection_losses.mean(1, keepdim=True)
+            reprojection_loss = reprojection_losses.mean(1, keepdim=True)
 
-                reprojection_loss = reprojection_losses.mean(1, keepdim=True)
+            identity_reprojection_loss += torch.randn(
+                identity_reprojection_loss.shape).to(device=pred.device) * 0.00001
 
-                identity_reprojection_loss += torch.randn(
-                    identity_reprojection_loss.shape).to(device=pred.device) * 0.00001
-
-                reprojection_loss_mask = self.compute_loss_masks(reprojection_loss,
-                                                             identity_reprojection_loss)
+            reprojection_loss_mask = self.compute_loss_masks(reprojection_loss,
+                                                            identity_reprojection_loss)
                 """
                 rep = self.compute_reprojection_loss(pred, target)
 
@@ -554,6 +553,7 @@ class Trainer_Monodepth:
 
 
                 #wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
+            for frame_id in self.opt.frame_ids[1:]:
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 
                 #Losses
