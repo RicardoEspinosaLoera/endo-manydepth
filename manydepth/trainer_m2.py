@@ -518,7 +518,7 @@ class Trainer_Monodepth:
             #for frame_id in self.opt.frame_ids[1:]:
                 # Mask
             target = inputs[("color", 0, source_scale)]
-            pred = outputs[("color", frame_id, scale)]
+            #pred = outputs[("color", frame_id, scale)]
 
             for frame_id in self.opt.frame_ids[1:]:
                 pred = outputs[("color", frame_id, scale)]
@@ -551,6 +551,7 @@ class Trainer_Monodepth:
 
             #wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
             for frame_id in self.opt.frame_ids[1:]:
+                pred = outputs[("color", frame_id, scale)]
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 
                 #Losses
