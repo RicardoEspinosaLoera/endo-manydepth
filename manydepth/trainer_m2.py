@@ -368,13 +368,10 @@ class Trainer_Monodepth:
             for f_i in self.opt.frame_ids[1:]:
                 for scale in self.opt.scales:
                     #outputs["color_motion_"+str(f_i)+"_"+str(scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
-                    #outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    #outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    #outputs[("color_refined", f_i, scale)] = outputs[("c",0, f_i)] * inputs[("color", 0, 0)].detach()  + outputs[("b", 0, f_i)]
-
-                    #outputs["refinedCB_"+str(f_i)+"_"+str(scale)] = outputs[("ch",scale, f_i)] * outputs["color_motion_"+str(f_i)+"_"+str(scale)] + outputs[("bh",scale, f_i)]
-                    outputs[("color_refined", f_i, scale)] = outputs["c_"+str(0)+"_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(0)+"_"+str(f_i)]
-                    
+                    outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
+                    outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
+                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]
+                        
 
 
         return outputs
@@ -560,17 +557,13 @@ class Trainer_Monodepth:
             #wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
             for frame_id in self.opt.frame_ids[1:]:
                 #Mask
-                target = outputs[("color_refined", frame_id, scale)]
-                pred = outputs[("color", frame_id, scale)]                
+                target = inputs[("color", 0, source_scale)]
+                pred = outputs[("color", frame_id, scale)]
+
                 rep = self.compute_reprojection_loss(pred, target)
 
                 pred = inputs[("color", frame_id, source_scale)]
-                target = inputs[("color", 0, source_scale)]
                 rep_identity = self.compute_reprojection_loss(pred, target)
-
-                reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
-
-                pred = outputs[("color", frame_id, scale)]
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 
                 #Losses
