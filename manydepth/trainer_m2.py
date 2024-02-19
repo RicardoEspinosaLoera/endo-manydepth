@@ -72,7 +72,7 @@ class Trainer_Monodepth:
         #Transformer
         self.models["encoder"] = networks.mpvit_xsmall()            
         self.models["encoder"].num_ch_enc = [64,64,128,216,288]
-        self.parameters_to_train += list(self.models["encoder"].parameters())
+        #self.parameters_to_train += list(self.models["encoder"].parameters())
         #Normal Depth
         """
         self.models["encoder"] = networks.ResnetEncoder(
