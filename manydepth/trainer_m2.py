@@ -70,26 +70,28 @@ class Trainer_Monodepth:
         
         
         #Transformer
+        """
         self.models["encoder"] = networks.mpvit_small()            
         self.models["encoder"].num_ch_enc = [64,64,128,216,288]
         self.models["encoder"].to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters())
+        self.parameters_to_train += list(self.models["encoder"].parameters())"""
         #Normal Depth
-        """
+        
         self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters()) """
+        self.parameters_to_train += list(self.models["encoder"].parameters()) 
         
-        """
+        
         self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
-        self.models["depth"].to(self.device)"""
-        #Transformer
-        
-        self.models["depth"] = networks.DepthDecoderT()
         self.models["depth"].to(self.device)
         self.parameters_to_train += list(self.models["depth"].parameters())
+        #Transformer
+        """
+        self.models["depth"] = networks.DepthDecoderT()
+        self.models["depth"].to(self.device)
+        self.parameters_to_train += list(self.models["depth"].parameters())"""
         
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
@@ -125,7 +127,7 @@ class Trainer_Monodepth:
             self.parameters_to_train += list(self.models["pose"].parameters())
 
 
-        self.model_optimizer = optim.AdamW(self.parameters_to_train, self.opt.learning_rate)
+        self.model_optimizer = optim.Adam(self.parameters_to_train, self.opt.learning_rate)
         """self.model_lr_scheduler = optim.lr_scheduler.StepLR(
             self.model_optimizer, self.opt.scheduler_step_size, 0.1)"""
         self.model_lr_scheduler = optim.lr_scheduler.ExponentialLR(
