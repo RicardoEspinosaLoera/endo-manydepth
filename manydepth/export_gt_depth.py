@@ -38,9 +38,9 @@ def export_gt_depths_kitti():
     gt_depths = []
     for line in lines:
 
-        folder, frame_id, _ = line.split()
-        frame_id = int(frame_id)
-
+        #folder, frame_id, _ = line.split()
+        #frame_id = int(frame_id)
+        """
         if opt.split == "eigen":
             calib_dir = os.path.join(opt.data_path, folder.split("/")[0])
             velo_filename = os.path.join(opt.data_path, folder,
@@ -49,8 +49,11 @@ def export_gt_depths_kitti():
         elif opt.split == "eigen_benchmark":
             gt_depth_path = os.path.join(opt.data_path, folder, "proj_depth",
                                          "groundtruth", "image_02", "{:010d}.png".format(frame_id))
-            gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256
-
+            gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256"""
+        print(line)
+        line = line.replace("/","_")
+        gt_depth_path = os.path.join(opt.data_path, "{:010d}.png".format(line))
+        gt_depth = np.array(pil.open(gt_depth_path))
         gt_depths.append(gt_depth.astype(np.float32))
 
     output_path = os.path.join(split_folder, "gt_depths.npz")
