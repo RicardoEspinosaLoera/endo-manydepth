@@ -581,6 +581,7 @@ class Trainer_Monodepth:
                 
                 #Illuminations invariant loss
                 #target = inputs[("color", 0, 0)]
+                target = outputs[("color_refined", frame_id, scale)].detach()
                 loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()                
                 
                 
