@@ -78,11 +78,7 @@ class Trainer_Monodepth:
         self.models["depth"].to(self.device)
         self.parameters_to_train += list(self.models["depth"].parameters())
 
-        self.models["normal"] = networks.NormalDecoder(
-            self.models["encoder"].num_ch_enc, self.opt.scales)
-        self.models["normal"].to(self.device)
-        self.parameters_to_train += list(self.models["normal"].parameters())
-
+    
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
                 self.models["pose_encoder"] = networks.ResnetEncoder(
@@ -247,21 +243,6 @@ class Trainer_Monodepth:
     def run_epoch(self):
         """Run a single epoch of training and validation
         """       
-        self.normal_flag = 0
-        if self.epoch < 20:
-            self.normal_weight = 0.0
-            self.orthogonal_weight = 0.0
-        if self.epoch == 20:
-            self.freeze_models()
-            self.normal_weight = 0.01
-            self.orthogonal_weight = 0.5
-            self.normal_flag = 1
-        if self.epoch == 40:
-            self.unfreeze_models()
-            self.normal_weight = 0.005
-            self.orthogonal_weight = 0.001
-            self.normal_flag = 1
-
 
         print("Training")
         self.set_train()
@@ -319,7 +300,6 @@ class Trainer_Monodepth:
             # Otherwise, we only feed the image with frame_id 0 through the depth encoder
             features = self.models["encoder"](inputs["color_aug", 0, 0])
             outputs = self.models["depth"](features)
-            #inputs.update(self.models["normal"](features))
 
         if self.opt.predictive_mask:
             outputs["predictive_mask"] = self.models["predictive_mask"](features)
@@ -336,10 +316,7 @@ class Trainer_Monodepth:
         """Predict poses between input frames for monocular sequences.
         """
         outputs = {}
-        outputs["normal_inputs"] = self.models["normal"](features)
-        #print(outputs["normal_inputs"][("normal", 0)].shape)
-        #print(outputs["normal_inputs"][("normal", 0)])
-        #print(len(outputs["normal_inputs"]))
+       
         if self.num_pose_frames == 2:
             # In this setting, we compute the pose to each source frame via a
             # separate forward pass through the pose network.
@@ -509,11 +486,6 @@ class Trainer_Monodepth:
                     outputs[("sample", frame_id, scale)],
                     padding_mode="border",align_corners=True)
                 
-        #Normal prediction
-        
-        for i, frame_id in enumerate(self.opt.frame_ids[1:]):
-            features = self.models["encoder"](outputs[("color", frame_id, 0)])
-            outputs[("normal",frame_id)] = self.models["normal"](features)
             
 
 
@@ -622,8 +594,8 @@ class Trainer_Monodepth:
         loss_reprojection = 0
         loss_ilumination_invariant = 0
         total_loss = 0
-        orthonogal_loss = 0
-        normal_loss = 0
+        #orthonogal_loss = 0
+        #normal_loss = 0
 
         for scale in self.opt.scales:
             loss = 0
@@ -659,12 +631,6 @@ class Trainer_Monodepth:
                 #normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", 0)],outputs["normal_inputs"][("normal", 0)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0]),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
-            #Normal loss
-            loss += self.normal_weight * normal_loss
-            #Orthogonal loss
-            if self.normal_flag == 1:
-                loss += self.orthogonal_weight * self.compute_orth_loss(outputs[("depth", 0, scale)], outputs["normal_inputs"][("normal", scale)], inputs[("inv_K", scale)].detach())
-            #loss += self.compute_orth_loss(outputs[("depth", 0, scale)], outputs["normal_inputs"][("normal", scale)], inputs[("inv_K", scale)].detach())
             loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
             norm_disp = disp / (mean_disp + 1e-7)
@@ -759,8 +725,7 @@ class Trainer_Monodepth:
                     #wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs["c_"+str(frame_id)+"_"+str(s)][j].data)},step=self.step)
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.norm_to_rgb(outputs["normal_inputs"][("normal", 0)][j].data))},step=self.step)
-            #wandb.log({"normal_predicted{}/{}".format(s, j): wandb.Image(self.visualize_normals(outputs["normal"][("normal", 0)][j].data))},step=self.step)
+            
             """f = outputs["mf_"+str(s)+"_"+str(frame_id)][j].data
             flow = self.flow2rgb(f,32)
             flow = torch.from_numpy(flow)
