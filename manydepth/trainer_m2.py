@@ -649,7 +649,7 @@ class Trainer_Monodepth:
         total_loss /= self.num_scales
         losses["loss"] = total_loss
         
-        return losses"""
+        return losses
 
     @staticmethod
     def compute_loss_masks(reprojection_loss, identity_reprojection_loss):
