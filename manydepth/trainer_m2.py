@@ -358,22 +358,15 @@ class Trainer_Monodepth:
                     wandb.log({"input_0": wandb.Image(pose_feats[0][0].data)},step=self.step)"""
 
                     
-                    for scale in self.opt.scales:
+                   for scale in self.opt.scales:
                         outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
                         outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,1,None,:, :]
                         #outputs["mf_"+str(scale)+"_"+str(f_i)] = outputs_mf[("flow", scale)]
-                        #wandb.log({"b": wandb.Image(outputs["b_"+str(scale)+"_"+str(f_i)][0].data)},step=self.step)
-                        #wandb.log({"c": wandb.Image(outputs["b_"+str(scale)+"_"+str(f_i)][0].data)},step=self.step)
-                        #outputs[("color_refined", f_i, scale)] = outputs["c_"+str(0)+"_"+str(f_i)] * inputs[("color", f_i, 0)] + outputs["b_"+str(0)+"_"+str(f_i)]
-
-                    #outputs["b_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,0,None,:, :]
-                    #outputs["c_"+str(f_i)] = outputs_lighting[("lighting", 0)][:,1,None,:, :]    
-                    #outputs[("color_refined", f_i)] = outputs["c_"+str(f_i)] * inputs[("color", 0, 0)].detach() + outputs["b_"+str(f_i)]
-                
+                        
             
             for f_i in self.opt.frame_ids[1:]:
                 for scale in self.opt.scales:
-                    #outputs["color_motion_"+str(f_i)+"_"+str(scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
+                    #outputs[("color_motion", f_i, scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
                     outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                     outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                     outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]
@@ -498,8 +491,62 @@ class Trainer_Monodepth:
         # the small value limit.
         #return torch.mean(2 * mean * torch.sqrt(tensor_abs / (mean + 1e-24) + 1))
         return torch.mean(mean * torch.sqrt(tensor_abs / (mean + 1e-24) + 1))
-
     def compute_losses(self, inputs, outputs):
+
+        losses = {}
+        loss_reprojection = 0
+        loss_ilumination_invariant = 0
+        total_loss = 0
+        #albedo_loss = 0
+
+        for scale in self.opt.scales:
+            loss = 0
+
+            if self.opt.v1_multiscale:
+                source_scale = scale
+            else:
+                source_scale = 0
+
+            disp = outputs[("disp", scale)]
+            color = inputs[("color", 0, scale)]
+            #Losses & compute mask
+            for frame_id in self.opt.frame_ids[1:]:
+                # Mask
+                target = inputs[("color", 0, 0)]
+                pred = outputs[("color", frame_id, scale)]
+
+                rep = self.compute_reprojection_loss(pred, target)
+
+                pred = inputs[("color", frame_id, source_scale)]
+                rep_identity = self.compute_reprojection_loss(pred, target)
+
+                reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
+                reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
+                #Losses
+                target = outputs[("color_refined", frame_id, scale)] #Lighting
+                pred = outputs[("color", frame_id, scale)]
+                loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                #Illuminations invariant loss
+                target = inputs[("color", 0, 0)]
+                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
+                #Albedo loss
+                #albedo_loss += self.get_albedo_loss(outputs[("albedo_pred", frame_id, scale)],outputs[("albedo", frame_id, scale)])
+            
+            loss += loss_reprojection / 2.0
+            loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
+            mean_disp = disp.mean(2, True).mean(3, True)
+            norm_disp = disp / (mean_disp + 1e-7)
+            smooth_loss = get_smooth_loss(norm_disp, color)
+
+            loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
+            total_loss += loss
+            losses["loss/{}".format(scale)] = loss
+
+        total_loss /= self.num_scales
+        losses["loss"] = total_loss
+        return losses
+
+    def compute_losses_(self, inputs, outputs):
 
         losses = {}
         loss_reprojection = 0
@@ -602,7 +649,7 @@ class Trainer_Monodepth:
         total_loss /= self.num_scales
         losses["loss"] = total_loss
         
-        return losses
+        return losses"""
 
     @staticmethod
     def compute_loss_masks(reprojection_loss, identity_reprojection_loss):
