@@ -101,12 +101,12 @@ class SCAREDRAWDataset(SCAREDDataset):
 
     def get_image_path(self, folder, frame_index, side):
         #SCATER
-        f_str = "{}{}".format(frame_index, self.img_ext)
-        image_path = os.path.join(self.data_path, folder, "data", f_str)
+        #f_str = "{}{}".format(frame_index, self.img_ext)
+        #image_path = os.path.join(self.data_path, folder, "data", f_str)
         
         #COLON10k
-        #f_str=str(frame_index) + self.img_ext
-        #image_path = os.path.join(self.data_path, folder, f_str)
+        f_str=str(frame_index) + self.img_ext
+        image_path = os.path.join(self.data_path, folder, f_str)
             
         return image_path
 
