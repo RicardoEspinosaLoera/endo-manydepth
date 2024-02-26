@@ -110,7 +110,7 @@ class SCAREDRAWDataset(SCAREDDataset):
         #print(frame)
         #f_str=str(frame_index) + self.img_ext
         image_path = os.path.join(self.data_path, frame)
-            
+        print(frame)
         return image_path
 
     def get_depth(self, folder, frame_index, side, do_flip):
