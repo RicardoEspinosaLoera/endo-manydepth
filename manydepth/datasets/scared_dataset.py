@@ -107,11 +107,11 @@ class SCAREDRAWDataset(SCAREDDataset):
         #COLON10k
         
         frame = folder.replace("depht","image") + self.img_ext
-        print(frame)
+        #print(frame)
         #f_str=str(frame_index) + self.img_ext
-        #image_path = os.path.join(self.data_path, folder, f_str)
+        image_path = os.path.join(self.data_path, frame)
             
-        return frame
+        return image_path
 
     def get_depth(self, folder, frame_index, side, do_flip):
         f_str = "scene_points{:06d}.tiff".format(frame_index-1)
