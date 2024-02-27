@@ -105,7 +105,7 @@ class SCAREDRAWDataset(SCAREDDataset):
         #image_path = os.path.join(self.data_path, folder, "data", f_str)
         
         #COLON10k
-        
+        print(folder)
         frame = folder.replace("depth","image").replace("/","_") + self.img_ext
         #print(frame)
         #f_str=str(frame_index) + self.img_ext
