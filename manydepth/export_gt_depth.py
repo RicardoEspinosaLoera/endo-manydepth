@@ -58,7 +58,7 @@ def export_gt_depths_kitti():
 
     output_path = os.path.join(split_folder, "gt_depths.npz")
 
-    print("Saving to {}".format(opt.split))
+    print("Saving to {} {}".format(opt.split,output_path))
 
     np.savez_compressed(output_path, data=np.array(gt_depths))
 
