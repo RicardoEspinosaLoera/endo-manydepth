@@ -51,9 +51,7 @@ def export_gt_depths_kitti():
                                          "groundtruth", "image_02", "{:010d}.png".format(frame_id))
             gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256"""
         print(line)
-        line = line.replace("/","_")
-        print(line)
-        line = line.replace("depth/_","depth/")
+        line = line.replace("/","_")[1:]
         gt_depth_path = os.path.join(opt.data_path, "{}.png".format(line))
         gt_depth = np.array(pil.open(gt_depth_path))
         gt_depths.append(gt_depth.astype(np.float32))
