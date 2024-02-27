@@ -1,551 +1,551 @@
-/rectified08/depth01	0000005048
-/rectified08/depth02	0000013772
-/rectified08/depth01	0000004523
-/rectified08/depth01	0000003468
-/rectified09/depth02	0000000161
-/rectified08/depth02	0000006955
-/rectified08/depth01	0000011288
-/rectified04/depth02	0000000489
-/rectified08/depth01	0000011050
-/rectified06/depth02	0000000825
-/rectified04/depth02	0000001422
-/rectified04/depth02	0000000038
-/rectified08/depth01	0000006296
-/rectified08/depth02	0000002844
-/rectified08/depth02	0000000388
-/rectified06/depth01	0000000987
-/rectified08/depth01	0000006911
-/rectified08/depth02	0000004630
-/rectified08/depth01	0000003514
-/rectified04/depth01	0000001289
-/rectified08/depth02	0000001935
-/rectified08/depth01	0000007724
-/rectified08/depth01	0000008792
-/rectified08/depth02	0000010158
-/rectified08/depth01	0000005346
-/rectified04/depth02	0000000883
-/rectified05/depth02	0000000747
-/rectified08/depth02	0000003889
-/rectified08/depth01	0000013464
-/rectified08/depth01	0000011729
-/rectified09/depth01	0000000639
-/rectified08/depth01	0000001764
-/rectified08/depth02	0000009698
-/rectified08/depth01	0000000738
-/rectified08/depth02	0000009985
-/rectified05/depth02	0000000203
-/rectified08/depth01	0000003965
-/rectified08/depth02	0000005699
-/rectified08/depth02	0000001061
-/rectified09/depth01	0000000239
-/rectified08/depth02	0000006463
-/rectified08/depth02	0000013915
-/rectified08/depth02	0000006121
-/rectified04/depth02	0000001126
-/rectified08/depth01	0000013178
-/rectified08/depth01	0000006153
-/rectified08/depth02	0000008732
-/rectified08/depth02	0000001502
-/rectified08/depth01	0000009828
-/rectified08/depth02	0000006030
-/rectified08/depth02	0000000787
-/rectified06/depth02	0000001224
-/rectified08/depth02	0000005858
-/rectified08/depth01	0000011449
-/rectified08/depth02	0000012820
-/rectified05/depth01	0000000479
-/rectified06/depth02	0000000358
-/rectified08/depth02	0000003268
-/rectified08/depth02	0000002494
-/rectified08/depth01	0000002187
-/rectified08/depth01	0000008907
-/rectified08/depth02	0000001399
-/rectified08/depth01	0000005565
-/rectified08/depth01	0000011463
-/rectified08/depth02	0000007718
-/rectified08/depth02	0000008984
-/rectified04/depth01	0000001007
-/rectified08/depth02	0000006812
-/rectified08/depth02	0000002637
-/rectified08/depth02	0000005168
-/rectified09/depth01	0000000381
-/rectified08/depth02	0000001232
-/rectified06/depth02	0000000435
-/rectified08/depth02	0000006829
-/rectified04/depth01	0000001461
-/rectified08/depth01	0000005881
-/rectified08/depth01	0000000959
-/rectified08/depth02	0000012906
-/rectified08/depth01	0000007261
-/rectified05/depth02	0000000718
-/rectified05/depth01	0000000076
-/rectified08/depth02	0000003927
-/rectified08/depth01	0000002115
-/rectified08/depth02	0000003836
-/rectified08/depth01	0000000049
-/rectified08/depth02	0000014190
-/rectified06/depth01	0000000636
-/rectified08/depth02	0000005711
-/rectified01/depth02	0000001057
-/rectified08/depth01	0000007280
-/rectified08/depth01	0000005060
-/rectified06/depth02	0000001052
-/rectified08/depth01	0000014231
-/rectified08/depth01	0000005726
-/rectified08/depth02	0000010904
-/rectified08/depth01	0000014230
-/rectified04/depth02	0000001032
-/rectified04/depth01	0000001168
-/rectified08/depth01	0000005861
-/rectified08/depth02	0000010588
-/rectified06/depth02	0000000485
-/rectified08/depth02	0000014355
-/rectified08/depth01	0000003788
-/rectified08/depth01	0000010039
-/rectified08/depth02	0000004208
-/rectified08/depth02	0000003032
-/rectified04/depth02	0000001273
-/rectified08/depth01	0000006524
-/rectified08/depth01	0000013262
-/rectified06/depth01	0000000220
-/rectified08/depth02	0000007733
-/rectified08/depth02	0000006673
-/rectified08/depth01	0000007542
-/rectified01/depth01	0000000461
-/rectified08/depth01	0000007083
-/rectified08/depth02	0000009031
-/rectified08/depth02	0000010315
-/rectified08/depth01	0000005934
-/rectified06/depth02	0000000731
-/rectified08/depth02	0000013343
-/rectified08/depth01	0000003518
-/rectified01/depth02	0000000575
-/rectified06/depth02	0000000246
-/rectified06/depth01	0000000771
-/rectified08/depth01	0000005102
-/rectified08/depth02	0000005847
-/rectified08/depth01	0000008661
-/rectified06/depth01	0000001130
-/rectified05/depth01	0000000128
-/rectified08/depth02	0000005860
-/rectified05/depth01	0000000738
-/rectified06/depth01	0000001040
-/rectified08/depth02	0000000695
-/rectified04/depth01	0000001043
-/rectified08/depth01	0000003268
-/rectified08/depth01	0000013550
-/rectified01/depth01	0000000897
-/rectified08/depth01	0000002897
-/rectified08/depth02	0000005723
-/rectified06/depth02	0000001159
-/rectified08/depth02	0000006992
-/rectified06/depth01	0000001022
-/rectified01/depth02	0000000235
-/rectified09/depth01	0000000278
-/rectified04/depth01	0000000733
-/rectified08/depth02	0000002542
-/rectified01/depth01	0000000435
-/rectified04/depth01	0000000688
-/rectified08/depth02	0000003619
-/rectified06/depth02	0000000121
-/rectified08/depth02	0000014197
-/rectified08/depth01	0000004338
-/rectified08/depth02	0000006367
-/rectified08/depth01	0000013367
-/rectified08/depth01	0000001377
-/rectified08/depth02	0000004269
-/rectified08/depth02	0000002489
-/rectified08/depth01	0000013120
-/rectified08/depth02	0000008852
-/rectified05/depth02	0000000800
-/rectified08/depth01	0000010178
-/rectified06/depth02	0000000034
-/rectified08/depth02	0000006529
-/rectified08/depth02	0000001526
-/rectified08/depth02	0000014383
-/rectified05/depth01	0000000330
-/rectified08/depth01	0000008890
-/rectified08/depth01	0000010818
-/rectified01/depth01	0000000114
-/rectified08/depth02	0000001235
-/rectified04/depth02	0000000143
-/rectified08/depth01	0000004802
-/rectified04/depth02	0000000623
-/rectified08/depth01	0000004666
-/rectified08/depth02	0000006345
-/rectified08/depth01	0000001626
-/rectified08/depth01	0000003108
-/rectified08/depth02	0000010210
-/rectified08/depth01	0000003119
-/rectified08/depth02	0000006823
-/rectified04/depth01	0000001073
-/rectified08/depth02	0000012961
-/rectified05/depth02	0000000349
-/rectified08/depth02	0000013642
-/rectified08/depth02	0000005767
-/rectified08/depth02	0000011341
-/rectified04/depth02	0000000835
-/rectified08/depth02	0000001656
-/rectified08/depth02	0000000925
-/rectified09/depth02	0000000346
-/rectified05/depth01	0000000229
-/rectified08/depth01	0000012285
-/rectified08/depth01	0000007949
-/rectified08/depth01	0000002225
-/rectified08/depth01	0000001057
-/rectified05/depth01	0000000289
-/rectified08/depth01	0000000781
-/rectified08/depth01	0000002294
-/rectified08/depth02	0000007584
-/rectified08/depth01	0000006676
-/rectified08/depth02	0000004375
-/rectified05/depth02	0000000829
-/rectified01/depth02	0000000061
-/rectified08/depth02	0000006863
-/rectified04/depth02	0000000819
-/rectified08/depth01	0000013911
-/rectified01/depth02	0000000176
-/rectified08/depth01	0000013220
-/rectified08/depth02	0000005952
-/rectified08/depth02	0000012412
-/rectified08/depth01	0000004572
-/rectified08/depth02	0000005209
-/rectified08/depth01	0000004761
-/rectified08/depth02	0000013165
-/rectified01/depth02	0000000793
-/rectified08/depth02	0000012710
-/rectified08/depth02	0000002910
-/rectified08/depth02	0000001136
-/rectified08/depth01	0000005557
-/rectified06/depth01	0000000126
-/rectified04/depth02	0000001522
-/rectified08/depth02	0000000312
-/rectified08/depth02	0000002144
-/rectified08/depth01	0000002491
-/rectified08/depth01	0000002188
-/rectified08/depth01	0000005707
-/rectified04/depth02	0000000390
-/rectified08/depth02	0000005556
-/rectified08/depth01	0000004428
-/rectified08/depth02	0000007452
-/rectified08/depth02	0000012118
-/rectified08/depth01	0000012770
-/rectified06/depth01	0000001093
-/rectified08/depth02	0000004433
-/rectified08/depth02	0000002717
-/rectified04/depth01	0000001510
-/rectified08/depth01	0000010730
-/rectified04/depth01	0000000104
-/rectified08/depth01	0000003098
-/rectified08/depth02	0000001847
-/rectified08/depth01	0000007384
-/rectified08/depth01	0000013714
-/rectified09/depth02	0000000732
-/rectified08/depth02	0000001132
-/rectified05/depth01	0000000152
-/rectified08/depth01	0000006643
-/rectified08/depth02	0000005441
-/rectified09/depth02	0000000461
-/rectified08/depth02	0000001045
-/rectified08/depth01	0000003551
-/rectified01/depth02	0000000556
-/rectified08/depth01	0000012606
-/rectified08/depth01	0000004445
-/rectified01/depth02	0000000485
-/rectified06/depth01	0000000197
-/rectified08/depth01	0000012831
-/rectified08/depth01	0000000631
-/rectified08/depth02	0000003129
-/rectified08/depth02	0000002168
-/rectified08/depth02	0000005598
-/rectified08/depth02	0000013778
-/rectified08/depth02	0000002805
-/rectified08/depth02	0000014259
-/rectified08/depth01	0000012146
-/rectified08/depth02	0000010503
-/rectified01/depth02	0000000920
-/rectified05/depth02	0000000405
-/rectified08/depth02	0000009016
-/rectified04/depth02	0000000053
-/rectified08/depth02	0000012694
-/rectified08/depth02	0000008782
-/rectified06/depth02	0000000058
-/rectified08/depth02	0000000687
-/rectified08/depth01	0000006034
-/rectified08/depth02	0000006241
-/rectified08/depth01	0000003276
-/rectified08/depth01	0000003435
-/rectified08/depth02	0000012621
-/rectified08/depth01	0000009656
-/rectified05/depth02	0000000047
-/rectified05/depth01	0000000730
-/rectified08/depth01	0000006286
-/rectified05/depth02	0000000893
-/rectified08/depth02	0000002301
-/rectified08/depth01	0000000973
-/rectified01/depth01	0000000371
-/rectified09/depth01	0000000062
-/rectified08/depth02	0000005756
-/rectified09/depth02	0000000697
-/rectified08/depth01	0000013446
-/rectified08/depth02	0000001726
-/rectified01/depth01	0000000035
-/rectified08/depth01	0000005106
-/rectified08/depth02	0000006853
-/rectified08/depth01	0000011177
-/rectified08/depth01	0000003976
-/rectified08/depth02	0000008766
-/rectified08/depth01	0000003425
-/rectified08/depth01	0000000273
-/rectified08/depth02	0000005476
-/rectified08/depth02	0000009954
-/rectified08/depth02	0000013504
-/rectified08/depth01	0000013401
-/rectified04/depth02	0000001249
-/rectified08/depth02	0000009804
-/rectified08/depth01	0000013435
-/rectified04/depth02	0000001437
-/rectified04/depth02	0000000915
-/rectified01/depth02	0000000224
-/rectified08/depth02	0000001764
-/rectified08/depth01	0000005064
-/rectified08/depth02	0000012155
-/rectified09/depth02	0000000201
-/rectified08/depth01	0000004617
-/rectified08/depth02	0000008540
-/rectified08/depth01	0000005271
-/rectified04/depth02	0000000317
-/rectified08/depth02	0000002328
-/rectified06/depth02	0000000672
-/rectified08/depth02	0000010364
-/rectified08/depth02	0000013442
-/rectified08/depth02	0000012279
-/rectified08/depth01	0000004378
-/rectified08/depth02	0000014207
-/rectified08/depth01	0000000856
-/rectified05/depth01	0000000592
-/rectified08/depth01	0000005697
-/rectified08/depth02	0000007417
-/rectified04/depth01	0000001067
-/rectified08/depth01	0000009151
-/rectified04/depth02	0000001115
-/rectified06/depth02	0000000780
-/rectified08/depth01	0000008064
-/rectified08/depth02	0000011831
-/rectified08/depth01	0000001728
-/rectified01/depth02	0000000530
-/rectified08/depth02	0000000501
-/rectified08/depth01	0000010054
-/rectified08/depth01	0000003722
-/rectified04/depth02	0000000014
-/rectified08/depth01	0000000039
-/rectified08/depth02	0000008783
-/rectified04/depth01	0000000623
-/rectified08/depth02	0000001740
-/rectified08/depth01	0000008803
-/rectified01/depth01	0000000189
-/rectified08/depth01	0000008399
-/rectified08/depth02	0000003673
-/rectified06/depth02	0000000947
-/rectified08/depth02	0000013507
-/rectified08/depth01	0000000935
-/rectified08/depth01	0000000624
-/rectified04/depth02	0000000106
-/rectified08/depth01	0000006659
-/rectified08/depth02	0000002161
-/rectified08/depth01	0000008922
-/rectified08/depth02	0000009983
-/rectified08/depth02	0000004799
-/rectified08/depth01	0000000872
-/rectified08/depth02	0000007624
-/rectified08/depth01	0000005278
-/rectified08/depth02	0000008124
-/rectified08/depth02	0000013854
-/rectified08/depth01	0000010764
-/rectified08/depth01	0000006743
-/rectified08/depth01	0000006770
-/rectified01/depth02	0000000743
-/rectified08/depth02	0000007280
-/rectified09/depth01	0000000335
-/rectified08/depth02	0000011700
-/rectified08/depth01	0000007809
-/rectified08/depth01	0000000748
-/rectified08/depth02	0000013258
-/rectified08/depth02	0000009813
-/rectified08/depth02	0000007837
-/rectified08/depth02	0000002179
-/rectified08/depth01	0000007337
-/rectified09/depth02	0000000578
-/rectified08/depth01	0000007990
-/rectified05/depth01	0000000507
-/rectified08/depth01	0000010306
-/rectified04/depth01	0000000187
-/rectified01/depth01	0000000041
-/rectified09/depth02	0000000682
-/rectified08/depth01	0000012181
-/rectified06/depth01	0000000997
-/rectified05/depth02	0000000281
-/rectified08/depth01	0000012050
-/rectified06/depth01	0000000684
-/rectified06/depth01	0000000971
-/rectified08/depth01	0000001736
-/rectified08/depth01	0000005644
-/rectified08/depth01	0000000793
-/rectified08/depth02	0000006932
-/rectified08/depth02	0000001700
-/rectified08/depth01	0000013667
-/rectified08/depth02	0000006474
-/rectified04/depth02	0000000824
-/rectified08/depth01	0000002481
-/rectified06/depth01	0000000294
-/rectified06/depth01	0000000459
-/rectified08/depth02	0000009348
-/rectified08/depth02	0000008255
-/rectified08/depth01	0000008639
-/rectified08/depth02	0000000847
-/rectified08/depth01	0000002210
-/rectified05/depth01	0000000699
-/rectified08/depth02	0000007463
-/rectified08/depth01	0000009625
-/rectified08/depth02	0000013230
-/rectified08/depth02	0000008881
-/rectified08/depth02	0000003298
-/rectified09/depth01	0000000325
-/rectified08/depth01	0000011184
-/rectified08/depth02	0000009750
-/rectified08/depth01	0000011616
-/rectified09/depth02	0000000528
-/rectified08/depth02	0000010570
-/rectified08/depth01	0000005269
-/rectified08/depth02	0000012559
-/rectified08/depth01	0000012799
-/rectified08/depth02	0000007454
-/rectified08/depth02	0000001307
-/rectified09/depth02	0000000169
-/rectified08/depth02	0000011461
-/rectified08/depth02	0000007802
-/rectified08/depth01	0000011196
-/rectified08/depth02	0000001092
-/rectified01/depth02	0000000835
-/rectified04/depth02	0000001564
-/rectified08/depth01	0000003323
-/rectified08/depth02	0000014125
-/rectified04/depth01	0000000232
-/rectified08/depth02	0000002104
-/rectified08/depth02	0000010559
-/rectified06/depth02	0000000803
-/rectified08/depth02	0000000576
-/rectified08/depth02	0000009220
-/rectified06/depth02	0000000043
-/rectified04/depth02	0000001265
-/rectified08/depth01	0000006366
-/rectified06/depth01	0000001053
-/rectified09/depth02	0000000050
-/rectified08/depth02	0000004501
-/rectified08/depth01	0000009363
-/rectified08/depth01	0000009286
-/rectified08/depth01	0000008424
-/rectified08/depth01	0000004308
-/rectified01/depth01	0000000581
-/rectified04/depth02	0000001383
-/rectified08/depth01	0000008642
-/rectified08/depth01	0000000305
-/rectified08/depth02	0000007939
-/rectified08/depth02	0000008848
-/rectified01/depth02	0000000443
-/rectified08/depth01	0000011287
-/rectified08/depth02	0000005017
-/rectified08/depth01	0000011801
-/rectified08/depth02	0000011760
-/rectified08/depth01	0000013423
-/rectified08/depth01	0000008999
-/rectified08/depth02	0000012972
-/rectified09/depth01	0000000657
-/rectified08/depth02	0000012260
-/rectified08/depth01	0000002948
-/rectified01/depth02	0000000510
-/rectified08/depth01	0000001048
-/rectified08/depth02	0000013997
-/rectified08/depth01	0000000985
-/rectified08/depth01	0000000263
-/rectified08/depth01	0000010035
-/rectified06/depth01	0000000947
-/rectified08/depth02	0000000499
-/rectified08/depth01	0000002288
-/rectified08/depth02	0000009314
-/rectified08/depth02	0000004825
-/rectified08/depth02	0000005725
-/rectified08/depth02	0000012577
-/rectified08/depth01	0000007411
-/rectified08/depth01	0000006250
-/rectified08/depth01	0000001111
-/rectified08/depth01	0000003081
-/rectified05/depth02	0000000433
-/rectified08/depth02	0000009562
-/rectified05/depth02	0000000397
-/rectified08/depth02	0000011999
-/rectified08/depth01	0000010168
-/rectified08/depth01	0000005650
-/rectified04/depth02	0000001301
-/rectified08/depth02	0000009108
-/rectified08/depth02	0000008985
-/rectified05/depth01	0000000618
-/rectified04/depth02	0000000481
-/rectified06/depth02	0000000789
-/rectified08/depth01	0000010462
-/rectified08/depth01	0000004405
-/rectified08/depth02	0000012210
-/rectified08/depth02	0000000924
-/rectified09/depth02	0000000293
-/rectified08/depth02	0000006650
-/rectified08/depth02	0000012487
-/rectified08/depth02	0000006325
-/rectified08/depth01	0000004840
-/rectified06/depth01	0000000665
-/rectified08/depth02	0000009147
-/rectified08/depth01	0000008013
-/rectified08/depth02	0000014184
-/rectified08/depth02	0000000482
-/rectified05/depth01	0000000590
-/rectified08/depth01	0000000982
-/rectified08/depth02	0000012338
-/rectified08/depth01	0000002119
-/rectified08/depth02	0000008002
-/rectified08/depth02	0000008126
-/rectified08/depth01	0000001668
-/rectified09/depth02	0000000642
-/rectified09/depth01	0000000006
-/rectified08/depth02	0000005930
-/rectified08/depth02	0000003077
-/rectified08/depth01	0000013745
-/rectified05/depth02	0000000828
-/rectified04/depth01	0000001221
-/rectified08/depth01	0000003855
-/rectified08/depth01	0000000214
-/rectified08/depth01	0000013168
-/rectified08/depth01	0000008638
-/rectified08/depth01	0000000192
-/rectified04/depth01	0000000493
-/rectified09/depth01	0000000780
-/rectified08/depth01	0000000524
-/rectified08/depth01	0000006482
-/rectified08/depth02	0000000397
-/rectified08/depth01	0000013313
-/rectified08/depth02	0000003171
-/rectified04/depth01	0000000154
-/rectified08/depth01	0000005368
-/rectified08/depth02	0000012498
-/rectified04/depth02	0000000928
-/rectified08/depth01	0000006247
-/rectified08/depth02	0000011990
-/rectified08/depth01	0000002875
-/rectified08/depth02	0000013503
-/rectified08/depth01	0000001967
-/rectified08/depth02	0000007226
-/rectified08/depth01	0000008732
-/rectified05/depth02	0000000771
-/rectified08/depth01	0000010119
-/rectified08/depth01	0000013579
-/rectified04/depth02	0000000976
-/rectified01/depth01	0000000668
-/rectified05/depth02	0000000251
+/rectified08/depth01/0000005048
+/rectified08/depth02/0000013772
+/rectified08/depth01/0000004523
+/rectified08/depth01/0000003468
+/rectified09/depth02/0000000161
+/rectified08/depth02/0000006955
+/rectified08/depth01/0000011288
+/rectified04/depth02/0000000489
+/rectified08/depth01/0000011050
+/rectified06/depth02/0000000825
+/rectified04/depth02/0000001422
+/rectified04/depth02/0000000038
+/rectified08/depth01/0000006296
+/rectified08/depth02/0000002844
+/rectified08/depth02/0000000388
+/rectified06/depth01/0000000987
+/rectified08/depth01/0000006911
+/rectified08/depth02/0000004630
+/rectified08/depth01/0000003514
+/rectified04/depth01/0000001289
+/rectified08/depth02/0000001935
+/rectified08/depth01/0000007724
+/rectified08/depth01/0000008792
+/rectified08/depth02/0000010158
+/rectified08/depth01/0000005346
+/rectified04/depth02/0000000883
+/rectified05/depth02/0000000747
+/rectified08/depth02/0000003889
+/rectified08/depth01/0000013464
+/rectified08/depth01/0000011729
+/rectified09/depth01/0000000639
+/rectified08/depth01/0000001764
+/rectified08/depth02/0000009698
+/rectified08/depth01/0000000738
+/rectified08/depth02/0000009985
+/rectified05/depth02/0000000203
+/rectified08/depth01/0000003965
+/rectified08/depth02/0000005699
+/rectified08/depth02/0000001061
+/rectified09/depth01/0000000239
+/rectified08/depth02/0000006463
+/rectified08/depth02/0000013915
+/rectified08/depth02/0000006121
+/rectified04/depth02/0000001126
+/rectified08/depth01/0000013178
+/rectified08/depth01/0000006153
+/rectified08/depth02/0000008732
+/rectified08/depth02/0000001502
+/rectified08/depth01/0000009828
+/rectified08/depth02/0000006030
+/rectified08/depth02/0000000787
+/rectified06/depth02/0000001224
+/rectified08/depth02/0000005858
+/rectified08/depth01/0000011449
+/rectified08/depth02/0000012820
+/rectified05/depth01/0000000479
+/rectified06/depth02/0000000358
+/rectified08/depth02/0000003268
+/rectified08/depth02/0000002494
+/rectified08/depth01/0000002187
+/rectified08/depth01/0000008907
+/rectified08/depth02/0000001399
+/rectified08/depth01/0000005565
+/rectified08/depth01/0000011463
+/rectified08/depth02/0000007718
+/rectified08/depth02/0000008984
+/rectified04/depth01/0000001007
+/rectified08/depth02/0000006812
+/rectified08/depth02/0000002637
+/rectified08/depth02/0000005168
+/rectified09/depth01/0000000381
+/rectified08/depth02/0000001232
+/rectified06/depth02/0000000435
+/rectified08/depth02/0000006829
+/rectified04/depth01/0000001461
+/rectified08/depth01/0000005881
+/rectified08/depth01/0000000959
+/rectified08/depth02/0000012906
+/rectified08/depth01/0000007261
+/rectified05/depth02/0000000718
+/rectified05/depth01/0000000076
+/rectified08/depth02/0000003927
+/rectified08/depth01/0000002115
+/rectified08/depth02/0000003836
+/rectified08/depth01/0000000049
+/rectified08/depth02/0000014190
+/rectified06/depth01/0000000636
+/rectified08/depth02/0000005711
+/rectified01/depth02/0000001057
+/rectified08/depth01/0000007280
+/rectified08/depth01/0000005060
+/rectified06/depth02/0000001052
+/rectified08/depth01/0000014231
+/rectified08/depth01/0000005726
+/rectified08/depth02/0000010904
+/rectified08/depth01/0000014230
+/rectified04/depth02/0000001032
+/rectified04/depth01/0000001168
+/rectified08/depth01/0000005861
+/rectified08/depth02/0000010588
+/rectified06/depth02/0000000485
+/rectified08/depth02/0000014355
+/rectified08/depth01/0000003788
+/rectified08/depth01/0000010039
+/rectified08/depth02/0000004208
+/rectified08/depth02/0000003032
+/rectified04/depth02/0000001273
+/rectified08/depth01/0000006524
+/rectified08/depth01/0000013262
+/rectified06/depth01/0000000220
+/rectified08/depth02/0000007733
+/rectified08/depth02/0000006673
+/rectified08/depth01/0000007542
+/rectified01/depth01/0000000461
+/rectified08/depth01/0000007083
+/rectified08/depth02/0000009031
+/rectified08/depth02/0000010315
+/rectified08/depth01/0000005934
+/rectified06/depth02/0000000731
+/rectified08/depth02/0000013343
+/rectified08/depth01/0000003518
+/rectified01/depth02/0000000575
+/rectified06/depth02/0000000246
+/rectified06/depth01/0000000771
+/rectified08/depth01/0000005102
+/rectified08/depth02/0000005847
+/rectified08/depth01/0000008661
+/rectified06/depth01/0000001130
+/rectified05/depth01/0000000128
+/rectified08/depth02/0000005860
+/rectified05/depth01/0000000738
+/rectified06/depth01/0000001040
+/rectified08/depth02/0000000695
+/rectified04/depth01/0000001043
+/rectified08/depth01/0000003268
+/rectified08/depth01/0000013550
+/rectified01/depth01/0000000897
+/rectified08/depth01/0000002897
+/rectified08/depth02/0000005723
+/rectified06/depth02/0000001159
+/rectified08/depth02/0000006992
+/rectified06/depth01/0000001022
+/rectified01/depth02/0000000235
+/rectified09/depth01/0000000278
+/rectified04/depth01/0000000733
+/rectified08/depth02/0000002542
+/rectified01/depth01/0000000435
+/rectified04/depth01/0000000688
+/rectified08/depth02/0000003619
+/rectified06/depth02/0000000121
+/rectified08/depth02/0000014197
+/rectified08/depth01/0000004338
+/rectified08/depth02/0000006367
+/rectified08/depth01/0000013367
+/rectified08/depth01/0000001377
+/rectified08/depth02/0000004269
+/rectified08/depth02/0000002489
+/rectified08/depth01/0000013120
+/rectified08/depth02/0000008852
+/rectified05/depth02/0000000800
+/rectified08/depth01/0000010178
+/rectified06/depth02/0000000034
+/rectified08/depth02/0000006529
+/rectified08/depth02/0000001526
+/rectified08/depth02/0000014383
+/rectified05/depth01/0000000330
+/rectified08/depth01/0000008890
+/rectified08/depth01/0000010818
+/rectified01/depth01/0000000114
+/rectified08/depth02/0000001235
+/rectified04/depth02/0000000143
+/rectified08/depth01/0000004802
+/rectified04/depth02/0000000623
+/rectified08/depth01/0000004666
+/rectified08/depth02/0000006345
+/rectified08/depth01/0000001626
+/rectified08/depth01/0000003108
+/rectified08/depth02/0000010210
+/rectified08/depth01/0000003119
+/rectified08/depth02/0000006823
+/rectified04/depth01/0000001073
+/rectified08/depth02/0000012961
+/rectified05/depth02/0000000349
+/rectified08/depth02/0000013642
+/rectified08/depth02/0000005767
+/rectified08/depth02/0000011341
+/rectified04/depth02/0000000835
+/rectified08/depth02/0000001656
+/rectified08/depth02/0000000925
+/rectified09/depth02/0000000346
+/rectified05/depth01/0000000229
+/rectified08/depth01/0000012285
+/rectified08/depth01/0000007949
+/rectified08/depth01/0000002225
+/rectified08/depth01/0000001057
+/rectified05/depth01/0000000289
+/rectified08/depth01/0000000781
+/rectified08/depth01/0000002294
+/rectified08/depth02/0000007584
+/rectified08/depth01/0000006676
+/rectified08/depth02/0000004375
+/rectified05/depth02/0000000829
+/rectified01/depth02/0000000061
+/rectified08/depth02/0000006863
+/rectified04/depth02/0000000819
+/rectified08/depth01/0000013911
+/rectified01/depth02/0000000176
+/rectified08/depth01/0000013220
+/rectified08/depth02/0000005952
+/rectified08/depth02/0000012412
+/rectified08/depth01/0000004572
+/rectified08/depth02/0000005209
+/rectified08/depth01/0000004761
+/rectified08/depth02/0000013165
+/rectified01/depth02/0000000793
+/rectified08/depth02/0000012710
+/rectified08/depth02/0000002910
+/rectified08/depth02/0000001136
+/rectified08/depth01/0000005557
+/rectified06/depth01/0000000126
+/rectified04/depth02/0000001522
+/rectified08/depth02/0000000312
+/rectified08/depth02/0000002144
+/rectified08/depth01/0000002491
+/rectified08/depth01/0000002188
+/rectified08/depth01/0000005707
+/rectified04/depth02/0000000390
+/rectified08/depth02/0000005556
+/rectified08/depth01/0000004428
+/rectified08/depth02/0000007452
+/rectified08/depth02/0000012118
+/rectified08/depth01/0000012770
+/rectified06/depth01/0000001093
+/rectified08/depth02/0000004433
+/rectified08/depth02/0000002717
+/rectified04/depth01/0000001510
+/rectified08/depth01/0000010730
+/rectified04/depth01/0000000104
+/rectified08/depth01/0000003098
+/rectified08/depth02/0000001847
+/rectified08/depth01/0000007384
+/rectified08/depth01/0000013714
+/rectified09/depth02/0000000732
+/rectified08/depth02/0000001132
+/rectified05/depth01/0000000152
+/rectified08/depth01/0000006643
+/rectified08/depth02/0000005441
+/rectified09/depth02/0000000461
+/rectified08/depth02/0000001045
+/rectified08/depth01/0000003551
+/rectified01/depth02/0000000556
+/rectified08/depth01/0000012606
+/rectified08/depth01/0000004445
+/rectified01/depth02/0000000485
+/rectified06/depth01/0000000197
+/rectified08/depth01/0000012831
+/rectified08/depth01/0000000631
+/rectified08/depth02/0000003129
+/rectified08/depth02/0000002168
+/rectified08/depth02/0000005598
+/rectified08/depth02/0000013778
+/rectified08/depth02/0000002805
+/rectified08/depth02/0000014259
+/rectified08/depth01/0000012146
+/rectified08/depth02/0000010503
+/rectified01/depth02/0000000920
+/rectified05/depth02/0000000405
+/rectified08/depth02/0000009016
+/rectified04/depth02/0000000053
+/rectified08/depth02/0000012694
+/rectified08/depth02/0000008782
+/rectified06/depth02/0000000058
+/rectified08/depth02/0000000687
+/rectified08/depth01/0000006034
+/rectified08/depth02/0000006241
+/rectified08/depth01/0000003276
+/rectified08/depth01/0000003435
+/rectified08/depth02/0000012621
+/rectified08/depth01/0000009656
+/rectified05/depth02/0000000047
+/rectified05/depth01/0000000730
+/rectified08/depth01/0000006286
+/rectified05/depth02/0000000893
+/rectified08/depth02/0000002301
+/rectified08/depth01/0000000973
+/rectified01/depth01/0000000371
+/rectified09/depth01/0000000062
+/rectified08/depth02/0000005756
+/rectified09/depth02/0000000697
+/rectified08/depth01/0000013446
+/rectified08/depth02/0000001726
+/rectified01/depth01/0000000035
+/rectified08/depth01/0000005106
+/rectified08/depth02/0000006853
+/rectified08/depth01/0000011177
+/rectified08/depth01/0000003976
+/rectified08/depth02/0000008766
+/rectified08/depth01/0000003425
+/rectified08/depth01/0000000273
+/rectified08/depth02/0000005476
+/rectified08/depth02/0000009954
+/rectified08/depth02/0000013504
+/rectified08/depth01/0000013401
+/rectified04/depth02/0000001249
+/rectified08/depth02/0000009804
+/rectified08/depth01/0000013435
+/rectified04/depth02/0000001437
+/rectified04/depth02/0000000915
+/rectified01/depth02/0000000224
+/rectified08/depth02/0000001764
+/rectified08/depth01/0000005064
+/rectified08/depth02/0000012155
+/rectified09/depth02/0000000201
+/rectified08/depth01/0000004617
+/rectified08/depth02/0000008540
+/rectified08/depth01/0000005271
+/rectified04/depth02/0000000317
+/rectified08/depth02/0000002328
+/rectified06/depth02/0000000672
+/rectified08/depth02/0000010364
+/rectified08/depth02/0000013442
+/rectified08/depth02/0000012279
+/rectified08/depth01/0000004378
+/rectified08/depth02/0000014207
+/rectified08/depth01/0000000856
+/rectified05/depth01/0000000592
+/rectified08/depth01/0000005697
+/rectified08/depth02/0000007417
+/rectified04/depth01/0000001067
+/rectified08/depth01/0000009151
+/rectified04/depth02/0000001115
+/rectified06/depth02/0000000780
+/rectified08/depth01/0000008064
+/rectified08/depth02/0000011831
+/rectified08/depth01/0000001728
+/rectified01/depth02/0000000530
+/rectified08/depth02/0000000501
+/rectified08/depth01/0000010054
+/rectified08/depth01/0000003722
+/rectified04/depth02/0000000014
+/rectified08/depth01/0000000039
+/rectified08/depth02/0000008783
+/rectified04/depth01/0000000623
+/rectified08/depth02/0000001740
+/rectified08/depth01/0000008803
+/rectified01/depth01/0000000189
+/rectified08/depth01/0000008399
+/rectified08/depth02/0000003673
+/rectified06/depth02/0000000947
+/rectified08/depth02/0000013507
+/rectified08/depth01/0000000935
+/rectified08/depth01/0000000624
+/rectified04/depth02/0000000106
+/rectified08/depth01/0000006659
+/rectified08/depth02/0000002161
+/rectified08/depth01/0000008922
+/rectified08/depth02/0000009983
+/rectified08/depth02/0000004799
+/rectified08/depth01/0000000872
+/rectified08/depth02/0000007624
+/rectified08/depth01/0000005278
+/rectified08/depth02/0000008124
+/rectified08/depth02/0000013854
+/rectified08/depth01/0000010764
+/rectified08/depth01/0000006743
+/rectified08/depth01/0000006770
+/rectified01/depth02/0000000743
+/rectified08/depth02/0000007280
+/rectified09/depth01/0000000335
+/rectified08/depth02/0000011700
+/rectified08/depth01/0000007809
+/rectified08/depth01/0000000748
+/rectified08/depth02/0000013258
+/rectified08/depth02/0000009813
+/rectified08/depth02/0000007837
+/rectified08/depth02/0000002179
+/rectified08/depth01/0000007337
+/rectified09/depth02/0000000578
+/rectified08/depth01/0000007990
+/rectified05/depth01/0000000507
+/rectified08/depth01/0000010306
+/rectified04/depth01/0000000187
+/rectified01/depth01/0000000041
+/rectified09/depth02/0000000682
+/rectified08/depth01/0000012181
+/rectified06/depth01/0000000997
+/rectified05/depth02/0000000281
+/rectified08/depth01/0000012050
+/rectified06/depth01/0000000684
+/rectified06/depth01/0000000971
+/rectified08/depth01/0000001736
+/rectified08/depth01/0000005644
+/rectified08/depth01/0000000793
+/rectified08/depth02/0000006932
+/rectified08/depth02/0000001700
+/rectified08/depth01/0000013667
+/rectified08/depth02/0000006474
+/rectified04/depth02/0000000824
+/rectified08/depth01/0000002481
+/rectified06/depth01/0000000294
+/rectified06/depth01/0000000459
+/rectified08/depth02/0000009348
+/rectified08/depth02/0000008255
+/rectified08/depth01/0000008639
+/rectified08/depth02/0000000847
+/rectified08/depth01/0000002210
+/rectified05/depth01/0000000699
+/rectified08/depth02/0000007463
+/rectified08/depth01/0000009625
+/rectified08/depth02/0000013230
+/rectified08/depth02/0000008881
+/rectified08/depth02/0000003298
+/rectified09/depth01/0000000325
+/rectified08/depth01/0000011184
+/rectified08/depth02/0000009750
+/rectified08/depth01/0000011616
+/rectified09/depth02/0000000528
+/rectified08/depth02/0000010570
+/rectified08/depth01/0000005269
+/rectified08/depth02/0000012559
+/rectified08/depth01/0000012799
+/rectified08/depth02/0000007454
+/rectified08/depth02/0000001307
+/rectified09/depth02/0000000169
+/rectified08/depth02/0000011461
+/rectified08/depth02/0000007802
+/rectified08/depth01/0000011196
+/rectified08/depth02/0000001092
+/rectified01/depth02/0000000835
+/rectified04/depth02/0000001564
+/rectified08/depth01/0000003323
+/rectified08/depth02/0000014125
+/rectified04/depth01/0000000232
+/rectified08/depth02/0000002104
+/rectified08/depth02/0000010559
+/rectified06/depth02/0000000803
+/rectified08/depth02/0000000576
+/rectified08/depth02/0000009220
+/rectified06/depth02/0000000043
+/rectified04/depth02/0000001265
+/rectified08/depth01/0000006366
+/rectified06/depth01/0000001053
+/rectified09/depth02/0000000050
+/rectified08/depth02/0000004501
+/rectified08/depth01/0000009363
+/rectified08/depth01/0000009286
+/rectified08/depth01/0000008424
+/rectified08/depth01/0000004308
+/rectified01/depth01/0000000581
+/rectified04/depth02/0000001383
+/rectified08/depth01/0000008642
+/rectified08/depth01/0000000305
+/rectified08/depth02/0000007939
+/rectified08/depth02/0000008848
+/rectified01/depth02/0000000443
+/rectified08/depth01/0000011287
+/rectified08/depth02/0000005017
+/rectified08/depth01/0000011801
+/rectified08/depth02/0000011760
+/rectified08/depth01/0000013423
+/rectified08/depth01/0000008999
+/rectified08/depth02/0000012972
+/rectified09/depth01/0000000657
+/rectified08/depth02/0000012260
+/rectified08/depth01/0000002948
+/rectified01/depth02/0000000510
+/rectified08/depth01/0000001048
+/rectified08/depth02/0000013997
+/rectified08/depth01/0000000985
+/rectified08/depth01/0000000263
+/rectified08/depth01/0000010035
+/rectified06/depth01/0000000947
+/rectified08/depth02/0000000499
+/rectified08/depth01/0000002288
+/rectified08/depth02/0000009314
+/rectified08/depth02/0000004825
+/rectified08/depth02/0000005725
+/rectified08/depth02/0000012577
+/rectified08/depth01/0000007411
+/rectified08/depth01/0000006250
+/rectified08/depth01/0000001111
+/rectified08/depth01/0000003081
+/rectified05/depth02/0000000433
+/rectified08/depth02/0000009562
+/rectified05/depth02/0000000397
+/rectified08/depth02/0000011999
+/rectified08/depth01/0000010168
+/rectified08/depth01/0000005650
+/rectified04/depth02/0000001301
+/rectified08/depth02/0000009108
+/rectified08/depth02/0000008985
+/rectified05/depth01/0000000618
+/rectified04/depth02/0000000481
+/rectified06/depth02/0000000789
+/rectified08/depth01/0000010462
+/rectified08/depth01/0000004405
+/rectified08/depth02/0000012210
+/rectified08/depth02/0000000924
+/rectified09/depth02/0000000293
+/rectified08/depth02/0000006650
+/rectified08/depth02/0000012487
+/rectified08/depth02/0000006325
+/rectified08/depth01/0000004840
+/rectified06/depth01/0000000665
+/rectified08/depth02/0000009147
+/rectified08/depth01/0000008013
+/rectified08/depth02/0000014184
+/rectified08/depth02/0000000482
+/rectified05/depth01/0000000590
+/rectified08/depth01/0000000982
+/rectified08/depth02/0000012338
+/rectified08/depth01/0000002119
+/rectified08/depth02/0000008002
+/rectified08/depth02/0000008126
+/rectified08/depth01/0000001668
+/rectified09/depth02/0000000642
+/rectified09/depth01/0000000006
+/rectified08/depth02/0000005930
+/rectified08/depth02/0000003077
+/rectified08/depth01/0000013745
+/rectified05/depth02/0000000828
+/rectified04/depth01/0000001221
+/rectified08/depth01/0000003855
+/rectified08/depth01/0000000214
+/rectified08/depth01/0000013168
+/rectified08/depth01/0000008638
+/rectified08/depth01/0000000192
+/rectified04/depth01/0000000493
+/rectified09/depth01/0000000780
+/rectified08/depth01/0000000524
+/rectified08/depth01/0000006482
+/rectified08/depth02/0000000397
+/rectified08/depth01/0000013313
+/rectified08/depth02/0000003171
+/rectified04/depth01/0000000154
+/rectified08/depth01/0000005368
+/rectified08/depth02/0000012498
+/rectified04/depth02/0000000928
+/rectified08/depth01/0000006247
+/rectified08/depth02/0000011990
+/rectified08/depth01/0000002875
+/rectified08/depth02/0000013503
+/rectified08/depth01/0000001967
+/rectified08/depth02/0000007226
+/rectified08/depth01/0000008732
+/rectified05/depth02/0000000771
+/rectified08/depth01/0000010119
+/rectified08/depth01/0000013579
+/rectified04/depth02/0000000976
+/rectified01/depth01/0000000668
+/rectified05/depth02/0000000251
