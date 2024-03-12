@@ -58,7 +58,10 @@ def export_gt_depths_kitti():
         print(gt_depth_path)
         #gt_depth = np.array(pil.open(gt_depth_path))
         im = pil.open(gt_depth_path)
+        newsize = (320, 256)
+        im = im.resize(newsize)
         gt_depth = np.array(im).astype(np.float16)
+        print(gt_depth.shape)
         gt_depths.append(gt_depth)
 
     output_path = os.path.join(split_folder, "gt_depths.npz")
