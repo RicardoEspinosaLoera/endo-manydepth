@@ -321,7 +321,6 @@ rectified11/image01 0000000224 l
 rectified08/image01 0000008443 l
 rectified08/image01 0000002475 l
 rectified08/image01 0000004438 l
-rectified08/image01 0000001157 l
 rectified08/image01 0000007920 l
 rectified08/image01 0000002489 l
 rectified08/image01 0000000226 l
