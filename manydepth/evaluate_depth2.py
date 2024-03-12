@@ -256,7 +256,7 @@ def evaluate(opt):
         pred_depth[pred_depth < MIN_DEPTH] = MIN_DEPTH
         pred_depth[pred_depth > MAX_DEPTH] = MAX_DEPTH
         #print(gt_depth.shape,",",pred_depth.shape)
-        errors.append(compute_errors(gt_depth, pred_depth))
+        #errors.append(compute_errors(gt_depth, pred_depth))
     if not opt.disable_median_scaling:
         ratios = np.array(ratios)
         med = np.median(ratios)
