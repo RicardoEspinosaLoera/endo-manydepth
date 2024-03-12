@@ -49,7 +49,6 @@ def compute_errors(gt, pred):
     """Computation of error metrics between predicted and ground truth depths
     """
     thresh = np.maximum((gt / pred), (pred / gt))
-    print(thresh)
     
     a1 = (thresh < 1.25     ).mean()
     a2 = (thresh < 1.25 ** 2).mean()
@@ -217,12 +216,11 @@ def evaluate(opt):
     for i in range(pred_disps.shape[0]):
 
         gt_depth = gt_depths[i]
-        """
         ma = float(gt_depth.max())
         mi = float(gt_depth.min())
         d = ma - mi if ma != mi else 1e5
         print(ma,mi,"---",i)
-        gt_depth = (gt_depth - mi) / d"""
+        gt_depth = (gt_depth - mi) / d
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
