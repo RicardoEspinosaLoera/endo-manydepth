@@ -245,7 +245,7 @@ class MonodepthOptions:
                                  help="optional path to a .npy disparities file to evaluate")
         self.parser.add_argument("--eval_split",
                                  type=str,
-                                 default="endovis",
+                                 default="hamlyn",
                                  choices=["eigen", "eigen_benchmark", "benchmark", "odom_9",
                                           "odom_10", "cityscapes","endovis","RNNSLAM","colon10k","hamlyn"],
                                  help="which split to run eval on")
