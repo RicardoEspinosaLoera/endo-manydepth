@@ -219,8 +219,8 @@ def evaluate(opt):
         ma = float(gt_depth.max())
         mi = float(gt_depth.min())
         d = ma - mi if ma != mi else 1e5
-        gt_depth = (gt_depth - mi) / d
         print(d)
+        gt_depth = (gt_depth - mi) / d
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
