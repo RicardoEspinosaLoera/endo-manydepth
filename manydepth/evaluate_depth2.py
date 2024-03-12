@@ -217,11 +217,12 @@ def evaluate(opt):
     for i in range(pred_disps.shape[0]):
 
         gt_depth = gt_depths[i]
+        """
         ma = float(gt_depth.max())
         mi = float(gt_depth.min())
         d = ma - mi if ma != mi else 1e5
         print(ma,mi,"---",i)
-        gt_depth = (gt_depth - mi) / d
+        gt_depth = (gt_depth - mi) / d"""
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
@@ -256,7 +257,7 @@ def evaluate(opt):
         pred_depth[pred_depth < MIN_DEPTH] = MIN_DEPTH
         pred_depth[pred_depth > MAX_DEPTH] = MAX_DEPTH
         #print(gt_depth.shape,",",pred_depth.shape)
-        #errors.append(compute_errors(gt_depth, pred_depth))
+        errors.append(compute_errors(gt_depth, pred_depth))
     if not opt.disable_median_scaling:
         ratios = np.array(ratios)
         med = np.median(ratios)
