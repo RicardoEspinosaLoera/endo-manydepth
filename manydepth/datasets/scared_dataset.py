@@ -115,6 +115,7 @@ class SCAREDRAWDataset(SCAREDDataset):
         #f_str=str(frame_index) + self.img_ext
         #print(self.data_path)
         #image_path = os.path.join(self.data_path, frame[1:])
+        print(frame_index)
         f_str = "{}{}".format(frame_index, self.img_ext)
         folder1,folder2 = folder.split("/")
         image_path = os.path.join(self.data_path, folder1,folder1,folder2, f_str)        
