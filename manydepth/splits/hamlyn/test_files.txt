@@ -69,7 +69,6 @@ rectified08/image01 0000005435 l
 rectified08/image01 0000013517 l
 rectified08/image01 0000007433 l
 rectified08/image01 0000007197 l
-rectified08/image01 0000013281 l
 rectified11/image01 0000000513 l
 rectified06/image01 0000000294 l
 rectified06/image01 0000000956 l
@@ -139,7 +138,6 @@ rectified08/image01 0000000593 l
 rectified08/image01 0000011247 l
 rectified08/image01 0000004487 l
 rectified11/image01 0000001969 l
-rectified08/image01 0000001102 l
 rectified08/image01 0000010510 l
 rectified08/image01 0000011213 l
 rectified08/image01 0000001169 l
