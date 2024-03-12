@@ -215,7 +215,7 @@ def evaluate(opt):
     for i in range(pred_disps.shape[0]):
 
         gt_depth = gt_depths[i]
-        print(gt_depths[i].shape)
+        #print(gt_depths[i].shape)
         #print(gt_depths[i])
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
@@ -249,7 +249,7 @@ def evaluate(opt):
         
         pred_depth[pred_depth < MIN_DEPTH] = MIN_DEPTH
         pred_depth[pred_depth > MAX_DEPTH] = MAX_DEPTH
-
+        print(gt_depth.shape,",",pred_depth.shape)
         errors.append(compute_errors(gt_depth, pred_depth))
     if not opt.disable_median_scaling:
         ratios = np.array(ratios)
