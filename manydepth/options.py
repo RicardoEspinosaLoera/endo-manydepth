@@ -95,7 +95,7 @@ class MonodepthOptions:
         self.parser.add_argument("--max_depth",
                                  type=float,
                                  help="maximum depth",
-                                 default=150.0)
+                                 default=300.0)
 
         self.parser.add_argument("--frame_ids",
                                  nargs="+",
