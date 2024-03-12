@@ -216,6 +216,7 @@ def evaluate(opt):
 
         gt_depth = gt_depths[i]
         print(gt_depths[i].shape)
+        print(gt_depths[i])
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
