@@ -73,7 +73,7 @@ class SCAREDDataset(MonoDataset):
         folder = line[0]
 
         if len(line) == 3:
-            frame_index = int(line[1])
+            frame_index = line[1]
         else:
             frame_index = 0
 
@@ -115,7 +115,7 @@ class SCAREDRAWDataset(SCAREDDataset):
         #f_str=str(frame_index) + self.img_ext
         #print(self.data_path)
         #image_path = os.path.join(self.data_path, frame[1:])
-        print(frame_index)
+        #print(frame_index)
         f_str = "{}{}".format(frame_index, self.img_ext)
         folder1,folder2 = folder.split("/")
         image_path = os.path.join(self.data_path, folder1,folder1,folder2, f_str)        
