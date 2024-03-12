@@ -235,6 +235,7 @@ def evaluate(opt):
             mask = np.logical_and(mask, crop_mask)
 
         else:"""
+        
         mask = np.logical_and(gt_depth > MIN_DEPTH, gt_depth < MAX_DEPTH)
 
         pred_depth = pred_depth[mask]
