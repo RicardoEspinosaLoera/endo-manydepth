@@ -49,6 +49,7 @@ def compute_errors(gt, pred):
     """Computation of error metrics between predicted and ground truth depths
     """
     thresh = np.maximum((gt / pred), (pred / gt))
+    print(thresh)
     a1 = (thresh < 1.25     ).mean()
     a2 = (thresh < 1.25 ** 2).mean()
     a3 = (thresh < 1.25 ** 3).mean()
@@ -249,7 +250,7 @@ def evaluate(opt):
         
         pred_depth[pred_depth < MIN_DEPTH] = MIN_DEPTH
         pred_depth[pred_depth > MAX_DEPTH] = MAX_DEPTH
-        print(gt_depth.shape,",",pred_depth.shape)
+        #print(gt_depth.shape,",",pred_depth.shape)
         errors.append(compute_errors(gt_depth, pred_depth))
     if not opt.disable_median_scaling:
         ratios = np.array(ratios)
