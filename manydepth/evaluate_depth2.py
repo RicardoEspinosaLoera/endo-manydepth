@@ -215,7 +215,7 @@ def evaluate(opt):
 
     for i in range(pred_disps.shape[0]):
 
-        gt_depth = gt_depths[i] / 100.0
+        gt_depth = gt_depths[i] 
         
         ma = float(gt_depth.max())
         mi = float(gt_depth.min())
