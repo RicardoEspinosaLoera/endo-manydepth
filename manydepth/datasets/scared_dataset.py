@@ -73,10 +73,7 @@ class SCAREDDataset(MonoDataset):
         folder = line[0]
 
         if len(line) == 3:
-            #Scared
             frame_index = int(line[1])
-            #Hamlyn
-            #frame_index = line[1]
         else:
             frame_index = 0
 
@@ -95,12 +92,8 @@ class SCAREDDataset(MonoDataset):
 
         #f_str=str(frame_index) + self.img_ext
         #image_path = os.path.join(self.data_path, folder,"rgb", f_str)
-        #Hamlyn
-        """
-        f_str = "{}{}".format(frame_index, self.img_ext)
-        folder1,folder2 = folder.split("/")
-        image_path = os.path.join(self.data_path, folder1,folder1,folder2, f_str)        
-        return image_path"""
+            
+        return image_path
 
 class SCAREDRAWDataset(SCAREDDataset):
     def __init__(self, *args, **kwargs):
@@ -118,10 +111,6 @@ class SCAREDRAWDataset(SCAREDDataset):
         #f_str=str(frame_index) + self.img_ext
         #print(self.data_path)
         #image_path = os.path.join(self.data_path, frame[1:])
-        #print(frame_index)
-        """f_str = "{}{}".format(frame_index, self.img_ext)
-        folder1,folder2 = folder.split("/")
-        image_path = os.path.join(self.data_path, folder1,folder1,folder2, f_str)"""
         return image_path
 
     def get_depth(self, folder, frame_index, side, do_flip):
