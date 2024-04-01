@@ -76,7 +76,7 @@ class SCAREDDataset(MonoDataset):
             #Scared
             frame_index = int(line[1])
             #Hamlyn
-            frame_index = line[1]
+            #frame_index = line[1]
         else:
             frame_index = 0
 
