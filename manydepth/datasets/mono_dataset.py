@@ -152,6 +152,7 @@ class MonoDataset(data.Dataset):
                     inputs[("color", i, -1)] = self.get_color(folder, frame_index, other_side, do_flip)
                 else:
                     inputs[("color", i, -1)] = self.get_color(folder, frame_index + i, side, do_flip)
+                    print(inputs[("color", i, -1)])
                     #inputs[("color", i, -1)] = self.get_color(folder, frame_index + i, side, do_flip)
                     
                 """
