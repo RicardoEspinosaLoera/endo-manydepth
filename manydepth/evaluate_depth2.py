@@ -82,7 +82,7 @@ def evaluate(opt):
     """Evaluates a pretrained model using a specified test set
     """
     MIN_DEPTH = 1e-3
-    MAX_DEPTH = 180
+    MAX_DEPTH = 150
 
     assert sum((opt.eval_mono, opt.eval_stereo)) == 1, \
         "Please choose mono or stereo evaluation by setting either --eval_mono or --eval_stereo"
@@ -215,12 +215,11 @@ def evaluate(opt):
 
     for i in range(pred_disps.shape[0]):
 
-        gt_depth = gt_depths[i] 
-        
+        gt_depth = gt_depths[i]
         ma = float(gt_depth.max())
         mi = float(gt_depth.min())
         d = ma - mi if ma != mi else 1e5
-        #print(ma,mi,"---",i)
+        print(ma,mi,"---",i)
         gt_depth = (gt_depth - mi) / d
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
