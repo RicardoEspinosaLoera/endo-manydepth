@@ -207,7 +207,7 @@ def evaluate(opt):
     for i in range(pred_disps.shape[0]):
 
         gt_depth = gt_depths[i]
-
+        gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
         wandb.log({"disp_testing": wandb.Image(disp.transpose(1, 2, 0))},step=i)
