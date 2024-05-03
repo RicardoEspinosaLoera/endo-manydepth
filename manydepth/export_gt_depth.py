@@ -61,8 +61,7 @@ def export_gt_depths_kitti():
         #im = pil.open(gt_depth_path)
         #newsize = (320, 256)
         #im = im.resize(newsize)
-        im_gray = cv2.imread('gray_image.png', cv2.IMREAD_GRAYSCALE)
-        print(im_gray)
+        im_gray = cv2.imread(gt_depth_path, cv2.IMREAD_GRAYSCALE)
         gt_depth = im_gray / 256
 
         print(gt_depth.shape)
