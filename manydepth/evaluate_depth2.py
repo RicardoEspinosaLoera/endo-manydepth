@@ -221,8 +221,11 @@ def evaluate(opt):
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
         wandb.log({"disp_testing": wandb.Image(disp.transpose(1, 2, 0))},step=i)
+
+        pred_disp = np.squeeze(pred_disps[i])
         pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
-        pred_depth = 1/pred_disp
+        pred_depth = 1 / pred_disp
+
         """
         if opt.eval_split == "eigen":
             mask = np.logical_and(gt_depth > MIN_DEPTH, gt_depth < MAX_DEPTH)
