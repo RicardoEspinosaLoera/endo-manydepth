@@ -117,6 +117,9 @@ class SCAREDRAWDataset(SCAREDDataset):
         #image_path = os.path.join(self.data_path, folder,"rgb", f_str)
 
         #Hamlyn
+        #f_str = "{}{}".format(frame_index, self.img_ext)
+        #image_path = os.path.join(self.data_path,folder, f_str)
+        #Serv-CT
         f_str = "{}{}".format(frame_index, self.img_ext)
         image_path = os.path.join(self.data_path,folder, f_str)
         return image_path
