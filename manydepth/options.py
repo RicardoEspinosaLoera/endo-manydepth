@@ -245,9 +245,9 @@ class MonodepthOptions:
                                  help="optional path to a .npy disparities file to evaluate")
         self.parser.add_argument("--eval_split",
                                  type=str,
-                                 default="serv-ct",
+                                 default="SERV-CT",
                                  choices=["eigen", "eigen_benchmark", "benchmark", "odom_9",
-                                          "odom_10", "cityscapes","endovis","RNNSLAM","colon10k","hamlyn","serv-ct"],
+                                          "odom_10", "cityscapes","endovis","RNNSLAM","colon10k","hamlyn","SERV-CT"],
                                  help="which split to run eval on")
         self.parser.add_argument("--save_pred_disps",
                                  help="if set saves predicted disparities",
