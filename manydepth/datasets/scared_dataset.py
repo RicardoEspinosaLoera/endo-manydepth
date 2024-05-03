@@ -95,8 +95,9 @@ class SCAREDDataset(MonoDataset):
 
         #Hamlyn
         f_str = "{}{}".format(frame_index, self.img_ext)
-        folder1,folder2 = folder.split("/")
-        image_path = os.path.join(self.data_path, folder1,folder1,folder2, f_str)
+        
+        #folder1,folder2 = folder.split("/")
+        image_path = os.path.join(self.data_path,folder, f_str)
         
 
         return image_path
