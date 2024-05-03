@@ -28,7 +28,7 @@ def export_gt_depths_kitti():
                         type=str,
                         help='which split to export gt from',
                         required=True,
-                        choices=["eigen", "eigen_benchmark","hamlyn"])
+                        choices=["eigen", "eigen_benchmark","hamlyn","SERV-CT"])
     opt = parser.parse_args()
 
     split_folder = os.path.join(os.path.dirname(__file__), "splits", opt.split)
