@@ -20,7 +20,6 @@ import matplotlib.pyplot as plt
 import wandb
 
 wandb.init(project="iilDepth-Testing", entity="respinosa")
-#wandb.init(project="AF-Testing", entity="respinosa")
 
 _DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
 
@@ -98,6 +97,7 @@ def evaluate(opt):
 
         filenames = readlines(os.path.join(splits_dir, opt.eval_split, "test_files.txt"))
         encoder_path = os.path.join(opt.load_weights_folder, "encoder.pth")
+        #encoder_path2 = os.path.join(opt.load_weights_folder, "ii_encoder_depth.pth")
         decoder_path = os.path.join(opt.load_weights_folder, "depth.pth")
         
         encoder_dict = torch.load(encoder_path)
@@ -215,15 +215,15 @@ def evaluate(opt):
 
     for i in range(pred_disps.shape[0]):
 
-        gt_depth = gt_depths[i]
+        gt_depth = gt_depths[i] 
         
+       
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
         wandb.log({"disp_testing": wandb.Image(disp.transpose(1, 2, 0))},step=i)
         pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
-        pred_depth = 1 / pred_disp
-
+        pred_depth = 1/pred_disp
         """
         if opt.eval_split == "eigen":
             mask = np.logical_and(gt_depth > MIN_DEPTH, gt_depth < MAX_DEPTH)
