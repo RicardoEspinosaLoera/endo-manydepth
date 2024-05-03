@@ -62,7 +62,7 @@ def export_gt_depths_kitti():
         #newsize = (320, 256)
         #im = im.resize(newsize)
         im_gray = cv2.imread('gray_image.png', cv2.IMREAD_GRAYSCALE)
-        gt_depth = im_gray.astype(np.float16) / 256
+        gt_depth = im_gray / 256
 
         print(gt_depth.shape)
         gt_depths.append(gt_depth)
