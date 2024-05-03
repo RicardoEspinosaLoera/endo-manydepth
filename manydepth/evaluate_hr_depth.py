@@ -103,7 +103,8 @@ def evaluate(opt):
                                            encoder_dict['height'], encoder_dict['width'],
                                            [0], 4, is_train=False)"""
         HEIGHT, WIDTH = 256, 320      
-        img_ext = '.png' if opt.png else '.jpg'                                     
+        #img_ext = '.png' if opt.png else '.jpg'        
+        img_ext = '.png'                             
         dataset = datasets.SCAREDRAWDataset(opt.data_path, filenames,
                                            HEIGHT, WIDTH,
                                            [0], 4, is_train=False, img_ext=img_ext)                                        
