@@ -222,7 +222,7 @@ def evaluate(opt):
         disp = colormap(pred_disp)
         wandb.log({"disp_testing": wandb.Image(disp.transpose(1, 2, 0))},step=i)
 
-        pred_disp = np.squeeze(pred_disps[i])
+        #pred_disp = np.squeeze(pred_disps[i])
         pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
         pred_depth = 1 / pred_disp
         print(pred_depth.shape)

@@ -10,6 +10,7 @@ import os
 import argparse
 import numpy as np
 import PIL.Image as pil
+import cv2
 
 from utils import readlines
 from kitti_utils import generate_depth_map
@@ -57,10 +58,12 @@ def export_gt_depths_kitti():
         gt_depth_path = os.path.join(opt.data_path,folder,"depth", "{}.png".format(file))
         print(gt_depth_path)
         #gt_depth = np.array(pil.open(gt_depth_path))
-        im = pil.open(gt_depth_path)
-        newsize = (320, 256)
-        im = im.resize(newsize)
-        gt_depth = np.array(im).astype(np.float16)
+        #im = pil.open(gt_depth_path)
+        #newsize = (320, 256)
+        #im = im.resize(newsize)
+        im_gray = cv2.imread('gray_image.png', cv2.IMREAD_GRAYSCALE)
+        gt_depth = im_gray.astype(np.float16) / 256
+
         print(gt_depth.shape)
         gt_depths.append(gt_depth)
 
