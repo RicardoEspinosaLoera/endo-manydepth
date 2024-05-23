@@ -81,9 +81,7 @@ def test_simple(args):
     dir_list = os.listdir(args.images_path)
     for i in dir_list:
         print(i)
-    #input_image, original_size = load_and_preprocess_image(args.images_path,
-                                                           resize_width=WIDTH,
-                                                           resize_height=HEIGHT)
+    #input_image, original_size = load_and_preprocess_image(args.images_path,resize_width=WIDTH,resize_height=HEIGHT)
 
     #print(input_image,shape)
     """
