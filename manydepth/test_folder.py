@@ -48,8 +48,6 @@ def load_and_preprocess_image(image_path, resize_width, resize_height):
 def test_simple(args):
     """Function to predict for a single image or folder of images
     """
-    assert args.model_path is not None, \
-        "You must specify the --model_path parameter"
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("-> Loading model from ", args.model_path)
@@ -57,8 +55,8 @@ def test_simple(args):
     # Loading pretrained model
     print("   Loading pretrained encoder-decoder")
     
-    encoder_path = os.path.join(opt.load_weights_folder, "encoder.pth")
-    decoder_path = os.path.join(opt.load_weights_folder, "depth.pth")
+    encoder_path = os.path.join(load_weights_folder, "encoder.pth")
+    decoder_path = os.path.join(load_weights_folder, "depth.pth")
 
     encoder_dict = torch.load(encoder_path)
     
