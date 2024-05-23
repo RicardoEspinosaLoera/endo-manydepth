@@ -84,7 +84,7 @@ def test_simple(args):
 
         with torch.no_grad():
             # Estimate depth
-            output = depth_decoder(encoder(input_image))
+            output = depth_decoder(encoder(input_image))[("disp", 0)]
             print(output.shape)
 
         
