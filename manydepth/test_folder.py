@@ -79,13 +79,27 @@ def test_simple(args):
     # Load input data
     HEIGHT, WIDTH = 256, 320 
     dir_list = os.listdir(args.images_path)
-    for i in dir_list:
+    for idx,i in enumerate(dir_list):
         input_image, original_size = load_and_preprocess_image(os.path.join(args.images_path,i),resize_width=WIDTH,resize_height=HEIGHT)
 
         with torch.no_grad():
             # Estimate depth
             output = depth_decoder(encoder(input_image))[("disp", 0)]
-            print(output.shape)
+            #print(output.shape)
+            print(idx)
+            
+            """
+            disp_resized_np = output.squeeze().cpu().numpy()
+            _, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
+            depth = scaled_depth * 52.864  # Metric scale (mm)
+            depth[depth > 300] = 300
+
+            # Saving grayscale depth image
+            im_depth = depth.astype(np.uint16)
+            im = pil.fromarray(im_depth)
+            output_name = os.path.splitext(os.path.basename(image_path))[0]
+            output_file = os.path.join(output_path, "{}_depth.png".format(output_name))
+            im.save(output_file)"""
 
         
 
