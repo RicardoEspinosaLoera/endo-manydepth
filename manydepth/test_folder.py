@@ -26,8 +26,8 @@ def parse_args():
                         help='path to a test image to predict for', required=True)
     parser.add_argument('--source_image_path', type=str,
                         help='path to a previous image in the video sequence', required=True)
-    """parser.add_argument('--load_weights_folder', type=str,
-                        help='path to a folder of weights to load', required=True)"""
+    parser.add_argument('--load_weights_folder', type=str,
+                        help='path to a folder of weights to load', required=True)
     parser.add_argument('--mode', type=str, default='multi', choices=('multi', 'mono'),
                         help='"multi" or "mono". If set to "mono" then the network is run without '
                              'the source image, e.g. as described in Table 5 of the paper.',
