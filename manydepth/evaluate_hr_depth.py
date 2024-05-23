@@ -15,9 +15,9 @@ import networks
 
 import matplotlib.pyplot as plt
 
-import wandb
+#import wandb
 
-wandb.init(project="iilDepth-Testing", entity="respinosa")
+#wandb.init(project="iilDepth-Testing", entity="respinosa")
 
 _DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
 
@@ -211,9 +211,18 @@ def evaluate(opt):
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
         disp = colormap(pred_disp)
-        wandb.log({"disp_testing": wandb.Image(disp.transpose(1, 2, 0))},step=i)
+        #wandb.log({"disp_testing": wandb.Image(disp.transpose(1, 2, 0))},step=i)
         pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
         pred_depth = 1 / pred_disp
+
+        #####
+        # Saving grayscale depth image
+        im_depth = gt_depth.astype(np.uint16)
+        im = pil.fromarray(im_depth)
+        output_name = os.path.splitext(os.path.basename(image_path))[0]
+        output_file = os.path.join(output_path, "{}_depth.png".format(output_name))
+        im.save(output_file)
+        #####
         """
         if opt.eval_split == "eigen":
             mask = np.logical_and(gt_depth > MIN_DEPTH, gt_depth < MAX_DEPTH)
