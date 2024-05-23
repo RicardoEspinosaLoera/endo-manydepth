@@ -80,20 +80,12 @@ def test_simple(args):
     HEIGHT, WIDTH = 256, 320 
     dir_list = os.listdir(args.images_path)
     for i in dir_list:
-        print(i)
-    #input_image, original_size = load_and_preprocess_image(args.images_path,resize_width=WIDTH,resize_height=HEIGHT)
+        input_image, original_size = load_and_preprocess_image(args.images_path,resize_width=WIDTH,resize_height=HEIGHT)
 
-    #print(input_image,shape)
-    """
-
-    with torch.no_grad():
-
-        if args.mode == 'mono':
-            pose *= 0  # zero poses are a signal to the encoder not to construct a cost volume
-            source_image *= 0
-
-        # Estimate depth
-        output = depth_decoder(encoder(input_image))
+        with torch.no_grad():
+            # Estimate depth
+            output = depth_decoder(encoder(input_image))
+            print(output.shape)
 
         
 
