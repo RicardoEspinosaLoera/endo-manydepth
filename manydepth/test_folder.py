@@ -50,13 +50,13 @@ def test_simple(args):
     """
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    print("-> Loading model from ", load_weights_folder)
+    print("-> Loading model from ", args.load_weights_folder)
 
     # Loading pretrained model
     print("   Loading pretrained encoder-decoder")
     
-    encoder_path = os.path.join(load_weights_folder, "encoder.pth")
-    decoder_path = os.path.join(load_weights_folder, "depth.pth")
+    encoder_path = os.path.join(args.load_weights_folder, "encoder.pth")
+    decoder_path = os.path.join(args.load_weights_folder, "depth.pth")
 
     encoder_dict = torch.load(encoder_path)
     
