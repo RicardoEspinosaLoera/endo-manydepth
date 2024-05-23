@@ -37,6 +37,16 @@ def parse_args():
                         required=False)
     return parser.parse_args()
 
+def disp_to_depth(disp, min_depth, max_depth):
+    """Convert network's sigmoid output into depth prediction
+    The formula for this conversion is given in the 'additional considerations'
+    section of the paper.
+    """
+    min_disp = 1 / max_depth
+    max_disp = 1 / min_depth
+    scaled_disp = min_disp + (max_disp - min_disp) * disp
+    depth = 1 / scaled_disp
+    return scaled_disp, depth
 
 def load_and_preprocess_image(image_path, resize_width, resize_height):
     image = pil.open(image_path).convert('RGB')
@@ -98,11 +108,15 @@ def test_simple(args):
             depth[depth > 300] = 300
 
             # Saving grayscale depth image
+            output_name = i.replace(".jpg","")
+            output_file = os.path.join(args.output_path, "{}.png".format(output_name))
+            print(output_file)
+            """
             im_depth = depth.astype(np.uint16)
             im = pil.fromarray(im_depth)
             output_name = i.replace(".jpg","")
             output_file = os.path.join(args.output_path, "{}.png".format(output_name))
-            im.save(output_file)
+            im.save(output_file)"""
 
         
 
