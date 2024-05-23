@@ -22,10 +22,8 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Simple testing funtion for ManyDepth models.')
 
-    parser.add_argument('--target_image_path', type=str,
+    parser.add_argument('--images_path', type=str,
                         help='path to a test image to predict for', required=True)
-    parser.add_argument('--source_image_path', type=str,
-                        help='path to a previous image in the video sequence', required=True)
     parser.add_argument('--load_weights_folder', type=str,
                         help='path to a folder of weights to load', required=True)
     parser.add_argument('--mode', type=str, default='multi', choices=('multi', 'mono'),
@@ -79,7 +77,7 @@ def test_simple(args):
 
     # Load input data
     HEIGHT, WIDTH = 256, 320    
-    input_image, original_size = load_and_preprocess_image(args.target_image_path,
+    input_image, original_size = load_and_preprocess_image(args.images_path,
                                                            resize_width=WIDTH,
                                                            resize_height=HEIGHT)
 
