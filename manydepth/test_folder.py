@@ -80,7 +80,7 @@ def test_simple(args):
     HEIGHT, WIDTH = 256, 320 
     dir_list = os.listdir(args.images_path)
     for i in dir_list:
-        input_image, original_size = load_and_preprocess_image(args.images_path,resize_width=WIDTH,resize_height=HEIGHT)
+        input_image, original_size = load_and_preprocess_image(os.join(args.images_path,i),resize_width=WIDTH,resize_height=HEIGHT)
 
         with torch.no_grad():
             # Estimate depth
