@@ -89,7 +89,7 @@ def test_simple(args):
 
         
 
-    print('-> Done!')"""
+    print('-> Done!')
 
 
 if __name__ == '__main__':
