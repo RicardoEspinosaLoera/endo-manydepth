@@ -108,15 +108,11 @@ def test_simple(args):
             depth[depth > 300] = 300
 
             # Saving grayscale depth image
-            output_name = i.replace(".jpg","")
-            output_file = os.path.join(args.output_path, "{}.png".format(output_name))
-            print(output_file)
-            """
             im_depth = depth.astype(np.uint16)
             im = pil.fromarray(im_depth)
             output_name = i.replace(".jpg","")
             output_file = os.path.join(args.output_path, "{}.png".format(output_name))
-            im.save(output_file)"""
+            im.save(output_file)
 
         
 
