@@ -11,6 +11,7 @@ import numpy as np
 import PIL.Image as pil
 import matplotlib as mpl
 import matplotlib.cm as cm
+import os
 
 import torch
 from torchvision import transforms
@@ -76,12 +77,15 @@ def test_simple(args):
 
 
     # Load input data
-    HEIGHT, WIDTH = 256, 320    
-    input_image, original_size = load_and_preprocess_image(args.images_path,
+    HEIGHT, WIDTH = 256, 320 
+    dir_list = os.listdir(args.images_path)
+    for i in dir_list:
+        print(i)
+    #input_image, original_size = load_and_preprocess_image(args.images_path,
                                                            resize_width=WIDTH,
                                                            resize_height=HEIGHT)
 
-    print(input_image,shape)
+    #print(input_image,shape)
     """
 
     with torch.no_grad():
