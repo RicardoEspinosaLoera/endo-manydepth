@@ -50,7 +50,7 @@ def test_simple(args):
     """
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    print("-> Loading model from ", args.model_path)
+    print("-> Loading model from ", load_weights_folder)
 
     # Loading pretrained model
     print("   Loading pretrained encoder-decoder")
