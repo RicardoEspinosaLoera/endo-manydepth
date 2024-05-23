@@ -27,6 +27,10 @@ def parse_args():
                         help='path to a test image to predict for', required=True)
     parser.add_argument('--load_weights_folder', type=str,
                         help='path to a folder of weights to load', required=True)
+
+    parser.add_argument('--output_path', type=str,
+                        help='path to save depths', required=True)
+                        
     parser.add_argument('--mode', type=str, default='multi', choices=('multi', 'mono'),
                         help='"multi" or "mono". If set to "mono" then the network is run without '
                              'the source image, e.g. as described in Table 5 of the paper.',
@@ -86,9 +90,8 @@ def test_simple(args):
             # Estimate depth
             output = depth_decoder(encoder(input_image))[("disp", 0)]
             #print(output.shape)
-            print(idx)
-            
-            """
+            #print(idx)
+                       
             disp_resized_np = output.squeeze().cpu().numpy()
             _, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
             depth = scaled_depth * 52.864  # Metric scale (mm)
@@ -97,9 +100,9 @@ def test_simple(args):
             # Saving grayscale depth image
             im_depth = depth.astype(np.uint16)
             im = pil.fromarray(im_depth)
-            output_name = os.path.splitext(os.path.basename(image_path))[0]
-            output_file = os.path.join(output_path, "{}_depth.png".format(output_name))
-            im.save(output_file)"""
+            output_name = i.replace(".jpg","")
+            output_file = os.path.join(args.output_path, "{}.png".format(output_name))
+            im.save(output_file)
 
         
 
