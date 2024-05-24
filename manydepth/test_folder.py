@@ -102,13 +102,22 @@ def test_simple(args):
             #print(output.shape)
             #print(idx)
                        
-            disp_resized_np = output.squeeze().cpu().numpy()
-            _, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
+            output = output.squeeze().cpu().numpy()
+
+            
+            #_, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
             #depth = scaled_depth * 52.864  # Metric scale (mm)
             #depth[depth > 300] = 300
 
             # Saving grayscale depth image
-            im_depth = scaled_depth.astype(np.uint16)
+            # Normalize the depth values (0 to saturation_depth)
+            saturation_depth=300
+            normalized_depth = np.clip(output / saturation_depth, 0, 1)
+    
+            # Scale to uint16 range (0 to 65535)
+            im_depth = (normalized_depth * 65535).astype(np.uint16)
+            
+            #im_depth = scaled_depth.astype(np.uint16)
             im = pil.fromarray(im_depth)
             output_name = i.replace(".jpg","")
             output_file = os.path.join(args.output_path, "{}.png".format(output_name))
