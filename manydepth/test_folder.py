@@ -91,7 +91,8 @@ def test_simple(args):
 
 
     # Load input data
-    HEIGHT, WIDTH = 256, 320 
+    HEIGHT, WIDTH = 384, 512 
+    
     dir_list = os.listdir(args.images_path)
     for idx,i in enumerate(dir_list):
         input_image, original_size = load_and_preprocess_image(os.path.join(args.images_path,i),resize_width=WIDTH,resize_height=HEIGHT)
@@ -103,8 +104,7 @@ def test_simple(args):
             #print(idx)
                        
             output = output.squeeze().cpu().numpy()
-
-            
+            pred_disp = cv2.resize(output, (WIDTH, HEIGHT))
             #_, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
             #depth = scaled_depth * 52.864  # Metric scale (mm)
             #depth[depth > 300] = 300
@@ -112,7 +112,7 @@ def test_simple(args):
             # Saving grayscale depth image
             # Normalize the depth values (0 to saturation_depth)
             saturation_depth=300
-            normalized_depth = np.clip(output / saturation_depth, 0, 1)
+            normalized_depth = np.clip(pred_disp / saturation_depth, 0, 1)
     
             # Scale to uint16 range (0 to 65535)
             im_depth = (normalized_depth * 65535).astype(np.uint16)
