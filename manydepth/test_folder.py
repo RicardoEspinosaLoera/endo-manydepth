@@ -100,24 +100,16 @@ def test_simple(args):
         with torch.no_grad():
             # Estimate depth
             output = depth_decoder(encoder(input_image))[("disp", 0)]
-            #print(output.shape)
-            #print(idx)
-                       
-            output = output.squeeze().cpu().numpy()
-            pred_disp = cv2.resize(output, (WIDTH, HEIGHT))
-            #_, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
-            #depth = scaled_depth * 52.864  # Metric scale (mm)
-            #depth[depth > 300] = 300
-
-            # Saving grayscale depth image
-            # Normalize the depth values (0 to saturation_depth)
-            saturation_depth=300
-            normalized_depth = np.clip(pred_disp / saturation_depth, 0, 1)
-    
-            # Scale to uint16 range (0 to 65535)
-            im_depth = (normalized_depth * 65535).astype(np.uint16)
             
-            #im_depth = scaled_depth.astype(np.uint16)
+            disp_resized = torch.nn.functional.interpolate(
+                output, (HEIGHT, WIDTH), mode="bilinear", align_corners=False)
+
+            disp_resized_np = disp_resized.squeeze().cpu().numpy()
+            _, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
+            depth = scaled_depth * args.scale  # Metric scale (mm)
+            depth[depth > args.saturation_depth] = args.saturation_depth
+            
+            im_depth = depth.astype(np.uint16)
             im = pil.fromarray(im_depth)
             output_name = i.replace(".jpg","")
             output_file = os.path.join(args.output_path, "{}.png".format(output_name))
