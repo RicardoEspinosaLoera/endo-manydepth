@@ -217,11 +217,12 @@ def evaluate(opt):
 
         #####
         # Saving grayscale depth image
+        """
         im_depth = gt_depth.astype(np.uint16)
         im = pil.fromarray(im_depth)
         output_name = os.path.splitext(os.path.basename(image_path))[0]
         output_file = os.path.join(output_path, "{}_depth.png".format(output_name))
-        im.save(output_file)
+        im.save(output_file)"""
         #####
         """
         if opt.eval_split == "eigen":
