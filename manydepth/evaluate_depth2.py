@@ -216,8 +216,7 @@ def evaluate(opt):
 
     for i in range(pred_disps.shape[0]):
 
-        gt_depth = gt_depths[i] 
-        
+        gt_depth = gt_depths[i]         
        
         gt_height, gt_width = gt_depth.shape[:2]
         pred_disp = pred_disps[i]
