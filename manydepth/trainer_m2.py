@@ -489,7 +489,7 @@ class Trainer_Monodepth:
 
         losses = {}
         loss_reprojection = 0
-        #loss_ilumination_invariant = 0
+        loss_ilumination_invariant = 0
         total_loss = 0
 
 
