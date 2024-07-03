@@ -522,127 +522,24 @@ class Trainer_Monodepth:
                 loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 #Illuminations invariant loss
                 #target = inputs[("color", 0, 0)]
-                #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
+                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
  
             
             loss += loss_reprojection / 2.0
-            #loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
-            mean_disp = disp.mean(2, True).mean(3, True)
-            norm_disp = disp / (mean_disp + 1e-7)
-            smooth_loss = get_smooth_loss(norm_disp, color)
-
-            loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
-            total_loss += loss
-            losses["loss/{}".format(scale)] = loss
-
-        total_loss /= self.num_scales
-        losses["loss"] = total_loss
-        return losses
-
-    def compute_losses_(self, inputs, outputs):
-
-        losses = {}
-        loss_reprojection = 0
-        loss_ilumination_invariant = 0
-        total_loss = 0
-        #loss_motion_flow = 0
-
-        for scale in self.opt.scales:
-            loss = 0
-            reprojection_losses = []
-            if self.opt.v1_multiscale:
-                source_scale = scale
-            else:
-                source_scale = 0
-
-            disp = outputs[("disp", scale)]
-            color = inputs[("color", 0, scale)]
-            #Losses & compute mask
-            #for frame_id in self.opt.frame_ids[1:]:
-                # Mask
-            #target = inputs[("color", 0, source_scale)]
-            #pred = outputs[("color", frame_id, scale)]
-            """
-            for frame_id in self.opt.frame_ids[1:]:
-                pred = outputs[("color", frame_id, scale)]
-                reprojection_losses.append(self.compute_reprojection_loss(pred, target))
-            reprojection_losses = torch.cat(reprojection_losses, 1)
-
-            identity_reprojection_losses = []
-            for frame_id in self.opt.frame_ids[1:]:
-                pred = inputs[("color", frame_id, source_scale)]
-                identity_reprojection_losses.append(
-                    self.compute_reprojection_loss(pred, target))
-            
-            identity_reprojection_losses = torch.cat(identity_reprojection_losses, 1)
-            #identity_reprojection_loss = identity_reprojection_losses.mean(1, keepdim=True)
-            identity_reprojection_loss, _ = torch.min(identity_reprojection_losses, dim=1,
-                                                              keepdim=True)
-
-            #reprojection_loss = reprojection_losses.mean(1, keepdim=True)
-            reprojection_loss, _ = torch.min(reprojection_losses, dim=1, keepdim=True)
-            
-
-            identity_reprojection_loss += torch.randn(
-                identity_reprojection_loss.shape).to(device=pred.device) * 0.00001
-            
-            reprojection_loss_mask = self.compute_loss_masks(reprojection_loss,
-                                                            identity_reprojection_loss)
-            """
-            """
-            target = inputs[("color", 0, source_scale)]
-            pred = outputs[("color", frame_id, scale)]
-
-            rep = self.compute_reprojection_loss(pred, target)
-
-            pred = inputs[("color", frame_id, source_scale)]
-            rep_identity = self.compute_reprojection_loss(pred, target)
-
-            reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)"""
-
-            #wandb.log({"Mask_{}_{}".format(frame_id, scale): wandb.Image(reprojection_loss_mask[0].data)},step=self.step)
-            for frame_id in self.opt.frame_ids[1:]:
-                #Mask
-                target = inputs[("color", 0, source_scale)]
-                pred = outputs[("color", frame_id, scale)]
-
-                rep = self.compute_reprojection_loss(pred, target)
-
-                pred = inputs[("color", frame_id, source_scale)]
-                rep_identity = self.compute_reprojection_loss(pred, target)
-
-                reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
-                reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
-                
-                #Losses
-                target = outputs[("color_refined", frame_id, scale)] #Lighting               
-                pred = outputs[("color", frame_id, scale)]
-                loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
-                
-                #Illuminations invariant loss
-                target = inputs[("color", 0, 0)]
-                #target = outputs[("color_refined", frame_id, scale)].detach()
-                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()                
-                
-                
-                
-            loss += loss_reprojection / 2.0    
-            
-                
-            #Illumination invariant loss
             loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
             norm_disp = disp / (mean_disp + 1e-7)
             smooth_loss = get_smooth_loss(norm_disp, color)
+
             loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
             total_loss += loss
             losses["loss/{}".format(scale)] = loss
 
-        
         total_loss /= self.num_scales
         losses["loss"] = total_loss
-        
         return losses
+
+    
 
     @staticmethod
     def compute_loss_masks(reprojection_loss, identity_reprojection_loss):
