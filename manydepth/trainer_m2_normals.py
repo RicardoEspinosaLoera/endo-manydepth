@@ -23,8 +23,7 @@ from torch.utils.data import DataLoader
 import wandb
 
 
-wandb.init(project="MySfMLearnerNormals", entity="respinosa")
-
+wandb.init(project="MySfMLNormals", entity="respinosa")
 
 import json
 
