@@ -1279,7 +1279,7 @@ class Trainer_Monodepth2:
         """
         # Ensure the input tensor is on the CPU and in numpy format
         normal_image_np = xyz_image.cpu().numpy()
-        normal_image_np = normal_image_np.transpose(1,2,0)
+        #normal_image_np = normal_image_np.transpose(1,2,0)
         # Normalize the normal vectors to unit length
         norm = np.linalg.norm(normal_image_np, axis=0, keepdims=True)
         normal_image_np /= norm
@@ -1289,6 +1289,8 @@ class Trainer_Monodepth2:
 
         # Shift and scale the normal vectors to the [0, 1] range for visualization
         normal_image_np = 0.5 * normal_image_np + 0.5
+
+        print(normal_image_np.shape)
 
         return normal_image_np
 
