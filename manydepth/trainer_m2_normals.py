@@ -1150,7 +1150,7 @@ class Trainer_Monodepth2:
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
             #print(outputs["normal_inputs"][("normal", 0)][j].shape)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_inputs"][("normal", 0)][j].data))},step=self.step)
+            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.norm_to_rgb(outputs["normal_inputs"][("normal", 0)][j].data))},step=self.step)
             #wandb.log({"normal_calculated{}/{}".format(s, j): wandb.Image(calculate_surface_normal_from_depth(disp.transpose(1, 2, 0)))},step=self.step)
             """f = outputs["mf_"+str(s)+"_"+str(frame_id)][j].data
             flow = self.flow2rgb(f,32)
@@ -1291,28 +1291,10 @@ class Trainer_Monodepth2:
         normal_image_np = 0.5 * normal_image_np + 0.5
 
         #print(normal_image_np.shape)
-        normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
+        #normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
         return normal_image_np
 
-    def visualize_normals(self,batch_normals):
-        """
-        Visualize a batch of normalized normal vectors as RGB images.
-
-        Args:
-            batch_normals (np.ndarray): A batch of normalized normal vectors with shape (batch, channels, height, width).
-
-        Returns:
-            np.ndarray: An array of RGB images representing the normal vectors.
-        """
-        batch_normals = batch_normals.cpu().numpy()
-        # Scale and shift to map the normals to the 0-255 range
-        scaled_normals = ((batch_normals + 1) / 2 * 255).astype(np.uint8)
-        # Convert channels to (height, width, channels)
-        #print(scaled_normals.shape)
-        transposed_normals = np.transpose(scaled_normals, (1, 2, 0))
-        return transposed_normals
-
-
+  
 
         
     def norm_to_rgb(self,norm):
