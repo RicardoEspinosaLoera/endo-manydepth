@@ -584,7 +584,7 @@ class Trainer_Monodepth2:
             pix_coords[..., 1] /= height - 1
             pix_coords = (pix_coords - 0.5) * 2
             Ds[d_names[idx]] = F.grid_sample(D_inv,pix_coords.to(device=K_inv.device),align_corners=True)
-            wandb.log({"depth_grid": wandb.Image(Ds[d_names[idx]][0])},step=self.step)
+            #wandb.log({"depth_grid": wandb.Image(Ds[d_names[idx]][0])},step=self.step)
         
         X_tilde_p = torch.matmul(K_inv[:, :3, :3],ps["p"].to(device=K_inv.device))
         Cpp = torch.einsum('bijk,bijk->bijk', N_hat, X_tilde_p.view(batch_size,3,height,width))
@@ -1042,14 +1042,14 @@ class Trainer_Monodepth2:
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
-                normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)],outputs["normal_inputs"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                #normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)],outputs["normal_inputs"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
             #if self.normal_flag == 1:
             #self.normal_weight = 0.005
             #self.orthogonal_weight = 0.001
-            loss += 0.1 * normal_loss / 2.0
+            #loss += 0.1 * normal_loss / 2.0
             #Orthogonal loss
             #loss += 0.5 * self.compute_orth_loss2(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
                 
@@ -1064,7 +1064,7 @@ class Trainer_Monodepth2:
 
         
         total_loss /= self.num_scales
-        total_loss += 0.5 * self.compute_orth_loss(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
+        total_loss += 0.5 * self.compute_orth_loss4(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
         #total_loss += 0.6 * self.compute_orth_loss5(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
         losses["loss"] = total_loss
         
@@ -1149,20 +1149,8 @@ class Trainer_Monodepth2:
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            #print(outputs["normal_inputs"][("normal", 0)][j].shape)
             wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.norm_to_rgb(outputs["normal_inputs"][("normal", 0)][j].data))},step=self.step)
-            #wandb.log({"normal_calculated{}/{}".format(s, j): wandb.Image(calculate_surface_normal_from_depth(disp.transpose(1, 2, 0)))},step=self.step)
-            """f = outputs["mf_"+str(s)+"_"+str(frame_id)][j].data
-            flow = self.flow2rgb(f,32)
-            flow = torch.from_numpy(flow)
-            wandb.log({"motion_flow_{}_{}".format(s,j): wandb.Image(flow)},step=self.step)"""
-            """if self.opt.predictive_mask:
-                for f_idx, frame_id in enumerate(self.opt.frame_ids[1:]):
-                    wandb.log({"predictive_mask_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs["predictive_mask"][("disp", s)][j, f_idx][None, ...])},self.step)
-            elif not self.opt.disable_automasking:
-                wandb.log({
-                "automask_{}/{}".format(s, j):
-                wandb.Image(outputs["identity_selection/{}".format(s)][j][None, ...])}, self.step)"""
+           
                   
 
     def save_opts(self):
