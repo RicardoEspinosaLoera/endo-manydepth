@@ -603,6 +603,7 @@ class Trainer_Monodepth2:
         y = y.float().unsqueeze(0).unsqueeze(0)
         x = x.float().unsqueeze(0).unsqueeze(0)
         ones = torch.ones( batch_size, 1, height * width).to(device=K_inv.device)
+        print("ones",ones.shape)
         magnitude = torch.norm(N_hat, dim=1, keepdim=True)
         magnitude[magnitude == 0] = 1
         N_hat_normalized = N_hat / magnitude
@@ -619,7 +620,7 @@ class Trainer_Monodepth2:
         right_right_flat = right_right.view(1,-1, 2).expand(12, -1, -1)
         bottom_flat = bottom.view(1,-1, 2).expand(12, -1, -1)
         bottom_bottom_flat = bottom_bottom.view(1,-1, 2).expand(12, -1, -1)
-
+        print("normal_flat",normal_flat.shape)
         normal_flat = torch.cat([normal_flat.permute(0,2,1), ones], dim=1)
         rigth_flat = torch.cat([rigth_flat.permute(0,2,1), ones], dim=1)
         right_right_flat = torch.cat([right_right_flat.permute(0,2,1), ones], dim=1)
