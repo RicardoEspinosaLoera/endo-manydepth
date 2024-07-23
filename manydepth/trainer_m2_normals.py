@@ -1149,8 +1149,8 @@ class Trainer_Monodepth2:
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            print(outputs["normal_inputs"][("normal", 0)][j].shape)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_inputs"][("normal", 0)].transpose(1, 2, 0)))},step=self.step)
+            #print(outputs["normal_inputs"][("normal", 0)][j].shape)
+            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_inputs"][("normal", 0)][j]))},step=self.step)
             #wandb.log({"normal_calculated{}/{}".format(s, j): wandb.Image(calculate_surface_normal_from_depth(disp.transpose(1, 2, 0)))},step=self.step)
             """f = outputs["mf_"+str(s)+"_"+str(frame_id)][j].data
             flow = self.flow2rgb(f,32)
@@ -1279,7 +1279,7 @@ class Trainer_Monodepth2:
         """
         # Ensure the input tensor is on the CPU and in numpy format
         normal_image_np = xyz_image.cpu().numpy()
-
+        normal_image_np = normal_image_np.transpose(1,2,0)
         # Normalize the normal vectors to unit length
         norm = np.linalg.norm(normal_image_np, axis=0, keepdims=True)
         normal_image_np /= norm
