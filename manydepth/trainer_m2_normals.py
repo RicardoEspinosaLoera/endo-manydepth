@@ -1150,6 +1150,7 @@ class Trainer_Monodepth2:
                     #wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs["c_"+str(frame_id)+"_"+str(s)][j].data)},step=self.step)
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
+            print(outputs["normal_inputs"][("normal", 0)][j].shape)
             wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_inputs"][("normal", 0)][j].data))},step=self.step)
             #wandb.log({"normal_calculated{}/{}".format(s, j): wandb.Image(calculate_surface_normal_from_depth(disp.transpose(1, 2, 0)))},step=self.step)
             """f = outputs["mf_"+str(s)+"_"+str(frame_id)][j].data
@@ -1266,19 +1267,23 @@ class Trainer_Monodepth2:
                 vis = vis.transpose(2, 0, 1)
 
         return vis
-    
+   
     def visualize_normal_image(self, xyz_image):
         """
         Visualize a 3-channel image with X, Y, and Z components of normal vectors.
         
         Args:
             xyz_image (torch.Tensor): The input normal image with shape (3, height, width).
+            
+        Returns:
+            np.ndarray: Normalized and scaled numpy array suitable for visualization.
         """
         # Ensure the input tensor is on the CPU and in numpy format
         normal_image_np = xyz_image.cpu().numpy()
 
         # Normalize the normal vectors to unit length
-        normal_image_np /= np.linalg.norm(normal_image_np, axis=0)
+        norm = np.linalg.norm(normal_image_np, axis=0, keepdims=True)
+        normal_image_np /= norm
 
         # Transpose the dimensions to (height, width, channels) for matplotlib
         normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
