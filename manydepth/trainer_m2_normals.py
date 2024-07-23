@@ -1290,8 +1290,8 @@ class Trainer_Monodepth2:
         # Shift and scale the normal vectors to the [0, 1] range for visualization
         normal_image_np = 0.5 * normal_image_np + 0.5
 
-        print(normal_image_np.shape)
-
+        #print(normal_image_np.shape)
+        normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
         return normal_image_np
 
     def visualize_normals(self,batch_normals):
