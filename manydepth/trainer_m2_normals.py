@@ -623,7 +623,7 @@ class Trainer_Monodepth2:
 
         #print("normal_flat",normal_flat.shape)
         normal_flat = torch.cat([normal_flat.permute(0,2,1), ones], dim=1)
-        rigth_flat = torch.cat([rigth_flat.permute(0,2,1), ones], dim=1)
+        right_flat = torch.cat([rigth_flat.permute(0,2,1), ones], dim=1)
         right_right_flat = torch.cat([right_right_flat.permute(0,2,1), ones], dim=1)
         bottom_flat = torch.cat([bottom_flat.permute(0,2,1), ones], dim=1)
         bottom_bottom_flat = torch.cat([bottom_bottom_flat.permute(0,2,1), ones], dim=1)
