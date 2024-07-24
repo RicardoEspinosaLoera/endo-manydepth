@@ -885,7 +885,7 @@ class Trainer_Monodepth2:
             np.ndarray: Normalized and scaled numpy array suitable for visualization.
         """
         # Ensure the input tensor is on the CPU and in numpy format
-        normal_image_np = xyz_image.cpu().numpy()
+        normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
         
         # Compute the magnitude of the normal vectors
         magnitude = np.linalg.norm(normal_image_np, axis=0)
@@ -897,7 +897,7 @@ class Trainer_Monodepth2:
         # Normalize the normal vectors
         normalized_normals = normal_image_np / magnitude
 
-        r,g,b = cv2.split(normalized_normals.transpose(2,0,1))
+        r,g,b = cv2.split(normalized_normals)
         x = r
         y = g
         z = (b + 1) / 2
