@@ -949,10 +949,10 @@ class Trainer_Monodepth2:
         print(top_left_flat.shape)
         print(ones.shape)
 
-        top_left_flat = torch.cat([top_left_flat.permute(0,2,1), ones], dim=1)
-        bottom_right_flat = torch.cat([bottom_right_flat.permute(0,2,1), ones], dim=1)
-        top_right_flat = torch.cat([top_right_flat.permute(0,2,1), ones], dim=1)
-        bottom_left_flat = torch.cat([bottom_left_flat.permute(0,2,1), ones], dim=1)
+        top_left_flat = torch.cat([top_left_flat.permute(0,2,1), ones], dim=2)
+        bottom_right_flat = torch.cat([bottom_right_flat.permute(0,2,1), ones], dim=2)
+        top_right_flat = torch.cat([top_right_flat.permute(0,2,1), ones], dim=2)
+        bottom_left_flat = torch.cat([bottom_left_flat.permute(0,2,1), ones], dim=2)
         
         padded_depth = torch.nn.functional.pad(D, (1, 1, 1, 1), mode='constant', value=0)
 
