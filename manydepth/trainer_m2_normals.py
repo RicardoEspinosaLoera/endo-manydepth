@@ -886,6 +886,13 @@ class Trainer_Monodepth2:
         """
         # Ensure the input tensor is on the CPU and in numpy format
         normal_image_np = xyz_image.cpu().numpy()
+        r = pred_norm[:,:,0]
+        g = pred_norm[:,:,1]
+        b = pred_norm[:,:,2]
+        x = (r / (65535.0 / 2)) -1
+        y = (g / (65535.0 / 2)) -1
+        z = (b / (65535.0 / 2)) -1
+        norm_rgb = cv2.merge([x,y,z])
         #normal_image_np = normal_image_np.transpose(1,2,0)
         # Normalize the normal vectors to unit length
         #print("xyz_image",normal_image_np)
@@ -894,12 +901,12 @@ class Trainer_Monodepth2:
         #normal_image_np /= norm
 
         # Transpose the dimensions to (height, width, channels) for matplotlib
-        normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
+        #normal_image_np = np.transpose(norm_rgb, (1, 2, 0))
 
         # Shift and scale the normal vectors to the [0, 1] range for visualization
-        normal_image_np = 0.5 * normal_image_np + 0.5
+        #normal_image_np = 0.5 * normal_image_np + 0.5
 
-        return normal_image_np  
+        return norm_rgb  
 
         
     def norm_to_rgb(self,norm):
