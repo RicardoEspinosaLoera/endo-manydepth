@@ -888,6 +888,7 @@ class Trainer_Monodepth2:
         normal_image_np = xyz_image.cpu().numpy()
         #normal_image_np = normal_image_np.transpose(1,2,0)
         # Normalize the normal vectors to unit length
+        print("xyz_image",normal_image_np)
         norm = np.linalg.norm(normal_image_np, axis=0, keepdims=True)
         normal_image_np /= norm
 
@@ -897,8 +898,6 @@ class Trainer_Monodepth2:
         # Shift and scale the normal vectors to the [0, 1] range for visualization
         normal_image_np = 0.5 * normal_image_np + 0.5
 
-        #print(normal_image_np.shape)
-        #normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
         return normal_image_np  
 
         
