@@ -892,7 +892,7 @@ class Trainer_Monodepth2:
         #print("xyz_image.shape",normal_image_np.shape)
         norm = np.linalg.norm(normal_image_np, axis=0, keepdims=True)
         normal_image_np /= norm
-        print(normal_image_np)
+        #print(normal_image_np)
         # Transpose the dimensions to (height, width, channels) for matplotlib
         normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
 
