@@ -551,7 +551,9 @@ class Trainer_Monodepth2:
         ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
         magnitude = torch.norm(N_hat, dim=1, keepdim=True)
         magnitude[magnitude == 0] = 1e-8
-       
+        N_hat_normalized = N_hat / magnitude
+          
+
         top_left = torch.stack([torch.clamp(x - 1, min=0, max=width-1), torch.clamp(y - 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
         bottom_right = torch.stack([torch.clamp(x + 1, min=0, max=width-1), torch.clamp(y + 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
         top_right = torch.stack([torch.clamp(x + 1, min=0, max=width-1), torch.clamp(y - 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
@@ -896,8 +898,8 @@ class Trainer_Monodepth2:
         normalized_normals = normal_image_np / magnitude
 
         r,g,b = cv2.split(normalized_normals)
-        x = r
-        y = g
+        x = (x + 1) / 2
+        y = (g + 1) / 2
         z = (b + 1) / 2
         normal_image_np = cv2.merge([x,y,z])
 
