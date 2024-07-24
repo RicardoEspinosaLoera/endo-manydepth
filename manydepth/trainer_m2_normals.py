@@ -550,7 +550,7 @@ class Trainer_Monodepth2:
         
         ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
         magnitude = torch.norm(N_hat, keepdim=True)
-        magnitude[magnitude <= 0] = 1e-8
+        magnitude[magnitude == 0] = 1e-8
         N_hat_normalized = N_hat / magnitude
           
 
@@ -897,13 +897,9 @@ class Trainer_Monodepth2:
         # Normalize the normal vectors
         normalized_normals = normal_image_np / magnitude
 
-        r,g,b = cv2.split(normalized_normals)
-        x = (r + 1) / 2
-        y = (g + 1) / 2
-        z = (b + 1) / 2
-        normal_image_np = cv2.merge([x,y,z])
+        scaled_normals = (normalized_normals + 1) / 2
 
-        return normal_image_np  
+        return scaled_normals  
 
         
     def norm_to_rgb(self,norm):
