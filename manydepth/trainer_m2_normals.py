@@ -549,9 +549,10 @@ class Trainer_Monodepth2:
         x = x.float().unsqueeze(0).unsqueeze(0)
         
         ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
-        magnitude = torch.norm(N_hat, dim=1, keepdim=True)
-        magnitude[magnitude == 0] = 1
-        N_hat_normalized = N_hat / magnitude
+        #magnitude = torch.norm(N_hat, dim=1, keepdim=True)
+        #magnitude[magnitude == 0] = 1
+        #N_hat_normalized = N_hat / magnitude
+        N_hat_normalized = N_hat
 
         top_left = torch.stack([torch.clamp(x - 1, min=0, max=width-1), torch.clamp(y - 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
         bottom_right = torch.stack([torch.clamp(x + 1, min=0, max=width-1), torch.clamp(y + 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
