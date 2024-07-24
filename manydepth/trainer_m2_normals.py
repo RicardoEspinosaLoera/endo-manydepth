@@ -886,18 +886,17 @@ class Trainer_Monodepth2:
         """
         # Ensure the input tensor is on the CPU and in numpy format
         normal_image_np = xyz_image.cpu().numpy()
-        print(normal_image_np.shape)
-        normal_image_np = normal_image_np.transpose(1,2,0)
-        # Normalize the normal vectors to unit length
-        #print("xyz_image",normal_image_np)
-        #print("xyz_image.shape",normal_image_np.shape)
-        normalized_normals = normal_image_np / np.linalg.norm(normal_image_np, axis=1)[:, np.newaxis]
-        #print(normal_image_np)
-        # Transpose the dimensions to (height, width, channels) for matplotlib
-        #normal_image_np = np.transpose(normal_image_np, (1, 2, 0))
+        
+        # Compute the magnitude of the normal vectors
+        magnitude = np.linalg.norm(normal_image_np, axis=0)
 
-        # Shift and scale the normal vectors to the [0, 1] range for visualization
-        #normal_image_np = 0.5 * normal_image_np + 0.5
+        # Avoid division by zero by adding a small epsilon where magnitude is zero
+        epsilon = 1e-8
+        magnitude[magnitude == 0] = epsilon
+
+        # Normalize the normal vectors
+        normalized_normals = normals / magnitude
+
         r,g,b = cv2.split(normalized_normals)
         x = r
         y = g
