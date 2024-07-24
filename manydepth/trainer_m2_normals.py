@@ -552,6 +552,7 @@ class Trainer_Monodepth2:
         #magnitude = torch.norm(N_hat, keepdim=True)
         #magnitude[magnitude == 0] = 1e-8
         #N_hat_normalized = N_hat / magnitude
+        N_hat_normalized = N_hat 
          
 
         top_left = torch.stack([torch.clamp(x - 1, min=0, max=width-1), torch.clamp(y - 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
