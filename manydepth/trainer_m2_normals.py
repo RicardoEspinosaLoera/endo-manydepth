@@ -929,8 +929,8 @@ class Trainer_Monodepth2:
         y = y.float().unsqueeze(0).unsqueeze(0)
         x = x.float().unsqueeze(0).unsqueeze(0)
         
-        ones = torch.ones(12, height * width,1).to(device=K_inv.device)
-        
+        #ones = torch.ones(12, height * width,1).to(device=K_inv.device)
+        ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
         #ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
         magnitude = torch.norm(N_hat, dim=1, keepdim=True)
         magnitude[magnitude == 0] = 1
@@ -949,10 +949,10 @@ class Trainer_Monodepth2:
         print(top_left_flat.shape)
         print(ones.shape)
 
-        top_left_flat = torch.cat([top_left_flat.permute(0,2,1), ones], dim=2)
-        bottom_right_flat = torch.cat([bottom_right_flat.permute(0,2,1), ones], dim=2)
-        top_right_flat = torch.cat([top_right_flat.permute(0,2,1), ones], dim=2)
-        bottom_left_flat = torch.cat([bottom_left_flat.permute(0,2,1), ones], dim=2)
+        top_left_flat = torch.cat([top_left_flat.permute(0,2,1), ones], dim=1)
+        bottom_right_flat = torch.cat([bottom_right_flat.permute(0,2,1), ones], dim=1)
+        top_right_flat = torch.cat([top_right_flat.permute(0,2,1), ones], dim=1)
+        bottom_left_flat = torch.cat([bottom_left_flat.permute(0,2,1), ones], dim=1)
         
         padded_depth = torch.nn.functional.pad(D, (1, 1, 1, 1), mode='constant', value=0)
 
