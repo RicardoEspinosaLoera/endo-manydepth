@@ -323,7 +323,6 @@ class Trainer_Monodepth2:
         """
         outputs = {}
         outputs["normal_inputs"] = self.models["normal"](features)
-        #outputs["normal_depth"] = calculate_surface_normal_from_depth()
         if self.num_pose_frames == 2:
             # In this setting, we compute the pose to each source frame via a
             # separate forward pass through the pose network.
@@ -889,6 +888,7 @@ class Trainer_Monodepth2:
         #normal_image_np = normal_image_np.transpose(1,2,0)
         # Normalize the normal vectors to unit length
         print("xyz_image",normal_image_np)
+        print("xyz_image.shape",normal_image_np.shape)
         norm = np.linalg.norm(normal_image_np, axis=0, keepdims=True)
         normal_image_np /= norm
 
