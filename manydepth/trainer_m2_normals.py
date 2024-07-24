@@ -548,9 +548,7 @@ class Trainer_Monodepth2:
         y = y.float().unsqueeze(0).unsqueeze(0)
         x = x.float().unsqueeze(0).unsqueeze(0)
         
-        #ones = torch.ones(12, height * width,1).to(device=K_inv.device)
         ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
-        #ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
         magnitude = torch.norm(N_hat, dim=1, keepdim=True)
         magnitude[magnitude == 0] = 1
         N_hat_normalized = N_hat / magnitude
@@ -564,9 +562,6 @@ class Trainer_Monodepth2:
         bottom_right_flat = bottom_right.view(1,-1, 2).expand(12, -1, -1)
         top_right_flat = top_right.view(1,-1, 2).expand(12, -1, -1)
         bottom_left_flat = bottom_left.view(1,-1, 2).expand(12, -1, -1)
-
-        #print(top_left_flat.shape)
-        #print(ones.shape)
 
         top_left_flat = torch.cat([top_left_flat.permute(0,2,1), ones], dim=1)
         bottom_right_flat = torch.cat([bottom_right_flat.permute(0,2,1), ones], dim=1)
@@ -666,14 +661,14 @@ class Trainer_Monodepth2:
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
-                #normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)],outputs["normal_inputs"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)],outputs["normal_inputs"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
             #if self.normal_flag == 1:
             #self.normal_weight = 0.005
             #self.orthogonal_weight = 0.001
-            #loss += 0.1 * normal_loss / 2.0
+            loss += 0.1 * normal_loss / 2.0
             #Orthogonal loss
             #loss += 0.5 * self.compute_orth_loss2(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
                 
