@@ -895,7 +895,7 @@ class Trainer_Monodepth2:
         magnitude[magnitude == 0] = epsilon
 
         # Normalize the normal vectors
-        normalized_normals = normals / magnitude
+        normalized_normals = normal_image_np / magnitude
 
         r,g,b = cv2.split(normalized_normals)
         x = r
