@@ -886,9 +886,9 @@ class Trainer_Monodepth2:
         """
         # Ensure the input tensor is on the CPU and in numpy format
         normal_image_np = xyz_image.cpu().numpy()
-        r = pred_norm[:,:,0]
-        g = pred_norm[:,:,1]
-        b = pred_norm[:,:,2]
+        r = normal_image_np[:,:,0]
+        g = normal_image_np[:,:,1]
+        b = normal_image_np[:,:,2]
         x = (r / (65535.0 / 2)) -1
         y = (g / (65535.0 / 2)) -1
         z = (b / (65535.0 / 2)) -1
