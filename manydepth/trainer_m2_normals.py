@@ -904,7 +904,9 @@ class Trainer_Monodepth2:
         
     def norm_to_rgb(self,norm):
         pred_norm = norm.detach().cpu().permute(1, 2, 0).numpy()  # (H, W, 3)
-        r,g,b = cv2.split(pred_norm)
+        r = pred_norm[:,:,0]
+        g = pred_norm[:,:,1]
+        b = pred_norm[:,:,2]
         x = (r / (65535.0 / 2)) -1
         y = (g / (65535.0 / 2)) -1
         z = b / 65535.0
