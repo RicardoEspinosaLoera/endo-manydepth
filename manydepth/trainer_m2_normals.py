@@ -898,7 +898,7 @@ class Trainer_Monodepth2:
         normalized_normals = normal_image_np / magnitude
 
         r,g,b = cv2.split(normalized_normals)
-        x = (x + 1) / 2
+        x = (r + 1) / 2
         y = (g + 1) / 2
         z = (b + 1) / 2
         normal_image_np = cv2.merge([x,y,z])
