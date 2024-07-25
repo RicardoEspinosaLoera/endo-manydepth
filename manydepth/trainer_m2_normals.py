@@ -893,8 +893,8 @@ class Trainer_Monodepth2:
         magnitude = np.linalg.norm(normal_image_np, axis=0)
 
         # Avoid division by zero by adding a small epsilon where magnitude is zero
-        epsilon = 1e-8
-        magnitude[magnitude == 0] = epsilon
+        #epsilon = 1e-8
+        #magnitude[magnitude == 0] = epsilon
 
         # Normalize the normal vectors
         normalized_normals = normal_image_np / magnitude
