@@ -520,8 +520,8 @@ class Trainer_Monodepth2:
 
     def norm_loss(self, pred, target, rotation_matrix,frame_id):
         
-        if frame_id < 0:
-            rotation_matrix = rotation_matrix.transpose(1, 2)                
+        #if frame_id < 0:
+        #    rotation_matrix = rotation_matrix.transpose(1, 2)                
 
         target = target.permute(0,2,3,1)
         
@@ -704,7 +704,7 @@ class Trainer_Monodepth2:
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
-                #normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)],outputs["normal_inputs"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)],outputs["normal_inputs"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
