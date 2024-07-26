@@ -645,7 +645,7 @@ class Trainer_Monodepth2:
         
         #loss = (N_hat * V_hat).sum(dim=1).mean()
 
-        return torch.mean(torch.sum(orth_loss1,orth_loss2,dim=1))
+        return torch.mean(orth_loss1+orth_loss2)
 
 
 
