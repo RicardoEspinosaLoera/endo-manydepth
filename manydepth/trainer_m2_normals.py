@@ -636,10 +636,12 @@ class Trainer_Monodepth2:
         pb_bl = torch.matmul(K_inv[:, :3, :3],bottom_left_flat.to(device=K_inv.device))
 
         V = top_left_depth.reshape(batch_size,1,-1) * pa_tl - bottom_right_depth.reshape(batch_size,1,-1) * pb_br
-        orth_loss1 = torch.sum(torch.einsum('bijk,bijk->bi', V.view(batch_size,3,height,width),N_hat_normalized.view(batch_size,3,height,width)))
+        #orth_loss1 = torch.sum(torch.einsum('bijk,bijk->bi', V.view(batch_size,3,height,width),N_hat_normalized.view(batch_size,3,height,width)))
+        orth_loss1 = torch.sum(V.view(batch_size,3,height,width) * N_hat_normalized.view(batch_size,3,height,width))
 
         V = top_right_depth.reshape(batch_size,1,-1) * pa_tr - bottom_left_depth.reshape(batch_size,1,-1) * pb_bl
-        orth_loss2 = torch.sum(torch.einsum('bijk,bijk->bi', V.view(batch_size,3,height,width),N_hat_normalized.view(batch_size,3,height,width)))
+        #orth_loss2 = torch.sum(torch.einsum('bijk,bijk->bi', V.view(batch_size,3,height,width),N_hat_normalized.view(batch_size,3,height,width)))
+        orth_loss2 = torch.sum(V.view(batch_size,3,height,width) * N_hat_normalized.view(batch_size,3,height,width))
         
         #loss = (N_hat * V_hat).sum(dim=1).mean()
 
