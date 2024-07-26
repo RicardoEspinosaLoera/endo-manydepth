@@ -381,7 +381,7 @@ class Trainer_Monodepth2:
 
                     outputs[("cam_T_cam", 0, f_i)] = transformation_from_parameters(
                         axisangle[:, 0], translation[:, 0])
-                    
+                    """
                     outputs_lighting = self.models["lighting"](pose_inputs[0])
                     #outputs_mf = self.models["motion_flow"](pose_inputs[0])
                     
@@ -396,7 +396,7 @@ class Trainer_Monodepth2:
                     #outputs[("color_motion", f_i, scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
                     outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                     outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]
+                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]"""
 
 
         else:
@@ -496,10 +496,7 @@ class Trainer_Monodepth2:
                     outputs[("sample", frame_id, scale)],
                     padding_mode="border",align_corners=True)
                 
-        #Normal prediction        
-        for i, frame_id in enumerate(self.opt.frame_ids[1:]):
-            features = self.models["encoder"](outputs[("color", frame_id, 0)])
-            outputs[("normal",frame_id)] = self.models["normal"](features)
+        
             
             
 
@@ -537,52 +534,7 @@ class Trainer_Monodepth2:
         return l1_loss.sum()
 
 
-    def compute_orth_loss6(self, disp, N_hat, K_inv):
-        _, D = disp_to_depth(disp, self.opt.min_depth, self.opt.max_depth)
-        #D_inv = 1.0 / D
-        B,CH,H, W = D.shape
-        # Initialize loss
-        loss = 0
-        
-        # Create coordinate grids
-        x = torch.linspace(0, W - 1, W, device=K_inv.device).repeat(H, 1)
-        y = torch.linspace(0, H - 1, H, device=K_inv.device).repeat(W, 1).t()
-        ones = torch.ones_like(x, device=K_inv.device)
-
-        # Stack coordinates and apply K_inv
-        coords = torch.stack((x, y, ones), dim=0).unsqueeze(0)  # Shape (1, 3, H, W)
-        coords = coords.repeat(B, 1, 1, 1)  # Shape (B, 3, H, W)
-        
-        # Stack coordinates and apply K_inv
-        coords_flat = coords.view(B, 3, -1)  # Shape (B, 3, H*W)
-        K_inv_coords_flat = torch.bmm(K_inv[:, :3, :3], coords_flat)  # Shape (B, 3, H*W)
-        K_inv_coords = K_inv_coords_flat.view(B, 3, H, W)  # Shape (B, 3, H, W)
-
-        # Get neighboring pixel indices
-        pa_tl = (slice(None), slice(None), slice(None, -1), slice(None, -1))  # Top-left
-        pb_br = (slice(None), slice(None), slice(1, None), slice(1, None))    # Bottom-right
-        pa_tr = (slice(None), slice(None), slice(None, -1), slice(1, None))   # Top-right
-        pb_bl = (slice(None), slice(None), slice(1, None), slice(None, -1))   # Bottom-left
-
-        # Compute V_hat(p) for top-left/bottom-right neighbors
-        V_hat_1 = (D[pa_tl] * K_inv_coords[pa_tl]) - (D[pb_br] * K_inv_coords[pb_br])
-        
-        # Compute V_hat(p) for top-right/bottom-left neighbors
-        V_hat_2 = (D[pa_tr] * K_inv_coords[pa_tr]) - (D[pb_bl] * K_inv_coords[pb_bl])
-        
-        # Combine V_hat
-        V_hat = torch.cat((V_hat_1, V_hat_2), dim=0)  # Shape (2*B, 3, H-1, W-1)
-
-        # Normalize normal_pred
-        N_hat = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
-
-        # Reshape normal_pred to match V_hat
-        N_hat = N_hat[:, :, :H-1, :W-1]
-        N_hat = N_hat.repeat(2, 1, 1, 1)  # Shape (2*B, 3, H-1, W-1)
-
-        # Compute the orthogonality loss
-        loss = (N_hat * V_hat).sum(dim=1).mean()
-        return loss
+    
 
     def compute_orth_loss5(self, disp, N_hat, K_inv):
         orth_loss = 0
@@ -670,7 +622,7 @@ class Trainer_Monodepth2:
         #loss_ilumination_invariant = 0
         total_loss = 0
         #orthonogal_loss = 0
-        normal_loss = 0
+        #normal_loss = 0
 
         for scale in self.opt.scales:
             loss = 0
@@ -704,14 +656,14 @@ class Trainer_Monodepth2:
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
-                normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)].detach(),outputs["normal_inputs"][("normal", scale)].detach(), rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                #normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)].detach(),outputs["normal_inputs"][("normal", scale)].detach(), rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
             #if self.normal_flag == 1:
             #self.normal_weight = 0.005
             #self.orthogonal_weight = 0.001
-            loss += 0.1 * normal_loss / 2.0
+            #loss += 0.1 * normal_loss / 2.0
             #Orthogonal loss
             #loss += 0.5 * self.compute_orth_loss2(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
                 
