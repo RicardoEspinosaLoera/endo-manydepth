@@ -552,7 +552,7 @@ class Trainer_Monodepth2:
         # Stack coordinates and apply K_inv
         coords = torch.stack((x, y, ones), dim=0).unsqueeze(0)  # Shape (1, 3, H, W)
         coords = coords.repeat(B, 1, 1, 1)  # Shape (B, 3, H, W)
-        K_inv_coords = torch.einsum('bij,jkl->bikl', self.K_inv, coords)  # Shape (B, 3, H, W)
+        K_inv_coords = torch.einsum('bij,jkl->bikl', K_inv, coords)  # Shape (B, 3, H, W)
 
         # Get neighboring pixel indices
         pa_tl = (slice(None), slice(None), slice(None, -1), slice(None, -1))  # Top-left
