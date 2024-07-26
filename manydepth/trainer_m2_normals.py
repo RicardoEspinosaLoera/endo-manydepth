@@ -520,8 +520,8 @@ class Trainer_Monodepth2:
 
     def norm_loss(self, pred, target, rotation_matrix,frame_id):
         
-        #if frame_id < 0:
-        #    rotation_matrix = rotation_matrix.transpose(1, 2)                
+        if frame_id < 0:
+            rotation_matrix = rotation_matrix.transpose(1, 2)                
 
         target = target.permute(0,2,3,1)
         
