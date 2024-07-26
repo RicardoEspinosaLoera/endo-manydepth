@@ -343,7 +343,7 @@ class Trainer_Monodepth2:
                         pose_inputs = [pose_feats[0], pose_feats[f_i]]"""
                     
                     pose_inputs = [pose_feats[f_i], pose_feats[0]]
-                    
+                    print(pose_feats[f_i].shape)                    
                     outputs["normal_source",f_i] = self.models["normal"](pose_feats[f_i])
 
                     if self.opt.pose_model_type == "separate_resnet":
