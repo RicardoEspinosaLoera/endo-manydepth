@@ -921,9 +921,9 @@ class Trainer_Monodepth2:
         #surface_normals = np.transpose(surface_normals, (1, 2, 0))
 
         # Normalize the surface normals to [0, 1]
-        normals_min = surface_normals.min(axis=(0, 1), keepdims=True)
-        normals_max = surface_normals.max(axis=(0, 1), keepdims=True)
-        normalized_normals = (surface_normals - normals_min) / (normals_max - normals_min)
+        normals_min = xyz_image.min(axis=(0, 1), keepdims=True)
+        normals_max = xyz_image.max(axis=(0, 1), keepdims=True)
+        normalized_normals = (xyz_image - normals_min) / (normals_max - normals_min)
 
         return normalized_normals  
 
