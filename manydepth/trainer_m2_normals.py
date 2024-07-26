@@ -929,7 +929,7 @@ class Trainer_Monodepth2:
         magnitude = np.linalg.norm(normal_image_np, axis=0)
 
         # Normalize normal_pred
-        normalized_normals = N_hat / (normal_image_np.norm(dim=1, keepdim=True) + 1e-8)
+        normalized_normals = normalized_normals / (normal_image_np.norm(dim=1, keepdim=True) + 1e-8)
 
         scaled_normals = (normalized_normals + 1) / 2
 
