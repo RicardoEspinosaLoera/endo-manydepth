@@ -922,7 +922,7 @@ class Trainer_Monodepth2:
         #normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
         
         # Convert from (3, H, W) to (H, W, 3)
-        print(xyz_image.shape)
+        #print(xyz_image.shape)
         surface_normals = xyz_image.cpu().permute(1, 2, 0).numpy()
         # 2. predicted normal
         pred_norm_rgb = ((surface_normals + 1) * 0.5) * 255
