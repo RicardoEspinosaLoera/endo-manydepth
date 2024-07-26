@@ -918,7 +918,7 @@ class Trainer_Monodepth2:
         #normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
         
         # Convert from (3, H, W) to (H, W, 3)
-        surface_normals = np.transpose(xyz_image.cpu(), (1, 2, 0).numpy())
+        surface_normals = xyz_image.cpu().permute(1, 2, 0).numpy()
 
         # Normalize the surface normals to [0, 1] for visualization
         normalized_normals = (surface_normals + 1) / 2
