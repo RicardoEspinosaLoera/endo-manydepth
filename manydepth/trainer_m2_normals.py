@@ -928,12 +928,8 @@ class Trainer_Monodepth2:
         # Compute the magnitude of the normal vectors
         magnitude = np.linalg.norm(normal_image_np, axis=0)
 
-        # Avoid division by zero by adding a small epsilon where magnitude is zero
-        #epsilon = 1e-8
-        #magnitude[magnitude == 0] = epsilon
-
-        # Normalize the normal vectors
-        normalized_normals = normal_image_np / magnitude
+        # Normalize normal_pred
+        normalized_normals = N_hat / (normal_image_np.norm(dim=1, keepdim=True) + 1e-8)
 
         scaled_normals = (normalized_normals + 1) / 2
 
