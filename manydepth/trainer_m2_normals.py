@@ -604,7 +604,7 @@ class Trainer_Monodepth2:
         #loss_ilumination_invariant = 0
         total_loss = 0
         #orthonogal_loss = 0
-        #normal_loss = 0
+        normal_loss = 0
 
         for scale in self.opt.scales:
             loss = 0
@@ -642,10 +642,7 @@ class Trainer_Monodepth2:
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
-            #if self.normal_flag == 1:
-            #self.normal_weight = 0.005
-            #self.orthogonal_weight = 0.001
-            #loss += 0.1 * normal_loss / 2.0
+            loss += 0.1 * normal_loss / 2.0
             #Orthogonal loss
             #loss += 0.5 * self.compute_orth_loss2(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
                 
