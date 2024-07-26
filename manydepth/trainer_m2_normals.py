@@ -322,7 +322,7 @@ class Trainer_Monodepth2:
         """Predict poses between input frames for monocular sequences.
         """
         outputs = {}
-        outputs["normal_inputs"] = self.models["normal"](features)
+        outputs["normal_target"] = self.models["normal"](features)
         if self.num_pose_frames == 2:
             # In this setting, we compute the pose to each source frame via a
             # separate forward pass through the pose network.
@@ -344,31 +344,15 @@ class Trainer_Monodepth2:
                     
                     pose_inputs = [pose_feats[f_i], pose_feats[0]]
                     
+                    outputs["normal_source",f_i] = self.models["normal"](pose_feats[f_i])
 
                     if self.opt.pose_model_type == "separate_resnet":
                         pose_inputs = [self.models["pose_encoder"](torch.cat(pose_inputs, 1))]
                         
                     elif self.opt.pose_model_type == "posecnn":
                         pose_inputs = torch.cat(pose_inputs, 1)
-                    """
-                    if f_i < 0:
-                        iif_all = [get_ilumination_invariant_features(pose_feats[f_i]),get_ilumination_invariant_features(pose_feats[0])] 
-                    else:
-                        iif_all = [get_ilumination_invariant_features(pose_feats[0]),get_ilumination_invariant_features(pose_feats[f_i])] 
-                    """
+                   
                     
-                    #motion_inputs = [self.models["ii_encoder"](torch.cat(pose_inputs, 1))]
-                    #outputs_mf = self.models["motion_flow"](pose_inputs[0])
-                    
-                    """input_combined = pose_inputs
-                    concatenated_list = []
-                    # Iterate over the corresponding tensors in list1 and list2 and concatenate them
-                    for tensor1, tensor2 in zip(pose_inputs[0], motion_inputs[0]):
-                        concatenated_tensor = torch.cat([tensor1, tensor2], dim=1)
-                        concatenated_list.append(concatenated_tensor)
-                    
-                    axisangle, translation = self.models["pose"]([concatenated_list])
-                    """
                     # Original
                     axisangle, translation = self.models["pose"](pose_inputs)
 
@@ -486,11 +470,7 @@ class Trainer_Monodepth2:
                     cam_points, inputs[("K", source_scale)], T)
 
                 outputs[("sample", frame_id, scale)] = pix_coords
-                #print("Pixels")
-                #print(pix_coords.shape)
-                #print(pix_coords)
-                #print(outputs[("sample", frame_id, scale)].shape)
-                #print(inputs[("color", frame_id, source_scale)].shape)
+
                 outputs[("color", frame_id, scale)] = F.grid_sample(
                     inputs[("color", frame_id, source_scale)],
                     outputs[("sample", frame_id, scale)],
@@ -656,7 +636,7 @@ class Trainer_Monodepth2:
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
-                #normal_loss += (self.norm_loss(outputs[("normal",frame_id)][("normal", scale)].detach(),outputs["normal_inputs"][("normal", scale)].detach(), rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                normal_loss += (self.norm_loss(outputs["normal_target"][("normal", scale)],outputs["normal_source",frame_id][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
@@ -678,7 +658,7 @@ class Trainer_Monodepth2:
 
         
         total_loss /= self.num_scales
-        total_loss += 0.5 * self.compute_orth_loss5(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
+        total_loss += 0.5 * self.compute_orth_loss5(outputs[("disp", 0)], outputs["normal_target"][("normal", 0)], inputs[("inv_K", 0)])
         losses["loss"] = total_loss
         
         return losses
@@ -762,7 +742,7 @@ class Trainer_Monodepth2:
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_inputs"][("normal", 0)][j].data))},step=self.step)
+            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
            
                   
 
