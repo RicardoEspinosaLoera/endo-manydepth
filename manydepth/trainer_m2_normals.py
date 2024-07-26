@@ -555,7 +555,7 @@ class Trainer_Monodepth2:
         
         # Stack coordinates and apply K_inv
         coords_flat = coords.view(B, 3, -1)  # Shape (B, 3, H*W)
-        K_inv_coords_flat = torch.bmm(K_inv, coords_flat)  # Shape (B, 3, H*W)
+        K_inv_coords_flat = torch.bmm(K_inv[:, :3, :3], coords_flat)  # Shape (B, 3, H*W)
         K_inv_coords = K_inv_coords_flat.view(B, 3, H, W)  # Shape (B, 3, H, W)
 
         # Get neighboring pixel indices
