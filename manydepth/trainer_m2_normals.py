@@ -344,9 +344,9 @@ class Trainer_Monodepth2:
                     
                     pose_inputs = [pose_feats[f_i], pose_feats[0]]
                     #print(pose_feats[f_i].shape)                    
-                    
-                    features_norm = self.models["encoder"](pose_feats[f_i])
-                    outputs["normal_source",f_i] = self.models["normal"](features_norm)
+                    with torch.no_grad():
+                        features_norm = self.models["encoder"](pose_feats[f_i])
+                        outputs["normal_source",f_i] = self.models["normal"](features_norm)
 
                     if self.opt.pose_model_type == "separate_resnet":
                         pose_inputs = [self.models["pose_encoder"](torch.cat(pose_inputs, 1))]
@@ -643,9 +643,6 @@ class Trainer_Monodepth2:
             loss += loss_reprojection / 2.0    
             #Normal loss
             loss += 0.1 * normal_loss / 2.0
-            #Orthogonal loss
-            #loss += 0.5 * self.compute_orth_loss2(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
-                
             #Illumination invariant loss
             #loss += 0.5 * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
