@@ -670,7 +670,7 @@ class Trainer_Monodepth2:
         #loss_ilumination_invariant = 0
         total_loss = 0
         #orthonogal_loss = 0
-        #normal_loss = 0
+        normal_loss = 0
 
         for scale in self.opt.scales:
             loss = 0
