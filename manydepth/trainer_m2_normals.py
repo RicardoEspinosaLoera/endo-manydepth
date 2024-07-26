@@ -540,7 +540,7 @@ class Trainer_Monodepth2:
     def compute_orth_loss6(self, disp, N_hat, K_inv):
         _, D = disp_to_depth(disp, self.opt.min_depth, self.opt.max_depth)
         #D_inv = 1.0 / D
-        B, H, W = D.shape
+        B,CH,H, W = D.shape
         # Initialize loss
         loss = 0
         
