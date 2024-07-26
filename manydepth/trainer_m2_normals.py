@@ -925,7 +925,7 @@ class Trainer_Monodepth2:
         surface_normals = xyz_image.cpu().permute(1, 2, 0).numpy()
         # 2. predicted normal
         r =  ((surface_normals[:,:,0] + 1) * 0.5) * 255
-        g =  ((surface_normals[:,:,0] + 1) * 0.5) * 255
+        g =  ((surface_normals[:,:,1] + 1) * 0.5) * 255
         b =  (surface_normals[:,:,2] * 255)
 
         pred_norm_rgb = np.dstack((r,g,b))
