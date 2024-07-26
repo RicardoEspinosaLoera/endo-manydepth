@@ -580,6 +580,8 @@ class Trainer_Monodepth2:
         N_hat = N_hat[:, :, :H-1, :W-1]
         N_hat = N_hat.repeat(2, 1, 1, 1)  # Shape (2*B, 3, H-1, W-1)
 
+        print("N_hat",N_hat.shape)
+        print("V_hat",V_hat.shape)
         # Compute the orthogonality loss
         loss = (N_hat * V_hat).sum(dim=1).mean()
         return loss
