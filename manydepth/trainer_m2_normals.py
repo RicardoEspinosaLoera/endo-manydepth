@@ -926,7 +926,7 @@ class Trainer_Monodepth2:
         # Clip to ensure no values are outside [0, 1] due to floating point errors
         normalized_normals = np.clip(normalized_normals, 0, 1)
 
-        return scaled_normals  
+        return normalized_normals  
 
         
     def norm_to_rgb(self,norm):
