@@ -641,7 +641,7 @@ class Trainer_Monodepth2:
         V = top_right_depth.reshape(batch_size,1,-1) * pa_tr - bottom_left_depth.reshape(batch_size,1,-1) * pb_bl
         orth_loss2 = torch.sum(torch.einsum('bijk,bijk->bi', V.view(batch_size,3,height,width),N_hat_normalized.view(batch_size,3,height,width)))
         
-        loss = (N_hat * V_hat).sum(dim=1).mean()
+        #loss = (N_hat * V_hat).sum(dim=1).mean()
 
         return torch.mean(orth_loss1+orth_loss2)
 
