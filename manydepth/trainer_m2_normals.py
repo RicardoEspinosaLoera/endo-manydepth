@@ -926,10 +926,10 @@ class Trainer_Monodepth2:
         normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
         
         # Compute the magnitude of the normal vectors
-        magnitude = np.linalg.norm(normal_image_np, axis=0)
+        #magnitude = np.linalg.norm(normal_image_np, axis=0)
 
         # Normalize normal_pred
-        normalized_normals = normal_image_np / (normal_image_np.norm(dim=1, keepdim=True) + 1e-8)
+        normalized_normals = normal_image_np / (np.linalg.norm(normal_image_np, axis=0) + 1e-8)
 
         scaled_normals = (normalized_normals + 1) / 2
 
