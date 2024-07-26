@@ -913,27 +913,19 @@ class Trainer_Monodepth2:
         return vis
    
     def visualize_normal_image(self, xyz_image):
-        """
-        Visualize a 3-channel image with X, Y, and Z components of normal vectors.
-        
-        Args:
-            xyz_image (torch.Tensor): The input normal image with shape (3, height, width).
-            
-        Returns:
-            np.ndarray: Normalized and scaled numpy array suitable for visualization.
-        """
+       
         # Ensure the input tensor is on the CPU and in numpy format
-        normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
+        #normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
         
-        # Compute the magnitude of the normal vectors
-        #magnitude = np.linalg.norm(normal_image_np, axis=0)
+        # Convert from (3, H, W) to (H, W, 3)
+        #surface_normals = np.transpose(surface_normals, (1, 2, 0))
 
-        # Normalize normal_pred
-        normalized_normals = normal_image_np / (np.linalg.norm(normal_image_np, axis=0) + 1e-8)
+        # Normalize the surface normals to [0, 1]
+        normals_min = surface_normals.min(axis=(0, 1), keepdims=True)
+        normals_max = surface_normals.max(axis=(0, 1), keepdims=True)
+        normalized_normals = (surface_normals - normals_min) / (normals_max - normals_min)
 
-        scaled_normals = (normalized_normals + 1) / 2
-
-        return scaled_normals  
+        return normalized_normals  
 
         
     def norm_to_rgb(self,norm):
