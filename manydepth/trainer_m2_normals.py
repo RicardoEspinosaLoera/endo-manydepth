@@ -537,7 +537,49 @@ class Trainer_Monodepth2:
         return l1_loss.sum()
 
 
-   
+    def compute_orth_loss6(self, disp, N_hat, K_inv):
+        _, D = disp_to_depth(disp, self.opt.min_depth, self.opt.max_depth)
+        #D_inv = 1.0 / D
+        B, H, W = D.shape
+        # Initialize loss
+        loss = 0
+        
+        # Create coordinate grids
+        x = torch.linspace(0, W - 1, W, device=K_inv.device).repeat(H, 1)
+        y = torch.linspace(0, H - 1, H, device=K_inv.device).repeat(W, 1).t()
+        ones = torch.ones_like(x, device=K_inv.device)
+        
+        # Stack coordinates and apply K_inv
+        coords = torch.stack((x, y, ones), dim=0).unsqueeze(0)  # Shape (1, 3, H, W)
+        coords = coords.repeat(B, 1, 1, 1)  # Shape (B, 3, H, W)
+        K_inv_coords = torch.einsum('bij,jkl->bikl', self.K_inv, coords)  # Shape (B, 3, H, W)
+
+        # Get neighboring pixel indices
+        pa_tl = (slice(None), slice(None), slice(None, -1), slice(None, -1))  # Top-left
+        pb_br = (slice(None), slice(None), slice(1, None), slice(1, None))    # Bottom-right
+        pa_tr = (slice(None), slice(None), slice(None, -1), slice(1, None))   # Top-right
+        pb_bl = (slice(None), slice(None), slice(1, None), slice(None, -1))   # Bottom-left
+
+        # Compute V_hat(p) for top-left/bottom-right neighbors
+        V_hat_1 = (D[pa_tl] * K_inv_coords[pa_tl]) - (D[pb_br] * K_inv_coords[pb_br])
+        
+        # Compute V_hat(p) for top-right/bottom-left neighbors
+        V_hat_2 = (D[pa_tr] * K_inv_coords[pa_tr]) - (D[pb_bl] * K_inv_coords[pb_bl])
+        
+        # Combine V_hat
+        V_hat = torch.cat((V_hat_1, V_hat_2), dim=0)  # Shape (2*B, 3, H-1, W-1)
+
+        # Normalize normal_pred
+        N_hat = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
+
+        # Reshape normal_pred to match V_hat
+        N_hat = N_hat[:, :, :H-1, :W-1]
+        N_hat = N_hat.repeat(2, 1, 1, 1)  # Shape (2*B, 3, H-1, W-1)
+
+        # Compute the orthogonality loss
+        loss = (N_hat * V_hat).sum(dim=1).mean()
+        return loss
+
     def compute_orth_loss5(self, disp, N_hat, K_inv):
         orth_loss = 0
         _, D = disp_to_depth(disp, self.opt.min_depth, self.opt.max_depth)
@@ -593,17 +635,7 @@ class Trainer_Monodepth2:
 
         V = top_right_depth.reshape(batch_size,1,-1) * pa_tr - bottom_left_depth.reshape(batch_size,1,-1) * pb_bl
         orth_loss2 = torch.sum(torch.einsum('bijk,bijk->bi', V.view(batch_size,3,height,width),N_hat_normalized.view(batch_size,3,height,width)))
-        """
-        x = torch.tensor([[-1, 0, 1]]).to(device=K_inv.device).type(torch.cuda.FloatTensor)
-        y = torch.tensor([[-1], [0], [1]]).to(device=K_inv.device).type(torch.cuda.FloatTensor)
-        gradient_x = F.conv2d(I, x.view(1, 3, 1, 1))
-        gradient_y = F.conv2d(I, y.view(1, 3, 1, 1))
-        #print(gradient_x.shape)
-        #print(gradient_y.shape)
-        gradient_magitude = torch.sqrt(gradient_x**2 + gradient_y**2)
-        gradient_magitude = torch.mean(gradient_magitude)
-        # Calculate G(p)
-        G_p = torch.exp(-1 * torch.abs(gradient_magitude) / 1**2)"""
+        
 
         return torch.mean(orth_loss1+orth_loss2)
 
@@ -686,7 +718,7 @@ class Trainer_Monodepth2:
 
         
         total_loss /= self.num_scales
-        total_loss += 0.5 * self.compute_orth_loss5(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
+        total_loss += 0.5 * self.compute_orth_loss6(outputs[("disp", 0)], outputs["normal_inputs"][("normal", 0)], inputs[("inv_K", 0)])
         losses["loss"] = total_loss
         
         return losses
