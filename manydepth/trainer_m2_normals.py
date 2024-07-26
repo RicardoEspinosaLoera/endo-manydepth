@@ -548,6 +548,10 @@ class Trainer_Monodepth2:
         x = torch.linspace(0, W - 1, W, device=K_inv.device).repeat(H, 1)
         y = torch.linspace(0, H - 1, H, device=K_inv.device).repeat(W, 1).t()
         ones = torch.ones_like(x, device=K_inv.device)
+
+        # Stack coordinates and apply K_inv
+        coords = torch.stack((x, y, ones), dim=0).unsqueeze(0)  # Shape (1, 3, H, W)
+        coords = coords.repeat(B, 1, 1, 1)  # Shape (B, 3, H, W)
         
         # Stack coordinates and apply K_inv
         coords_flat = coords.view(B, 3, -1)  # Shape (B, 3, H*W)
