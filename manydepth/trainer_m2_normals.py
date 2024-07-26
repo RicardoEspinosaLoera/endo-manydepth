@@ -914,16 +914,15 @@ class Trainer_Monodepth2:
    
     def visualize_normal_image(self, xyz_image):
        
-        # Ensure the input tensor is on the CPU and in numpy format
-        #normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
-        
         # Convert from (3, H, W) to (H, W, 3)
-        #surface_normals = np.transpose(surface_normals, (1, 2, 0))
+        surface_normals = np.transpose(xyz_image, (1, 2, 0))
 
-        # Normalize the surface normals to [0, 1]
-        normals_min = xyz_image.min(axis=(0, 1), keepdims=True)
-        normals_max = xyz_image.max(axis=(0, 1), keepdims=True)
-        normalized_normals = (xyz_image - normals_min) / (normals_max - normals_min)
+        # Normalize the surface normals to [0, 1] for visualization
+        normalized_normals = (surface_normals + 1) / 2
+
+        # Clip to ensure no values are outside [0, 1] due to floating point errors
+        normalized_normals = np.clip(normalized_normals, 0, 1)
+
 
         return normalized_normals  
 
