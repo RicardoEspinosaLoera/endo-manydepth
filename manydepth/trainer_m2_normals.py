@@ -513,9 +513,13 @@ class Trainer_Monodepth2:
         
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
 
-        #abs_diff = torch.abs(pred - rotated_images)
-        #l1_loss = abs_diff.mean(1, True)
-        loss =  F.l1_loss(source, N_t_rotated)
+
+        wandb.log({"normal_target_rotated": wandb.Image(self.visualize_normal_image(N_t_rotated[0]))})
+        wandb.log({"normal_source_normal": wandb.Image(self.visualize_normal_image(source[0]))})
+        #wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target",frame_id][("normal", 0)][j].data))},step=self.step)
+
+
+        #loss =  F.l1_loss(source, N_t_rotated)
         return loss
 
 
@@ -535,7 +539,7 @@ class Trainer_Monodepth2:
         #magnitude = torch.norm(N_hat, keepdim=True)
         #magnitude[magnitude == 0] = 1e-8
         #N_hat_normalized = N_hat / magnitude
-        N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
+        #N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
  
          
 
@@ -645,7 +649,7 @@ class Trainer_Monodepth2:
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
-            loss += 0.1 * normal_loss / 2.0
+            #loss += 0.1 * normal_loss / 2.0
             #Illumination invariant loss
             #loss += 0.5 * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
