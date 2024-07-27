@@ -510,7 +510,8 @@ class Trainer_Monodepth2:
         batch_size, height, width, channels = source.shape
 
         #torch.matmul(K_inv[:, :3, :3],top_left_flat.to(device=K_inv.device))
-        N_t_rotated = torch.matmul(target.view(batch_size,-1,3), R[:, :3, :3]) 
+        #N_t_rotated = torch.matmul(target.view(batch_size,-1,3), R[:, :3, :3]) 
+        N_t_rotated = torch.matmul(R[:, :3, :3],target.view(batch_size,-1,3)) 
         #N_t_rotated = target.view(batch_size,-1,3) @ rotation_matrix[:, :3, :3].T
         
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
@@ -740,10 +741,13 @@ class Trainer_Monodepth2:
                     wandb.log({"color_pred_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color", frame_id, s)][j].data)},step=self.step)
                     #wandb.log({"color_pred_flow{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_motion", frame_id, s)][j].data)},step=self.step)
                     #wandb.log({"color_pred_refined_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_refined", frame_id, s)][j].data)},step=self.step)
+                    wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image( outputs["normal_target",frame_id][("normal", scale)][("normal", 0)][j].data))},step=self.step)
+                   
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_source"][("normal", 0)][j].data))},step=self.step)
+            wandb.log({"normal_source_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_source"][("normal", 0)][j].data))},step=self.step)
+            
            
                   
 
