@@ -519,7 +519,7 @@ class Trainer_Monodepth2:
         #wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target",frame_id][("normal", 0)][j].data))},step=self.step)
 
 
-        #loss =  F.l1_loss(source, N_t_rotated)
+        loss =  F.l1_loss(source, N_t_rotated)
         return loss
 
 
