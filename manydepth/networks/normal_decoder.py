@@ -58,6 +58,7 @@ class NormalDecoder(nn.Module):
             x = torch.cat(x, 1)
             x = self.convs[("upconv", i, 1)](x)
             if i in self.scales:
-                self.outputs[("normal", i)] = self.sigmoid(self.convs[("normconv", i)](x))
+                #self.outputs[("normal", i)] = self.sigmoid(self.convs[("normconv", i)](x))
+                self.outputs[("normal", i)] = self.convs[("normconv", i)](x)
 
         return self.outputs
