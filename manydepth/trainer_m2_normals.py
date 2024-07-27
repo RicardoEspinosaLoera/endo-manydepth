@@ -646,7 +646,7 @@ class Trainer_Monodepth2:
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
-            loss += 0.1 * normal_loss / 2.0
+            loss +=  0.005 * normal_loss / 2.0
             #Illumination invariant loss
             #loss += 0.5 * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
