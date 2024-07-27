@@ -500,8 +500,8 @@ class Trainer_Monodepth2:
     def norm_loss(self, source, target, R,frame_id):
         
         #R = rot_from_axisangle(rotation_matrix)
-        #if frame_id > 0:
-        #rotation_matrix = rotation_matrix.transpose(1, 2)
+        if frame_id > 0:
+            R = R.transpose(1, 2)
         #R = R.transpose(1, 2)
 
         target = target.permute(0,2,3,1)        
@@ -858,6 +858,7 @@ class Trainer_Monodepth2:
         # Convert from (3, H, W) to (H, W, 3)
         #print(xyz_image.shape)
         surface_normals = xyz_image.cpu().permute(1, 2, 0).numpy()
+        
         # 2. predicted normal
         pred_norm_rgb = ((surface_normals + 1) * 0.5) * 255
         pred_norm_rgb = np.clip(pred_norm_rgb, a_min=0, a_max=255)
