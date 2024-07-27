@@ -514,8 +514,8 @@ class Trainer_Monodepth2:
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
 
 
-        wandb.log({"normal_target_rotated": wandb.Image(self.visualize_normal_image(N_t_rotated[0].detach()))})
-        wandb.log({"normal_source_normal": wandb.Image(self.visualize_normal_image(source[0].detach()))})
+        wandb.log({"normal_target_rotated": wandb.Image(self.visualize_normal_image(N_t_rotated.view(batch_size,height,width,channels)[0].detach()))})
+        wandb.log({"normal_source_normal": wandb.Image(self.visualize_normal_image(source.view(batch_size,height,width,channels)[0].detach()))})
         #wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target",frame_id][("normal", 0)][j].data))},step=self.step)
 
 
