@@ -509,8 +509,8 @@ class Trainer_Monodepth2:
 
         #torch.matmul(K_inv[:, :3, :3],top_left_flat.to(device=K_inv.device))
 
-        #rotated_images = torch.matmul(target.view(batch_size,-1,3), rotation_matrix[:, :3, :3]) 
-        N_t_rotated = target.view(batch_size,-1,3) @ rotation_matrix[:, :3, :3].T
+        N_t_rotated = torch.matmul(target.view(batch_size,-1,3), rotation_matrix[:, :3, :3]) 
+        #N_t_rotated = target.view(batch_size,-1,3) @ rotation_matrix[:, :3, :3].T
         
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
 
