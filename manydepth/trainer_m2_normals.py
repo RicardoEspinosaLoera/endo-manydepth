@@ -537,7 +537,7 @@ class Trainer_Monodepth2:
         
         ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
         N_hat_normalized = N_hat
-        #N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
+        N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
  
          
 
