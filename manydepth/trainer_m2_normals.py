@@ -505,7 +505,7 @@ class Trainer_Monodepth2:
         target = target.permute(0,2,3,1)        
         source = source.permute(0,2,3,1)
 
-        batch_size, height, width, channels = pred.shape
+        batch_size, height, width, channels = source.shape
 
         #torch.matmul(K_inv[:, :3, :3],top_left_flat.to(device=K_inv.device))
 
