@@ -539,7 +539,7 @@ class Trainer_Monodepth2:
         #magnitude = torch.norm(N_hat, keepdim=True)
         #magnitude[magnitude == 0] = 1e-8
         #N_hat_normalized = N_hat / magnitude
-        #N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
+        N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
  
          
 
