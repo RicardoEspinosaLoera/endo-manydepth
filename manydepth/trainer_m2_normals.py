@@ -322,7 +322,7 @@ class Trainer_Monodepth2:
         """Predict poses between input frames for monocular sequences.
         """
         outputs = {}
-        outputs["normal_target"] = self.models["normal"](features)
+        outputs["normal_source"] = self.models["normal"](features)
         if self.num_pose_frames == 2:
             # In this setting, we compute the pose to each source frame via a
             # separate forward pass through the pose network.
@@ -346,7 +346,7 @@ class Trainer_Monodepth2:
                     #print(pose_feats[f_i].shape)                    
                     with torch.no_grad():
                         features_norm = self.models["encoder"](pose_feats[f_i])
-                        outputs["normal_source",f_i] = self.models["normal"](features_norm)
+                        outputs["normal_target",f_i] = self.models["normal"](features_norm)
 
                     if self.opt.pose_model_type == "separate_resnet":
                         pose_inputs = [self.models["pose_encoder"](torch.cat(pose_inputs, 1))]
@@ -742,7 +742,7 @@ class Trainer_Monodepth2:
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
+            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_source"][("normal", 0)][j].data))},step=self.step)
            
                   
 
