@@ -500,9 +500,9 @@ class Trainer_Monodepth2:
     def norm_loss(self, source, target, rotation_matrix,frame_id):
         
         R = rot_from_axisangle(rotation_matrix)
-        if frame_id > 0:
-            #rotation_matrix = rotation_matrix.transpose(1, 2)
-            R = R.transpose(1, 2)
+        #if frame_id > 0:
+        #rotation_matrix = rotation_matrix.transpose(1, 2)
+        #R = R.transpose(1, 2)
 
         target = target.permute(0,2,3,1)        
         source = source.permute(0,2,3,1)
@@ -510,7 +510,6 @@ class Trainer_Monodepth2:
         batch_size, height, width, channels = source.shape
 
         #torch.matmul(K_inv[:, :3, :3],top_left_flat.to(device=K_inv.device))
-
         N_t_rotated = torch.matmul(target.view(batch_size,-1,3), R[:, :3, :3]) 
         #N_t_rotated = target.view(batch_size,-1,3) @ rotation_matrix[:, :3, :3].T
         
