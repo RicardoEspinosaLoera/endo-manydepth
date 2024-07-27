@@ -499,8 +499,10 @@ class Trainer_Monodepth2:
 
     def norm_loss(self, source, target, rotation_matrix,frame_id):
         
-        if frame_id < 0:
-            rotation_matrix = rotation_matrix.transpose(1, 2)
+        R = rot_from_axisangle(rotation_matrix)
+        if frame_id > 0:
+            #rotation_matrix = rotation_matrix.transpose(1, 2)
+            R = R.transpose(1, 2)
 
         target = target.permute(0,2,3,1)        
         source = source.permute(0,2,3,1)
@@ -509,7 +511,7 @@ class Trainer_Monodepth2:
 
         #torch.matmul(K_inv[:, :3, :3],top_left_flat.to(device=K_inv.device))
 
-        N_t_rotated = torch.matmul(target.view(batch_size,-1,3), rotation_matrix[:, :3, :3]) 
+        N_t_rotated = torch.matmul(target.view(batch_size,-1,3), R[:, :3, :3]) 
         #N_t_rotated = target.view(batch_size,-1,3) @ rotation_matrix[:, :3, :3].T
         
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
@@ -642,7 +644,7 @@ class Trainer_Monodepth2:
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
-                normal_loss += (self.norm_loss(outputs["normal_source"][("normal", scale)],outputs["normal_target",frame_id][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0].detach()),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                normal_loss += (self.norm_loss(outputs["normal_source"][("normal", scale)],outputs["normal_target",frame_id][("normal", scale)], outputs[("axisangle", 0, frame_id)][:, 0].detach(),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
