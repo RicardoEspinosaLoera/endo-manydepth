@@ -502,14 +502,14 @@ class Trainer_Monodepth2:
         #R = rot_from_axisangle(rotation_matrix)
         #if frame_id > 0:
         #rotation_matrix = rotation_matrix.transpose(1, 2)
-        R = R.transpose(1, 2)
+        #R = R.transpose(1, 2)
 
         target = target.permute(0,2,3,1)        
         source = source.permute(0,2,3,1)
 
         batch_size, height, width, channels = source.shape
 
-        N_t_rotated = torch.matmul(R[:, :3, :3],target.view(batch_size,-1,3)) 
+        N_t_rotated = torch.matmul(target.view(batch_size,-1,3),R[:, :3, :3]) 
         
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
 
