@@ -658,7 +658,7 @@ class Trainer_Monodepth2:
 
         
         total_loss /= self.num_scales
-        total_loss += 0.5 * self.compute_orth_loss5(outputs[("disp", 0)], outputs["normal_target"][("normal", 0)], inputs[("inv_K", 0)])
+        total_loss += 0.5 * self.compute_orth_loss5(outputs[("disp", 0)], outputs["normal_source"][("normal", 0)], inputs[("inv_K", 0)])
         losses["loss"] = total_loss
         
         return losses
