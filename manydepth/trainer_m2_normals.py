@@ -536,10 +536,8 @@ class Trainer_Monodepth2:
         x = x.float().unsqueeze(0).unsqueeze(0)
         
         ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
-        #magnitude = torch.norm(N_hat, keepdim=True)
-        #magnitude[magnitude == 0] = 1e-8
-        #N_hat_normalized = N_hat / magnitude
-        N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
+        N_hat_normalized = N_hat
+        #N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
  
          
 
@@ -747,7 +745,7 @@ class Trainer_Monodepth2:
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            wandb.log({"normal_source_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
+            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
             
            
                   
