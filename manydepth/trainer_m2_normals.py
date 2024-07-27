@@ -322,7 +322,7 @@ class Trainer_Monodepth2:
         """Predict poses between input frames for monocular sequences.
         """
         outputs = {}
-        outputs["normal_source"] = self.models["normal"](features)
+        outputs["normal_target"] = self.models["normal"](features)
         if self.num_pose_frames == 2:
             # In this setting, we compute the pose to each source frame via a
             # separate forward pass through the pose network.
@@ -344,9 +344,9 @@ class Trainer_Monodepth2:
                     
                     pose_inputs = [pose_feats[f_i], pose_feats[0]]
                     #print(pose_feats[f_i].shape)                    
-                    #with torch.no_grad():
-                    features_norm = self.models["encoder"](pose_feats[f_i])
-                    outputs["normal_target",f_i] = self.models["normal"](features_norm)
+                    with torch.no_grad():
+                        features_norm = self.models["encoder"](pose_feats[f_i])
+                    outputs["normal_source",f_i] = self.models["normal"](features_norm)
 
                     if self.opt.pose_model_type == "separate_resnet":
                         pose_inputs = [self.models["pose_encoder"](torch.cat(pose_inputs, 1))]
@@ -500,7 +500,7 @@ class Trainer_Monodepth2:
     def norm_loss(self, source, target, R,frame_id):
         
         #R = rot_from_axisangle(rotation_matrix)
-        if frame_id > 0:
+        if frame_id < 0:
             R = R.transpose(1, 2)
         #R = R.transpose(1, 2)
 
@@ -514,8 +514,8 @@ class Trainer_Monodepth2:
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
 
 
-        wandb.log({"normal_target_rotated": wandb.Image(self.visualize_normal_image(N_t_rotated[0].view(height,width,channels).detach()))})
-        wandb.log({"normal_source_normal": wandb.Image(self.visualize_normal_image(source[0].view(height,width,channels).detach()))})
+        #wandb.log({"normal_target_rotated": wandb.Image(self.visualize_normal_image(N_t_rotated.view(height,width,channels).detach()))})
+        #wandb.log({"normal_source_normal": wandb.Image(self.visualize_normal_image(source[0].view(height,width,channels).detach()))})
         #wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target",frame_id][("normal", 0)][j].data))},step=self.step)
 
 
@@ -649,7 +649,7 @@ class Trainer_Monodepth2:
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
-            #loss += 0.1 * normal_loss / 2.0
+            loss += 0.1 * normal_loss / 2.0
             #Illumination invariant loss
             #loss += 0.5 * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
