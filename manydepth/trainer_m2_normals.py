@@ -742,7 +742,7 @@ class Trainer_Monodepth2:
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
+            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.norm_to_rgb(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
             
            
                   
