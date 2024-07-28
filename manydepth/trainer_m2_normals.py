@@ -506,11 +506,11 @@ class Trainer_Monodepth2:
             R_ts = R.transpose(1, 2)
 
         batch_size,channels, height, width  = source.shape
-        N_s_normalized = source / (torch.norm(source, dim=1, keepdim=True) + 1e-8)
-        
+        #N_s_normalized = source / (torch.norm(source, dim=1, keepdim=True) + 1e-8)
+        N_s_normalized = source
         # Normalize the target normals
-        N_t_normalized = target / (torch.norm(target, dim=1, keepdim=True) + 1e-8)
-
+        #N_t_normalized = target / (torch.norm(target, dim=1, keepdim=True) + 1e-8)
+        N_t_normalized = target
         N_t_normalized = N_t_normalized.view(12, 3, -1) 
         N_t_rotated = torch.bmm(R_ts[:,:3,:3], N_t_normalized) 
         N_t_rotated = N_t_rotated.view(batch_size, channels,height,width)  
