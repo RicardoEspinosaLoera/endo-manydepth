@@ -513,7 +513,7 @@ class Trainer_Monodepth2:
         N_t_normalized = target / (torch.norm(target, dim=0, keepdim=True) + 1e-8)
         
         # Rotate the target normals to the source coordinate system
-        N_t_rotated = torch.einsum('bij,bjk->bik', R, N_t_normalized)
+        N_t_rotated = torch.einsum('bij,bjk->bik', R[:, :3, :3], N_t_normalized)
         
         # Compute the L1 loss
         loss = F.l1_loss(N_s_normalized, N_t_rotated)
