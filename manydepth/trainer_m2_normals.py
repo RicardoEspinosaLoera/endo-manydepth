@@ -519,7 +519,8 @@ class Trainer_Monodepth2:
         #print(R_ts_expanded.shape)
         N_t_rotated = torch.bmm(R_ts_expanded, N_t_normalized)  # (983040, 3, 1)
         N_t_rotated = N_t_rotated.view(12, 256, 320, 3)  # Reshape back to (12, 256, 320, 3)
-
+        print(N_t_rotated.shape)
+        print(N_s_normalized.shape)
         # Compute the L1 loss
         loss = F.l1_loss(N_s_normalized, N_t_rotated)
         """
