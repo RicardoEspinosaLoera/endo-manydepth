@@ -742,7 +742,7 @@ class Trainer_Monodepth2:
                 
             disp = self.colormap(outputs[("disp", s)][j, 0])
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
-            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.norm_to_rgb(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
+            wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target"][("normal", 0)][j].data))},step=self.step)
             
            
                   
@@ -859,6 +859,7 @@ class Trainer_Monodepth2:
         surface_normals = xyz_image.cpu().permute(1, 2, 0).numpy()
         
         # 2. predicted normal
+        print(surface_normals)
         pred_norm_rgb = ((surface_normals + 1) * 0.5) * 255
         pred_norm_rgb = np.clip(pred_norm_rgb, a_min=0, a_max=255)
         pred_norm_rgb = pred_norm_rgb.astype(np.uint8)                  # (B, H, W, 3)
@@ -868,9 +869,9 @@ class Trainer_Monodepth2:
         
     def norm_to_rgb(self,norm):
         pred_norm = norm.detach().cpu().permute(1, 2, 0).numpy()  # (H, W, 3)
-        r = pred_norm[:,:,0]
-        g = pred_norm[:,:,1]
-        b = pred_norm[:,:,2]
+
+
+
         x = (r / (65535.0 / 2)) -1
         y = (g / (65535.0 / 2)) -1
         z = b / 65535.0
