@@ -514,7 +514,7 @@ class Trainer_Monodepth2:
         # Normalize the target normals
         N_t_normalized = target / (torch.norm(target, dim=1, keepdim=True) + 1e-8)
 
-        N_t_normalized = N_t_normalized.view(-1, 3, 1)  # Flatten (12, 256, 320, 3) to (983040, 3, 1)
+        N_t_normalized = N_t_normalized.view(12, 3, -1)  # Flatten (12, 256, 320, 3) to (983040, 3, 1)
         #R_ts_expanded = R_ts[:,:3,:3].repeat(256 * 320, 1, 1)  # Repeat R_ts for each pixel, (983040, 3, 3)
         #print(R_ts_expanded.shape)
         print(N_t_normalized.shape)
