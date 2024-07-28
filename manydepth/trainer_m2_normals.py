@@ -501,7 +501,9 @@ class Trainer_Monodepth2:
         
         #R = rot_from_axisangle(rotation_matrix)
         if frame_id < 0:
-            R = R.transpose(1, 2)
+            R_ts = R.transpose(1, 2)
+        else:
+            R_ts = R
         #R = R.transpose(1, 2)
 
         #target = target.permute(0,2,3,1)        
@@ -512,14 +514,12 @@ class Trainer_Monodepth2:
         # Normalize the target normals
         N_t_normalized = target / (torch.norm(target, dim=1, keepdim=True) + 1e-8)
 
-        N_s = target.permute(0,2,3,1)        
-        N_t = source.permute(0,2,3,1)
-        #N_t_normalized = N_t_normalized.permute(1, 2, 0).unsqueeze(-1)
+        N_t_normalized = N_t_normalized.view(-1, 3, 1)  # Flatten (12, 256, 320, 3) to (983040, 3, 1)
+        R_ts_expanded = R_ts.repeat(256 * 320, 1, 1)  # Repeat R_ts for each pixel, (983040, 3, 3)
         
-        # Rotate the target normals to the source coordinate system
-        print(N_t.shape)
-        print(R.shape)
-        N_t_rotated = torch.matmul(R, N_t)  # (256, 320, 3, 1)
+        N_t_rotated = torch.bmm(R_ts_expanded, N_t_normalized)  # (983040, 3, 1)
+        N_t_rotated = N_t_rotated.view(12, 256, 320, 3)  # Reshape back to (12, 256, 320, 3)
+
         # Compute the L1 loss
         loss = F.l1_loss(N_s_normalized, N_t_rotated)
         """
