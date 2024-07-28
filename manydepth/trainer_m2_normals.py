@@ -504,22 +504,27 @@ class Trainer_Monodepth2:
         #R = R.transpose(1, 2)
         #R = R.transpose(1, 2)
 
-        target = target.permute(0,2,3,1)        
-        source = source.permute(0,2,3,1)
+        #target = target.permute(0,2,3,1)        
+        #source = source.permute(0,2,3,1)
 
+        N_s_normalized = source / (torch.norm(source, dim=0, keepdim=True) + 1e-8)
+        
+        # Normalize the target normals
+        N_t_normalized = target / (torch.norm(target, dim=0, keepdim=True) + 1e-8)
+        
+        # Rotate the target normals to the source coordinate system
+        N_t_rotated = torch.einsum('bij,bjk->bik', R, N_t_normalized)
+        
+        # Compute the L1 loss
+        loss = F.l1_loss(N_s_normalized, N_t_rotated)
+        """
         batch_size, height, width, channels = source.shape
 
         N_t_rotated = torch.matmul(target.view(batch_size,-1,3),R[:, :3, :3]) 
         
         N_t_rotated = N_t_rotated.view(batch_size,height,width,channels)
 
-
-        #wandb.log({"normal_target_rotated": wandb.Image(self.visualize_normal_image(N_t_rotated.view(height,width,channels).detach()))})
-        #wandb.log({"normal_source_normal": wandb.Image(self.visualize_normal_image(source[0].view(height,width,channels).detach()))})
-        #wandb.log({"normal_target_{}/{}".format(s, j): wandb.Image(self.visualize_normal_image(outputs["normal_target",frame_id][("normal", 0)][j].data))},step=self.step)
-
-
-        loss =  F.l1_loss(source, N_t_rotated)
+        loss =  F.l1_loss(source, N_t_rotated)"""
         return loss
 
 
@@ -643,7 +648,7 @@ class Trainer_Monodepth2:
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
-                #normal_loss += (self.norm_loss(outputs["normal_source",frame_id][("normal", scale)],outputs["normal_target"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0]).detach(),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                normal_loss += (self.norm_loss(outputs["normal_source",frame_id][("normal", scale)],outputs["normal_target"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0]).detach(),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
             loss += loss_reprojection / 2.0    
             #Normal loss
