@@ -512,7 +512,7 @@ class Trainer_Monodepth2:
         N_t_normalized = target / (torch.norm(target, dim=1, keepdim=True) + 1e-8)
 
         N_t_normalized = N_t_normalized.view(12, 3, -1) 
-        N_t_rotated = torch.bmm(R[:,:3,:3], N_t_normalized) 
+        N_t_rotated = torch.bmm(R_ts[:,:3,:3], N_t_normalized) 
         N_t_rotated = N_t_rotated.view(batch_size, channels,height,width)  
 
         loss = F.l1_loss(N_s_normalized, N_t_rotated)
