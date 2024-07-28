@@ -858,13 +858,15 @@ class Trainer_Monodepth2:
         #print(xyz_image.shape)
         surface_normals = xyz_image.cpu().permute(1, 2, 0).numpy()
         
-        # 2. predicted normal
-        #print(surface_normals)
-        pred_norm_rgb = ((surface_normals + 1) * 0.5) * 255
-        pred_norm_rgb = np.clip(pred_norm_rgb, a_min=0, a_max=255)
-        pred_norm_rgb = pred_norm_rgb.astype(np.uint8)                  # (B, H, W, 3)
+        # 2. predicted normal        
+        normals_normalized = surface_normals / (np.linalg.norm(surface_normals, axis=-1, keepdims=True) + 1e-8)
 
-        return pred_norm_rgb  
+        # Convert to the [0, 255] range for visualization
+        normals_visual = ((normals_normalized + 1) / 2 * 255).astype(np.uint8)
+
+        #pred_norm_rgb = normals_visual.astype(np.uint8)                  # (B, H, W, 3)
+
+        return normals_visual  
 
         
     def norm_to_rgb(self,norm):
