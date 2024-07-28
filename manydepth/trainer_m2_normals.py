@@ -516,7 +516,7 @@ class Trainer_Monodepth2:
 
         N_t_normalized = N_t_normalized.view(-1, 3, 1)  # Flatten (12, 256, 320, 3) to (983040, 3, 1)
         R_ts_expanded = R_ts.repeat(256 * 320, 1, 1)  # Repeat R_ts for each pixel, (983040, 3, 3)
-        
+        print(R_ts_expanded.shape)
         N_t_rotated = torch.bmm(R_ts_expanded, N_t_normalized)  # (983040, 3, 1)
         N_t_rotated = N_t_rotated.view(12, 256, 320, 3)  # Reshape back to (12, 256, 320, 3)
 
