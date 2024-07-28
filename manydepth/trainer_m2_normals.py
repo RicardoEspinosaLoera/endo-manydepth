@@ -508,7 +508,7 @@ class Trainer_Monodepth2:
 
         #target = target.permute(0,2,3,1)        
         #source = source.permute(0,2,3,1)
-
+        batch_size,channels, height, width  = source.shape
         N_s_normalized = source / (torch.norm(source, dim=1, keepdim=True) + 1e-8)
         
         # Normalize the target normals
@@ -517,10 +517,11 @@ class Trainer_Monodepth2:
         N_t_normalized = N_t_normalized.view(12, 3, -1)  # Flatten (12, 256, 320, 3) to (983040, 3, 1)
         #R_ts_expanded = R_ts[:,:3,:3].repeat(256 * 320, 1, 1)  # Repeat R_ts for each pixel, (983040, 3, 3)
         #print(R_ts_expanded.shape)
-        print(N_t_normalized.shape)
-        print(R.shape)
-        N_t_rotated = torch.bmm(R[:,:3,:3], N_t_normalized)  # (983040, 3, 1)
-        N_t_rotated = N_t_rotated.view(12, 3, 256, 320)  # Reshape back to (12, 256, 320, 3)
+        #print(N_t_normalized.shape)
+        #print(R.shape)
+        N_t_rotated = torch.bmm(R[:,:3,:3], N_t_normalized) 
+        #print(N_t_rotated.shape)
+        N_t_rotated = N_t_rotated.view(batch_size, channel,height,width)  # Reshape back to (12, 256, 320, 3)
         #print(N_t_rotated.shape)
         #print(N_s_normalized.shape)
         # Compute the L1 loss
