@@ -507,14 +507,19 @@ class Trainer_Monodepth2:
         #target = target.permute(0,2,3,1)        
         #source = source.permute(0,2,3,1)
 
-        N_s_normalized = source / (torch.norm(source, dim=0, keepdim=True) + 1e-8)
+        N_s_normalized = source / (torch.norm(source, dim=1, keepdim=True) + 1e-8)
         
         # Normalize the target normals
-        N_t_normalized = target / (torch.norm(target, dim=0, keepdim=True) + 1e-8)
+        N_t_normalized = target / (torch.norm(target, dim=1, keepdim=True) + 1e-8)
+
+        N_s = target.permute(0,2,3,1)        
+        N_t = source.permute(0,2,3,1)
+        #N_t_normalized = N_t_normalized.permute(1, 2, 0).unsqueeze(-1)
         
         # Rotate the target normals to the source coordinate system
-        N_t_rotated = torch.einsum('bij,bjk->bik', R[:, :3, :3], N_t_normalized)
-        
+        print(N_t.shape)
+        print(R.shape)
+        N_t_rotated = torch.matmul(R, N_t)  # (256, 320, 3, 1)
         # Compute the L1 loss
         loss = F.l1_loss(N_s_normalized, N_t_rotated)
         """
