@@ -533,9 +533,8 @@ class Trainer_Monodepth2:
         x = x.float().unsqueeze(0).unsqueeze(0)
         
         ones = torch.ones(batch_size, 1, height * width).to(device=K_inv.device)
-        N_hat_normalized = N_hat
         N_hat_normalized = N_hat / (N_hat.norm(dim=1, keepdim=True) + 1e-8)
- 
+        #normals_normalized = surface_normals / (np.linalg.norm(surface_normals, axis=-1, keepdims=True) + 1e-8)
          
 
         top_left = torch.stack([torch.clamp(x - 1, min=0, max=width-1), torch.clamp(y - 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
@@ -851,34 +850,15 @@ class Trainer_Monodepth2:
    
     def visualize_normal_image(self, xyz_image):
        
-        # Ensure the input tensor is on the CPU and in numpy format
-        #normal_image_np = xyz_image.cpu().permute(1, 2, 0).numpy()
-        
-        # Convert from (3, H, W) to (H, W, 3)
-        #print(xyz_image.shape)
+        # 1. Ensure the input tensor is on the CPU and in numpy format
         surface_normals = xyz_image.cpu().permute(1, 2, 0).numpy()
         
         # 2. predicted normal        
         normals_normalized = surface_normals / (np.linalg.norm(surface_normals, axis=-1, keepdims=True) + 1e-8)
 
-        # Convert to the [0, 255] range for visualization
+        # 3. Convert to the [0, 255] range for visualization
         normals_visual = ((normals_normalized + 1) / 2 * 255).astype(np.uint8)
 
-        #pred_norm_rgb = normals_visual.astype(np.uint8)                  # (B, H, W, 3)
 
         return normals_visual  
 
-        
-    def norm_to_rgb(self,norm):
-        pred_norm = norm.detach().cpu().permute(1, 2, 0).numpy()  # (H, W, 3)
-
-
-
-        x = (r / (65535.0 / 2)) -1
-        y = (g / (65535.0 / 2)) -1
-        z = b / 65535.0
-        norm_rgb = cv2.merge([x,y,z])
-        #norm_rgb = ((pred_norm[...] + 1)) / 2 * 255
-        #norm_rgb = np.clip(norm_rgb, a_min=0, a_max=255)
-        #norm_rgb = norm_rgb.astype(np.uint8)
-        return norm_rgb
