@@ -121,7 +121,7 @@ class NormalDecoderT(nn.Module):
         x = features["X_04"]
         x = self.convs["X_04_Conv_0"](x)
         x = self.convs["X_04_Conv_1"](upsample(x))
-        outputs[("disp", 0)] = self.sigmoid(self.convs["dispconv0"](x)
+        outputs[("disp", 0)] = self.sigmoid(self.convs["dispconv0"](x))
         outputs[("disp", 1)] = self.sigmoid(self.convs["dispconv1"](features["X_04"]))
         outputs[("disp", 2)] = self.sigmoid(self.convs["dispconv2"](features["X_13"]))
         outputs[("disp", 3)] = self.sigmoid(self.convs["dispconv3"](features["X_22"]))
