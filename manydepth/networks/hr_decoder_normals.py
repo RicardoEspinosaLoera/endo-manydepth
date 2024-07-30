@@ -121,9 +121,9 @@ class NormalDecoderT(nn.Module):
         x = features["X_04"]
         x = self.convs["X_04_Conv_0"](x)
         x = self.convs["X_04_Conv_1"](upsample(x))
-        outputs[("disp", 0)] = self.convs["dispconv0"](x)
-        outputs[("disp", 1)] = self.convs["dispconv1"](features["X_04"])
-        outputs[("disp", 2)] = self.convs["dispconv2"](features["X_13"])
-        outputs[("disp", 3)] = self.convs["dispconv3"](features["X_22"])
+        outputs[("normal", 0)] = self.convs["dispconv0"](x)
+        outputs[("normal", 1)] = self.convs["dispconv1"](features["X_04"])
+        outputs[("normal", 2)] = self.convs["dispconv2"](features["X_13"])
+        outputs[("normal", 3)] = self.convs["dispconv3"](features["X_22"])
         return outputs
         
