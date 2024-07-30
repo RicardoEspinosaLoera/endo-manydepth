@@ -69,6 +69,7 @@ class Trainer_Monodepth2:
         if self.opt.use_stereo:
             self.opt.frame_ids.append("s")
 
+        """
         self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
@@ -76,6 +77,16 @@ class Trainer_Monodepth2:
  
         self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
+        self.models["depth"].to(self.device)
+        self.parameters_to_train += list(self.models["depth"].parameters())"""
+
+        #Transformer
+        self.models["encoder"] = networks.mpvit_small()            
+        self.models["encoder"].num_ch_enc = [64,64,128,216,288]
+        self.models["encoder"].to(self.device)
+        self.parameters_to_train += list(self.models["encoder"].parameters())
+
+        self.models["depth"] = networks.DepthDecoderT()
         self.models["depth"].to(self.device)
         self.parameters_to_train += list(self.models["depth"].parameters())
 
