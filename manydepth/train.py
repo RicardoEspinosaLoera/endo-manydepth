@@ -7,8 +7,8 @@ import torch
 import random
 import numpy as np
 #from trainer import Trainer
-#from trainer_m2 import Trainer_Monodepth
-from trainer_m2_normals import Trainer_Monodepth2
+from trainer_m2 import Trainer_Monodepth
+#from trainer_m2_normals import Trainer_Monodepth2
 from options import MonodepthOptions
 import datasets
 import networks
@@ -33,7 +33,7 @@ opts = options.parse()
 seed_all(opts.pytorch_random_seed)
 
 if __name__ == "__main__":
-    #trainer = Trainer_Monodepth(opts)
-    trainer = Trainer_Monodepth2(opts)
+    trainer = Trainer_Monodepth(opts)
+    #trainer = Trainer_Monodepth2(opts)
     
     trainer.train()

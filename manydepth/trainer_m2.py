@@ -70,29 +70,29 @@ class Trainer_Monodepth:
         
         
         #Transformer
-        
+        """
         self.models["encoder"] = networks.mpvit_small()            
         self.models["encoder"].num_ch_enc = [64,64,128,216,288]
         self.models["encoder"].to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters())
+        self.parameters_to_train += list(self.models["encoder"].parameters())"""
         #Normal Encoder
-        """
+        
         self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
         self.parameters_to_train += list(self.models["encoder"].parameters()) 
-        """
+        
         #Normal Encoder
-        """
+        
         self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(self.models["depth"].parameters())"""
+        self.parameters_to_train += list(self.models["depth"].parameters())
         #Transformer
-        
+        """
         self.models["depth"] = networks.DepthDecoderT()
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(self.models["depth"].parameters())
+        self.parameters_to_train += list(self.models["depth"].parameters())"""
         
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
@@ -489,7 +489,7 @@ class Trainer_Monodepth:
 
         losses = {}
         loss_reprojection = 0
-        loss_ilumination_invariant = 0
+        #loss_ilumination_invariant = 0
         total_loss = 0
 
 
@@ -522,11 +522,11 @@ class Trainer_Monodepth:
                 loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 #Illuminations invariant loss
                 #target = inputs[("color", 0, 0)]
-                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
+                #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
  
             
             loss += loss_reprojection / 2.0
-            loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
+            #loss += self.opt.illumination_invariant * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
             norm_disp = disp / (mean_disp + 1e-7)
             smooth_loss = get_smooth_loss(norm_disp, color)
