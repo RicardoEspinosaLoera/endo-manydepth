@@ -381,7 +381,7 @@ class Trainer_Monodepth2:
 
                     outputs[("cam_T_cam", 0, f_i)] = transformation_from_parameters(
                         axisangle[:, 0], translation[:, 0])
-                    """
+                    
                     outputs_lighting = self.models["lighting"](pose_inputs[0])
                     #outputs_mf = self.models["motion_flow"](pose_inputs[0])
                     
@@ -396,7 +396,7 @@ class Trainer_Monodepth2:
                     #outputs[("color_motion", f_i, scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
                     outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                     outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]"""
+                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]
 
 
         else:
@@ -643,15 +643,15 @@ class Trainer_Monodepth2:
                 rep_identity = self.compute_reprojection_loss(pred, target)
 
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
-                #reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
+                reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 #Losses
                 #target = outputs[("color_refined", frame_id, scale)] #Lighting
                 target = inputs[("color", 0, 0)]
                 pred = outputs[("color", frame_id, scale)]
                 loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 #Illuminations invariant loss
-                #target = inputs[("color", 0, 0)]
-                #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
+                target = inputs[("color", 0, 0)]
+                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
                 #Normal loss
                 #normal_loss += (self.norm_loss(outputs["normal_source",frame_id][("normal", scale)],outputs["normal_target"][("normal", scale)], rot_from_axisangle(outputs[("axisangle", 0, frame_id)][:, 0]).detach(),frame_id) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 
@@ -659,7 +659,7 @@ class Trainer_Monodepth2:
             #Normal loss
             #loss += 0.1 * normal_loss / 2.0
             #Illumination invariant loss
-            #loss += 0.5 * loss_ilumination_invariant / 2.0
+            loss += 0.5 * loss_ilumination_invariant / 2.0
             mean_disp = disp.mean(2, True).mean(3, True)
             norm_disp = disp / (mean_disp + 1e-7)
             smooth_loss = get_smooth_loss(norm_disp, color)
