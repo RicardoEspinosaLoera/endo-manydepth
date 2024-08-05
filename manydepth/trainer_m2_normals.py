@@ -616,7 +616,7 @@ class Trainer_Monodepth2:
 
         losses = {}
         loss_reprojection = 0
-        #loss_ilumination_invariant = 0
+        loss_ilumination_invariant = 0
         total_loss = 0
         #orthonogal_loss = 0
         normal_loss = 0
