@@ -110,10 +110,7 @@ class Trainer_Monodepth:
                 self.models["lighting"] = networks.LightingDecoder(self.models["pose_encoder"].num_ch_enc, self.opt.scales)
                 self.models["lighting"].to(self.device)
                 self.parameters_to_train += list(self.models["lighting"].parameters())
-                """
-                self.models["motion_flow"] = networks.ResidualFLowDecoder(self.models["encoder"].num_ch_enc, self.opt.scales)
-                self.models["motion_flow"].to(self.device)
-                self.parameters_to_train += list(self.models["motion_flow"].parameters())"""
+                
 
             elif self.opt.pose_model_type == "shared":
                 self.models["pose"] = networks.PoseDecoder(
@@ -173,9 +170,6 @@ class Trainer_Monodepth:
             num_workers=self.opt.num_workers, pin_memory=True, drop_last=True)
         self.val_iter = iter(self.val_loader)
 
-        #self.writers = {}
-        #for mode in ["train", "val"]:
-        #    self.writers[mode] = SummaryWriter(os.path.join(self.log_path, mode))
 
         if not self.opt.no_ssim:
             self.ssim = SSIM()
@@ -343,13 +337,7 @@ class Trainer_Monodepth:
                     
                     outputs_lighting = self.models["lighting"](pose_inputs[0])
                     
-                    
-                    """
-                    wandb.log({"original": wandb.Image(inputs[("color", 0, 0)][0].data)},step=self.step)
-                    wandb.log({"input_"+str(f_i): wandb.Image(pose_feats[f_i][0].data)},step=self.step)
-                    wandb.log({"input_0": wandb.Image(pose_feats[0][0].data)},step=self.step)"""
-                    #Lighting
-                    
+                    #Lighting                    
                     for scale in self.opt.scales:
                         outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
                         outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,1,None,:, :]
