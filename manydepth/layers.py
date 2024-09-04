@@ -379,7 +379,7 @@ def get_feature_oclution_mask(img):
 
         #t = torch.cat((M1/nor,M2/nor,M3/nor,M4/nor,M5/nor,M6/nor,M7/nor,M8/nor), dim = 1)
         #t = torch.cat((o/nor,o/nor,o/nor,o/nor,o/nor,o/nor,o/nor,o/nor), dim = 1)
-        t = torch.cat((o,o,o,o,o,o,o,o), dim = 1)
+    t = torch.cat((o,o,o,o,o,o,o,o), dim = 1)
     return t
 
 def calculate_surface_normal_from_depth(depth_map, K):
