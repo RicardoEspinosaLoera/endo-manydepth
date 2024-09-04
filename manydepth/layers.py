@@ -341,28 +341,28 @@ def get_ilumination_invariant_features(img):
     b,k,h,w = img_gray.shape
     padding = (3 - 1) // 2  # Padding to maintain input size
     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
-    M1 = ((torch.nn.functional.normalize (M1, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M1_norm = ((torch.nn.functional.normalize (M1.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
-    M2 = ((torch.nn.functional.normalize (M2, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M2_norm = ((torch.nn.functional.normalize (M2.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M3 = F.conv2d(img_gray, K3.view(1, 1, 3, 3), padding=padding)
-    M3 = ((torch.nn.functional.normalize (M3, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M3_norm = ((torch.nn.functional.normalize (M3.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M4 = F.conv2d(img_gray, K4.view(1, 1, 3, 3), padding=padding)
-    M4 = ((torch.nn.functional.normalize (M4, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M4_norm = ((torch.nn.functional.normalize (M4.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M5 = F.conv2d(img_gray, K5.view(1, 1, 3, 3), padding=padding)
-    M5 = ((torch.nn.functional.normalize (M5, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M5_norm = ((torch.nn.functional.normalize (M5.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M6 = F.conv2d(img_gray, K6.view(1, 1, 3, 3), padding=padding)
-    M6 = ((torch.nn.functional.normalize (M6, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M6_norm = ((torch.nn.functional.normalize (M6.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M7 = F.conv2d(img_gray, K7.view(1, 1, 3, 3), padding=padding)
-    M7 = ((torch.nn.functional.normalize (M7, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M7_norm = ((torch.nn.functional.normalize (M7.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
-    M8 = ((torch.nn.functional.normalize (M8, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    M8_norm = ((torch.nn.functional.normalize (M8.detach(), p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
 
     
     #nor = (M1 ** 2).sum() + (M2 ** 2).sum() + (M3 ** 2).sum() +(M4 ** 2).sum() + (M5 ** 2).sum() + (M6 ** 2).sum() + (M7 ** 2).sum() + (M8 ** 2).sum()
     
     #nor = torch.sqrt(nor) + 1e-09
 
-    t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
+    t = torch.cat((M1_norm,M2_norm,M3_norm,M4_norm,M5_norm,M6_norm,M7_norm,M8_norm), dim = 1)
     #t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
     
     #t_norm = torch.norm(t)
