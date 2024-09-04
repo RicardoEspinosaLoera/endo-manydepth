@@ -366,6 +366,7 @@ def get_ilumination_invariant_features(img):
     
     #t_norm = torch.norm(t)
     #print(t_norm.shape)
+    print(t.shape)
     return t        
 
 def get_feature_oclution_mask(img):
