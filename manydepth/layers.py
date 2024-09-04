@@ -338,23 +338,24 @@ def get_ilumination_invariant_features(img):
     K8 = torch.Tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]]).to(device=img_gray.device)
 
     #img_gray = F.pad(img_gray, (0, 0, 1, 2))
+    b,k,h,w = img_gray.shape
     padding = (3 - 1) // 2  # Padding to maintain input size
     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
-    M1 = (torch.nn.functional.normalize (M1, p = 2, dim = 1)**2).sum(dim = 1)
+    M1 = ((torch.nn.functional.normalize (M1, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
-    M2 = (torch.nn.functional.normalize (M2, p = 2, dim = 1)**2).sum(dim = 1)
+    M2 = ((torch.nn.functional.normalize (M2, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M3 = F.conv2d(img_gray, K3.view(1, 1, 3, 3), padding=padding)
-    M3 = (torch.nn.functional.normalize (M3, p = 2, dim = 1)**2).sum(dim = 1)
+    M3 = ((torch.nn.functional.normalize (M3, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M4 = F.conv2d(img_gray, K4.view(1, 1, 3, 3), padding=padding)
-    M4 = (torch.nn.functional.normalize (M4, p = 2, dim = 1)**2).sum(dim = 1)
+    M4 = ((torch.nn.functional.normalize (M4, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M5 = F.conv2d(img_gray, K5.view(1, 1, 3, 3), padding=padding)
-    M5 = (torch.nn.functional.normalize (M5, p = 2, dim = 1)**2).sum(dim = 1)
+    M5 = ((torch.nn.functional.normalize (M5, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M6 = F.conv2d(img_gray, K6.view(1, 1, 3, 3), padding=padding)
-    M6 = (torch.nn.functional.normalize (M6, p = 2, dim = 1)**2).sum(dim = 1)
+    M6 = ((torch.nn.functional.normalize (M6, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M7 = F.conv2d(img_gray, K7.view(1, 1, 3, 3), padding=padding)
-    M7 = (torch.nn.functional.normalize (M7, p = 2, dim = 1)**2).sum(dim = 1)
+    M7 = ((torch.nn.functional.normalize (M7, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
-    M8 = (torch.nn.functional.normalize (M8, p = 2, dim = 1)**2).sum(dim = 1)
+    M8 = ((torch.nn.functional.normalize (M8, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
 
     
     #nor = (M1 ** 2).sum() + (M2 ** 2).sum() + (M3 ** 2).sum() +(M4 ** 2).sum() + (M5 ** 2).sum() + (M6 ** 2).sum() + (M7 ** 2).sum() + (M8 ** 2).sum()
