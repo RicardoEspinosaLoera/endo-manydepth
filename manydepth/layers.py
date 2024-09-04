@@ -358,6 +358,7 @@ def get_ilumination_invariant_features(img):
     t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
     #t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
     t_norm = torch.norm(t)
+    print(t_norm.shape)
     return t_norm        
 
 def get_feature_oclution_mask(img):
