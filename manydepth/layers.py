@@ -373,7 +373,12 @@ def get_feature_oclution_mask(img):
     kernel = torch.tensor([[1, 1, 1],[1, 1, 1],[1, 1, 1]]).to(device=img.device).type(torch.cuda.FloatTensor)
     padding = (3 - 1) // 2  # Padding to maintain input size
     o = F.conv2d(img, kernel.view(1, 1, 3, 3), padding=padding)
-    t = torch.cat((o,o,o,o,o,o,o,o), dim = 1)
+    with torch.no_grad():
+        nor = (o ** 2).sum()
+        nor = torch.sqrt(nor) + 1e-09
+
+        #t = torch.cat((M1/nor,M2/nor,M3/nor,M4/nor,M5/nor,M6/nor,M7/nor,M8/nor), dim = 1)
+        t = torch.cat((o/nor,o/nor,o/nor,o/nor,o/nor,o/nor,o/nor,o/nor), dim = 1)
     return t
 
 def calculate_surface_normal_from_depth(depth_map, K):
