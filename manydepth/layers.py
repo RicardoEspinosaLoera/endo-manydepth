@@ -351,13 +351,14 @@ def get_ilumination_invariant_features(img):
     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
 
     
-    nor = (M1 ** 2).sum() + (M2 ** 2).sum() + (M3 ** 2).sum() +(M4 ** 2).sum() + (M5 ** 2).sum() + (M6 ** 2).sum() + (M7 ** 2).sum() + (M8 ** 2).sum()
-    nor = torch.sqrt(nor) + 1e-09
+    #nor = (M1 ** 2).sum() + (M2 ** 2).sum() + (M3 ** 2).sum() +(M4 ** 2).sum() + (M5 ** 2).sum() + (M6 ** 2).sum() + (M7 ** 2).sum() + (M8 ** 2).sum()
+    
+    #nor = torch.sqrt(nor) + 1e-09
 
-    t = torch.cat((M1/nor,M2/nor,M3/nor,M4/nor,M5/nor,M6/nor,M7/nor,M8/nor), dim = 1)
+    t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
     #t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
-    #t_norm = torch.norm(t, p=1)
-    return t        
+    t_norm = torch.norm(t)
+    return t_norm        
 
 def get_feature_oclution_mask(img):
     kernel = torch.tensor([[1, 1, 1],[1, 1, 1],[1, 1, 1]]).to(device=img.device).type(torch.cuda.FloatTensor)
