@@ -357,10 +357,6 @@ def get_ilumination_invariant_features(img):
     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
     #M8_norm = ((torch.nn.functional.normalize (M8, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
 
-    """with torch.no_grad():
-        nor = (M1 ** 2).sum() + (M2 ** 2).sum() + (M3 ** 2).sum() +(M4 ** 2).sum() + (M5 ** 2).sum() + (M6 ** 2).sum() + (M7 ** 2).sum() + (M8 ** 2).sum()
-        nor = torch.sqrt(nor) + 1e-09"""
-
     #t = torch.cat((M1/nor,M2/nor,M3/nor,M4/nor,M5/nor,M6/nor,M7/nor,M8/nor), dim = 1)
     t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
     t_norm = F.normalize(t, p=2, dim=1)
@@ -374,7 +370,8 @@ def get_feature_oclution_mask(img):
     padding = (3 - 1) // 2  # Padding to maintain input size
     o = F.conv2d(img, kernel.view(1, 1, 3, 3), padding=padding)
     t = torch.cat((o,o,o,o,o,o,o,o), dim = 1)
-    return t
+    t_norm = F.normalize(t, p=2, dim=1)
+    return t_norm
 
 def calculate_surface_normal_from_depth(depth_map, K):
     # Calculate gradients using finite differences
