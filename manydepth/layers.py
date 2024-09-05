@@ -340,7 +340,6 @@ def get_ilumination_invariant_features(img):
     #img_gray = F.pad(img_gray, (0, 0, 1, 2))
     padding = (3 - 1) // 2  # Padding to maintain input size
     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
-    print(M1)
     #M1 = F.normalize(M1, p=2, dim=1)
     #M1_norm = ((torch.nn.functional.normalize (M1, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
@@ -367,6 +366,16 @@ def get_ilumination_invariant_features(img):
 
     #t = torch.cat((M1/nor,M2/nor,M3/nor,M4/nor,M5/nor,M6/nor,M7/nor,M8/nor), dim = 1)
     t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
+
+    # Rescale each feature map (per batch and per channel)
+    min_val, _ = t.view(t.size(0), t.size(1), -1).min(dim=2, keepdim=True)
+    max_val, _ = t.view(t.size(0), t.size(1), -1).max(dim=2, keepdim=True)
+
+    # Avoid division by zero in case max == min by adding a small epsilon
+    epsilon = 1e-9
+    t_rescaled = (t - min_val) / (max_val - min_val + epsilon)
+
+    print(t_rescaled.shape)
 
     return t        
 
