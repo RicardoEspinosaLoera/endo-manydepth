@@ -367,15 +367,14 @@ def get_ilumination_invariant_features(img):
     #t = torch.cat((M1/nor,M2/nor,M3/nor,M4/nor,M5/nor,M6/nor,M7/nor,M8/nor), dim = 1)
     t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
 
-    # Rescale each feature map (per batch and per channel)
-    min_val, _ = t.view(t.size(0), t.size(1), -1).min(dim=2, keepdim=True)
-    max_val, _ = t.view(t.size(0), t.size(1), -1).max(dim=2, keepdim=True)
+    b, c, h, w = t.shape
+    min_val = t.view(b, c, -1).min(dim=2, keepdim=True)[0].view(b, c, 1, 1)
+    max_val = t.view(b, c, -1).max(dim=2, keepdim=True)[0].view(b, c, 1, 1)
 
     # Avoid division by zero in case max == min by adding a small epsilon
     epsilon = 1e-9
     t_rescaled = (t - min_val) / (max_val - min_val + epsilon)
 
-    print(t_rescaled.shape)
 
     return t        
 
