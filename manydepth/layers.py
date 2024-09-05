@@ -340,6 +340,7 @@ def get_ilumination_invariant_features(img):
     #img_gray = F.pad(img_gray, (0, 0, 1, 2))
     padding = (3 - 1) // 2  # Padding to maintain input size
     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
+    print(M1)
     #M1 = F.normalize(M1, p=2, dim=1)
     #M1_norm = ((torch.nn.functional.normalize (M1, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
     M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
