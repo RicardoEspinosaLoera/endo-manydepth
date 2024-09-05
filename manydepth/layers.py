@@ -393,7 +393,6 @@ def get_feature_oclution_mask(img):
     epsilon = 1e-9
     t_rescaled = (t - min_val) / (max_val - min_val + epsilon)
     t_norm = F.normalize(t_rescaled, p=2, dim=1) 
-    #t_norm = F.normalize(t, p=2, dim=1)
     return t_norm
 
 def calculate_surface_normal_from_depth(depth_map, K):
