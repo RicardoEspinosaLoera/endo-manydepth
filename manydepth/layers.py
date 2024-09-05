@@ -374,9 +374,10 @@ def get_ilumination_invariant_features(img):
     # Avoid division by zero in case max == min by adding a small epsilon
     epsilon = 1e-9
     t_rescaled = (t - min_val) / (max_val - min_val + epsilon)
+    t_norm = F.normalize(t_rescaled, p=2, dim=1) 
 
 
-    return t        
+    return t_norm      
 
 def get_feature_oclution_mask(img):
     kernel = torch.tensor([[1, 1, 1],[1, 1, 1],[1, 1, 1]]).to(device=img.device).type(torch.cuda.FloatTensor)
