@@ -335,7 +335,7 @@ class Trainer_Monodepth:
                         axisangle[:, 0], translation[:, 0])
                     
                     outputs_lighting = self.models["lighting"](pose_inputs[0])
-                    """
+                    
                     #Lighting                    
                     for scale in self.opt.scales:
                         outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
@@ -348,7 +348,7 @@ class Trainer_Monodepth:
                     #outputs[("color_motion", f_i, scale)] = self.spatial_transform(inputs[("color", 0, 0)],outputs["mf_"+str(0)+"_"+str(f_i)])
                     outputs[("bh",scale, f_i)] = F.interpolate(outputs["b_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                     outputs[("ch",scale, f_i)] = F.interpolate(outputs["c_"+str(scale)+"_"+str(f_i)], [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]"""
+                    outputs[("color_refined", f_i, scale)] = outputs[("ch",scale, f_i)] * inputs[("color", 0, 0)] + outputs[("bh", scale, f_i)]
                     
 
 
@@ -445,10 +445,10 @@ class Trainer_Monodepth:
         features_p = get_ilumination_invariant_features(pred)
         features_t = get_ilumination_invariant_features(target)
         abs_diff = torch.abs(features_t - features_p)
-        #l1_loss = abs_diff.mean(1, True)
+        l1_loss = abs_diff.mean(1, True)
         #print(features_p.shape)
         ssim_loss = self.ssim(features_p, features_t).mean(1, True)
-        #ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
+        ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
         return ssim_loss
     
@@ -503,7 +503,7 @@ class Trainer_Monodepth:
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
                 #Losses
-                #target = outputs[("color_refined", frame_id, scale)] #Lighting
+                target = outputs[("color_refined", frame_id, scale)] #Lighting
                 pred = outputs[("color", frame_id, scale)]
                 loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 #Illuminations invariant loss
