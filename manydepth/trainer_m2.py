@@ -22,9 +22,8 @@ from torch.utils.data import DataLoader
 #from tensorboardX import SummaryWriter
 import wandb
 
-
 wandb.init(project="IISfMLearner", entity="respinosa")
-sweep_config = {
+"""sweep_config = {
     'method': 'random'
     }
 
@@ -48,7 +47,7 @@ sweep_config['parameters'] = parameters_dict
 
 sweep_id = wandb.sweep(sweep_config, project="sweep_iil")
 
-wandb.agent(sweep_id, train, count=5)
+wandb.agent(sweep_id, train, count=5)"""
 
 import json
 
