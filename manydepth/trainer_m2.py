@@ -24,7 +24,31 @@ import wandb
 
 
 wandb.init(project="IISfMLearner", entity="respinosa")
+sweep_config = {
+    'method': 'random'
+    }
 
+metric = {
+    'name': 'losses',
+    'goal': 'minimize'   
+    }
+
+sweep_config['metric'] = metric
+
+parameters_dict({
+    'illumination_invariant': {
+        # a flat distribution between 0 and 0.1
+        'distribution': 'uniform',
+        'min': 0,
+        'max': 1
+      },
+    })
+
+sweep_config['parameters'] = parameters_dict
+
+sweep_id = wandb.sweep(sweep_config, project="sweep_iil")
+
+wandb.agent(sweep_id, train, count=5)
 
 import json
 
@@ -450,7 +474,7 @@ class Trainer_Monodepth:
         ssim_loss = self.ssim(features_p, features_t).mean(1, True)
         ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
-        return ssim_loss
+        return ii_loss
     
     def get_motion_flow_loss(self,motion_map):
         """A regularizer that encourages sparsity.
