@@ -473,7 +473,7 @@ class Trainer_Monodepth:
         ssim_loss = self.ssim(features_p, features_t).mean(1, True)
         #ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
-        return ii_loss
+        return ssim_loss
     
     def get_motion_flow_loss(self,motion_map):
         """A regularizer that encourages sparsity.
