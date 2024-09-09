@@ -93,27 +93,27 @@ class Trainer_Monodepth:
         
         
         #Transformer
-        """self.models["encoder"] = networks.mpvit_small()            
+        self.models["encoder"] = networks.mpvit_small()            
         self.models["encoder"].num_ch_enc = [64,64,128,216,288]
         self.models["encoder"].to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters())"""
+        self.parameters_to_train += list(self.models["encoder"].parameters())
         #Normal Encoder
-        
+        """
         self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
         self.parameters_to_train += list(self.models["encoder"].parameters()) 
-        
+        """
         #Normal Encoder
+        """
         self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(self.models["depth"].parameters())
+        self.parameters_to_train += list(self.models["depth"].parameters())"""
         #Transformer
-        """
         self.models["depth"] = networks.DepthDecoderT()
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(self.models["depth"].parameters())"""
+        self.parameters_to_train += list(self.models["depth"].parameters())
         
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
@@ -467,11 +467,11 @@ class Trainer_Monodepth:
     def get_ilumination_invariant_loss(self, pred, target):
         features_p = get_ilumination_invariant_features(pred)
         features_t = get_ilumination_invariant_features(target)
-        abs_diff = torch.abs(features_t - features_p)
-        l1_loss = abs_diff.mean(1, True)
+        #abs_diff = torch.abs(features_t - features_p)
+        #l1_loss = abs_diff.mean(1, True)
         #print(features_p.shape)
         ssim_loss = self.ssim(features_p, features_t).mean(1, True)
-        ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
+        #ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
         return ii_loss
     
