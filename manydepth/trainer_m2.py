@@ -473,7 +473,7 @@ class Trainer_Monodepth:
         mssim = []
         mcs = []
         for _ in range(5):
-            ssim_val = self.ssim(img1, img2, window_size=11, size_average=True)
+            ssim_val = self.ssim(img1, img2)
             mssim.append(ssim_val)
 
             img1 = F.avg_pool2d(img1, kernel_size=2)
