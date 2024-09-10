@@ -479,10 +479,9 @@ class Trainer_Monodepth:
             img1 = F.avg_pool2d(img1, kernel_size=2)
             img2 = F.avg_pool2d(img2, kernel_size=2)
         
-
         #mssim = torch.stack(mssim[0], dim=0)
 
-        return torch.prod(mssim[-1] ** torch.Tensor(scale_weights).to(img1.device))
+        return torch.prod(mssim[4] ** torch.Tensor(scale_weights).to(img1.device))
     
     def compute_reprojection_loss_mssim(self, pred, target):
         abs_diff = torch.abs(target - pred)
