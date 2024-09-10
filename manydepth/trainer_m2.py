@@ -466,22 +466,22 @@ class Trainer_Monodepth:
 
         return reprojection_loss
     
-    def ms_ssim(self,img1, img2):
-        
-        scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Default weights as per SSIM paper
-
+    def ms_ssim(img1, img2):
+        scale_weights = [0.0448, 0.2856, 0.001, 0.2363, 0.1333]  # Pesos por defecto de MS-SSIM
+        M=5
         mssim = []
-        mcs = []
-        for _ in range(5):
-            ssim_val = self.ssim(img1, img2)
+        for _ in range(M):
+            # Calcular SSIM para la escala actual
+            ssim_val = ssim(img1, img2)
             mssim.append(ssim_val)
 
+            # Realizar downsampling de las imágenes
             img1 = F.avg_pool2d(img1, kernel_size=2)
             img2 = F.avg_pool2d(img2, kernel_size=2)
-        
-        mssim = torch.stack(mssim, dim=0)
 
-        return torch.prod(mssim ** torch.Tensor(scale_weights).to(img1.device))
+        # Convertir a tensor los valores de MS-SSIM y aplicar los pesos
+        mssim = torch.tensor(mssim).to(img1.device)
+        return torch.prod(mssim ** torch.Tensor(scale_weights[:len(mssim)]).to(img1.device))
     
     def compute_reprojection_loss_mssim(self, pred, target):
         abs_diff = torch.abs(target - pred)
