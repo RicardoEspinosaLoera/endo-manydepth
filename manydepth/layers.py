@@ -255,22 +255,6 @@ class SSIM(nn.Module):
 
         return torch.clamp((1 - SSIM_n / SSIM_d) / 2, 0, 1)
 
-def ms_ssim(img1, img2, window_size=11, size_average=True, scale_weights=None, M=5):
-    if scale_weights is None:
-        scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Default weights as per SSIM paper
-
-    mssim = []
-    mcs = []
-    for _ in range(M):
-        ssim_val = ssim(img1, img2, window_size=window_size, size_average=size_average)
-        mssim.append(ssim_val)
-
-        img1 = F.avg_pool2d(img1, kernel_size=2)
-        img2 = F.avg_pool2d(img2, kernel_size=2)
-
-    mssim = torch.stack(mssim, dim=0)
-
-    return torch.prod(mssim ** torch.Tensor(scale_weights).to(img1.device))
 
 
 def compute_depth_errors(gt, pred):
