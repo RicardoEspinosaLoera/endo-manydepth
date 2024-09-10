@@ -19,6 +19,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torchmetrics import MultiScaleStructuralSimilarityIndexMeasure
 #from tensorboardX import SummaryWriter
 import wandb
 
@@ -195,6 +196,7 @@ class Trainer_Monodepth:
 
         if not self.opt.no_ssim:
             self.ssim = SSIM()
+            self.ms_ssim = MultiScaleStructuralSimilarityIndexMeasure()
             self.ssim.to(self.device)
 
         self.spatial_transform = SpatialTransformer((self.opt.height, self.opt.width))
