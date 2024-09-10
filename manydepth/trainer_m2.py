@@ -466,14 +466,14 @@ class Trainer_Monodepth:
 
         return reprojection_loss
     
-    def ms_ssim(self,img1, img2, window_size=11, size_average=True, scale_weights=None, M=5):
-        if scale_weights is None:
-            scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Default weights as per SSIM paper
+    def ms_ssim(self,img1, img2):
+        
+        scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Default weights as per SSIM paper
 
         mssim = []
         mcs = []
-        for _ in range(M):
-            ssim_val = self.ssim(img1, img2, window_size=window_size, size_average=size_average)
+        for _ in range(5):
+            ssim_val = self.ssim(img1, img2, window_size=11, size_average=True)
             mssim.append(ssim_val)
 
             img1 = F.avg_pool2d(img1, kernel_size=2)
