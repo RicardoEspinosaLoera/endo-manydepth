@@ -467,6 +467,16 @@ class Trainer_Monodepth:
             reprojection_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
         return reprojection_loss
+    
+    def compute_reprojection_loss_mssim(self, pred, target):
+        abs_diff = torch.abs(target - pred)
+        l1_loss = abs_diff.mean(1, True)
+
+        ms_ssim_loss = ms_ssim(target, pred, M=5)
+
+        # Reprojection loss as a combination of L1 and MS-SSIM
+        loss = 0.9 * (1 - ms_ssim_loss) + 0.1 * l1_loss
+        return loss
 
     
     def get_ilumination_invariant_loss(self, pred, target):
@@ -534,7 +544,8 @@ class Trainer_Monodepth:
                 #Losses
                 target = outputs[("color_refined", frame_id, scale)] #Lighting
                 pred = outputs[("color", frame_id, scale)]
-                loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                #loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                loss_reprojection += (self.compute_reprojection_loss_mssim(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 #Illuminations invariant loss
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
