@@ -19,7 +19,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchmetrics import MultiScaleStructuralSimilarityIndexMeasure
+from torchmetrics.image import MultiScaleStructuralSimilarityIndexMeasure
 #from tensorboardX import SummaryWriter
 import wandb
 
@@ -461,7 +461,9 @@ class Trainer_Monodepth:
         if self.opt.no_ssim:
             reprojection_loss = l1_loss
         else:
-            ssim_loss = self.ms_ssim(pred, target).mean(1, True)
+            ssim_loss = self.ms_ssim(pred, target)
+            print(ssim_loss.shape)
+            #.mean(1, True)
             reprojection_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
         return reprojection_loss
