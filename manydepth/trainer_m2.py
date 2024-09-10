@@ -466,7 +466,7 @@ class Trainer_Monodepth:
 
         return reprojection_loss
     
-    def ms_ssim(img1, img2):
+    def ms_ssim(self,img1, img2):
         scale_weights = [0.0448, 0.2856, 0.001, 0.2363, 0.1333]  # Pesos por defecto de MS-SSIM
         M=5
         mssim = []
