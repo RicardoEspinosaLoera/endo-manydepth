@@ -479,7 +479,7 @@ class Trainer_Monodepth:
             img1 = F.avg_pool2d(img1, kernel_size=2)
             img2 = F.avg_pool2d(img2, kernel_size=2)
         
-        #mssim = torch.stack(mssim[0], dim=0)
+        mssim = torch.stack(mssim[0], dim=0)
 
         return torch.prod(mssim ** torch.Tensor(scale_weights).to(img1.device))
     
