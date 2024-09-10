@@ -460,7 +460,7 @@ class Trainer_Monodepth:
         if self.opt.no_ssim:
             reprojection_loss = l1_loss
         else:
-            ssim_loss = self.ssim(pred, target).mean(1, True)
+            ssim_loss = self.ms_ssim(pred, target).mean(1, True)
             reprojection_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
         return reprojection_loss
