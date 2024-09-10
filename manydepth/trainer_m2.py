@@ -198,6 +198,7 @@ class Trainer_Monodepth:
             self.ssim = SSIM()
             self.ms_ssim = MultiScaleStructuralSimilarityIndexMeasure()
             self.ssim.to(self.device)
+            self.ms_ssim.to(self.device)
 
         self.spatial_transform = SpatialTransformer((self.opt.height, self.opt.width))
         self.spatial_transform.to(self.device)
