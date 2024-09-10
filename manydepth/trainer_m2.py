@@ -487,7 +487,7 @@ class Trainer_Monodepth:
         abs_diff = torch.abs(target - pred)
         l1_loss = abs_diff.mean(1, True)
 
-        ms_ssim_loss = ms_ssim(target, pred, M=5)
+        ms_ssim_loss = self.ms_ssim(target, pred, M=5)
 
         # Reprojection loss as a combination of L1 and MS-SSIM
         loss = 0.9 * (1 - ms_ssim_loss) + 0.1 * l1_loss
