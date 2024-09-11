@@ -465,35 +465,86 @@ class Trainer_Monodepth:
             reprojection_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
         return reprojection_loss
-    
-    def ms_ssim(self,img1, img2):
-        scale_weights = [0.0448, 0.2856, 0.001, 0.2363, 0.1333]  # Pesos por defecto de MS-SSIM
-        M=5
-        mssim = []
-        for _ in range(M):
-            # Calcular SSIM para la escala actual
-            ssim_val = self.ssim(img1, img2)
-            mssim.append(ssim_val)
 
-            # Realizar downsampling de las imágenes
+    def gaussian_kernel(self,window_size, sigma):
+        gauss = torch.Tensor([math.exp(-(x - window_size // 2) ** 2 / float(2 * sigma ** 2)) for x in range(window_size)])
+        return gauss / gauss.sum()
+
+    def create_window(self,window_size, channel):
+        _1D_window = gaussian_kernel(window_size, 1.5).unsqueeze(1)
+        _2D_window = _1D_window.mm(_1D_window.t()).float().unsqueeze(0).unsqueeze(0)
+        window = _2D_window.expand(channel, 1, window_size, window_size).contiguous()
+        return window
+
+    def luminance_comparison(self,img1, img2, window_size=11):
+        channel = img1.size(1)
+        window = create_window(window_size, channel).to(img1.device)
+
+        mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
+        mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
+
+        C1 = 0.01 ** 2
+        lM = (2 * mu1 * mu2 + C1) / (mu1 ** 2 + mu2 ** 2 + C1)
+        return lM.mean()
+
+    def contrast_comparison(self,img1, img2, window_size=11):
+        channel = img1.size(1)
+        window = create_window(window_size, channel).to(img1.device)
+
+        mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
+        mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
+
+        sigma1_sq = F.conv2d(img1 * img1, window, padding=window_size // 2, groups=channel) - mu1 ** 2
+        sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2 ** 2
+
+        C2 = 0.03 ** 2
+        cj = (2 * sigma1_sq.sqrt() * sigma2_sq.sqrt() + C2) / (sigma1_sq + sigma2_sq + C2)
+        return cj.mean()
+
+    def structure_comparison(self,img1, img2, window_size=11):
+        channel = img1.size(1)
+        window = create_window(window_size, channel).to(img1.device)
+
+        mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
+        mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
+
+        sigma1_sq = F.conv2d(img1 * img1, window, padding=window_size // 2, groups=channel) - mu1 ** 2
+        sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2 ** 2
+        sigma12 = F.conv2d(img1 * img2, window, padding=window_size // 2, groups=channel) - mu1 * mu2
+
+        C3 = C2 / 2  # Ajuste de la constante C3
+        sj = (sigma12 + C3) / (sigma1_sq.sqrt() * sigma2_sq.sqrt() + C3)
+        return sj.mean()
+       
+    def ms_ssim(self,img1, img2, window_size=11, alpha_M=0.9, beta=0.1, gamma=0.1):
+        scale_weights_c = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos para el contraste
+        scale_weights_s = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos para la estructura
+        
+        # Luminancia calculada solo en la última escala
+        lM = luminance_comparison(img1, img2, window_size=window_size)
+
+        contrast_terms = []
+        structure_terms = []
+
+        for j in range(5):
+            cj = contrast_comparison(img1, img2, window_size=window_size)
+            sj = structure_comparison(img1, img2, window_size=window_size)
+
+            contrast_terms.append(cj ** scale_weights_c[j])
+            structure_terms.append(sj ** scale_weights_s[j])
+
+            # Downsampling
             img1 = F.avg_pool2d(img1, kernel_size=2)
             img2 = F.avg_pool2d(img2, kernel_size=2)
 
-        # Convertir a tensor los valores de MS-SSIM y aplicar los pesos
-        #mssim = torch.tensor(mssim).to(img1.device)
-        ms_ssim_val = torch.prod(torch.stack([(mssim[i] ** scale_weights[i]) for i in range(len(mssim))]))
+        contrast_product = torch.prod(torch.stack(contrast_terms))
+        structure_product = torch.prod(torch.stack(structure_terms))
+
+        # Fórmula final de MS-SSIM con pesos alpha_M, beta, gamma
+        ms_ssim_val = (lM ** alpha_M) * (contrast_product ** beta) * (structure_product ** gamma)
+
         return ms_ssim_val
     
-    def compute_reprojection_loss_mssim(self, pred, target):
-        abs_diff = torch.abs(target - pred)
-        l1_loss = abs_diff.mean(1, True)
-
-        ms_ssim_loss = self.ms_ssim(target, pred)
-
-        # Reprojection loss as a combination of L1 and MS-SSIM
-        loss = 0.9 * (1 - ms_ssim_loss) + 0.1 * l1_loss
-        return loss
-
     
     def get_ilumination_invariant_loss(self, pred, target):
         features_p = get_ilumination_invariant_features(pred)
@@ -561,7 +612,7 @@ class Trainer_Monodepth:
                 target = outputs[("color_refined", frame_id, scale)] #Lighting
                 pred = outputs[("color", frame_id, scale)]
                 #loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
-                loss_reprojection += (self.compute_reprojection_loss_mssim(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                loss_reprojection += (self.ms_ssim(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 #Illuminations invariant loss
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
