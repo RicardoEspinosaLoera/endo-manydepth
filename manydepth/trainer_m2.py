@@ -500,7 +500,7 @@ class Trainer_Monodepth:
     def get_ms_simm_loss(self, pred, target):
         abs_diff = torch.abs(target - pred)
         l1_loss = abs_diff.mean(1, True)
-        ssim_loss = self.ms_ssim(target - pred)
+        ssim_loss = self.ms_ssim(target,pred)
         loss = 0.90 * ssim_loss + 0.10 * l1_loss
 
         return loss
