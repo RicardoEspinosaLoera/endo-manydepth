@@ -483,7 +483,7 @@ class Trainer_Monodepth:
             img2 = F.avg_pool2d(img2, kernel_size=2)
         
         # Luminancia se calcula solo en la última escala (último valor de SSIM)
-        lM = ssim_vals[-1]
+        lM = ssim_vals[0]
         
         # Los valores anteriores de SSIM representan cj (contraste) y sj (estructura)
         contrast_and_structure = ssim_vals[:-1]
@@ -493,9 +493,17 @@ class Trainer_Monodepth:
             contrast_and_structure_product *= ssim ** scale_weights[j]
 
         # MS-SSIM final
-        ms_ssim_val = (lM ** scale_weights[-1]) * (contrast_and_structure_product) * (contrast_and_structure_product)
+        ms_ssim_val = (lM ** scale_weights[0]) * (contrast_and_structure_product) * (contrast_and_structure_product)
 
         return ms_ssim_val
+
+    def get_ms_simm_loss(self, pred, target):
+        abs_diff = torch.abs(target - pred)
+        l1_loss = abs_diff.mean(1, True)
+        ssim_loss = self.ms_ssim(pred, target)
+        loss = 0.90 * ssim_loss + 0.10 * l1_loss
+
+        return loss
     
     def get_ilumination_invariant_loss(self, pred, target):
         features_p = get_ilumination_invariant_features(pred)
@@ -563,7 +571,7 @@ class Trainer_Monodepth:
                 target = outputs[("color_refined", frame_id, scale)] #Lighting
                 pred = outputs[("color", frame_id, scale)]
                 #loss_reprojection += (self.compute_reprojection_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
-                loss_reprojection += (self.ms_ssim(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
+                loss_reprojection += (self.get_ms_simm_loss(pred, target) * reprojection_loss_mask).sum() / reprojection_loss_mask.sum()
                 #Illuminations invariant loss
                 #target = inputs[("color", 0, 0)]
                 #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred,target) * reprojection_loss_mask_iil).sum() / reprojection_loss_mask_iil.sum()
