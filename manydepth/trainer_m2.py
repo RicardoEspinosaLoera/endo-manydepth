@@ -467,56 +467,7 @@ class Trainer_Monodepth:
 
         return reprojection_loss
 
-    def gaussian_kernel(self,window_size, sigma):
-        gauss = torch.Tensor([math.exp(-(x - window_size // 2) ** 2 / float(2 * sigma ** 2)) for x in range(window_size)])
-        return gauss / gauss.sum()
-
-    def create_window(self,window_size, channel):
-        _1D_window = self.gaussian_kernel(window_size, 1.5).unsqueeze(1)
-        _2D_window = _1D_window.mm(_1D_window.t()).float().unsqueeze(0).unsqueeze(0)
-        window = _2D_window.expand(channel, 1, window_size, window_size).contiguous()
-        return window
-
-    def luminance_comparison(self,img1, img2, window_size=11):
-        channel = img1.size(1)
-        window = self.create_window(window_size, channel).to(img1.device)
-
-        mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
-        mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
-
-        C1 = 0.01 ** 2
-        lM = (2 * mu1 * mu2 + C1) / (mu1 ** 2 + mu2 ** 2 + C1)
-        return lM.mean()
-
-    def contrast_comparison(self,img1, img2, window_size=11):
-        channel = img1.size(1)
-        window = self.create_window(window_size, channel).to(img1.device)
-
-        mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
-        mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
-
-        sigma1_sq = F.conv2d(img1 * img1, window, padding=window_size // 2, groups=channel) - mu1 ** 2
-        sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2 ** 2
-
-        C2 = 0.03 ** 2
-        cj = (2 * sigma1_sq.sqrt() * sigma2_sq.sqrt() + C2) / (sigma1_sq + sigma2_sq + C2)
-        return cj.mean()
-
-    def structure_comparison(self,img1, img2, window_size=11):
-        channel = img1.size(1)
-        window = self.create_window(window_size, channel).to(img1.device)
-
-        mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
-        mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
-
-        sigma1_sq = F.conv2d(img1 * img1, window, padding=window_size // 2, groups=channel) - mu1 ** 2
-        sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2 ** 2
-        sigma12 = F.conv2d(img1 * img2, window, padding=window_size // 2, groups=channel) - mu1 * mu2
-        C2 = 0.03 ** 2  # Constante de contraste
-        C3 = C2 / 2  # Ajuste de la constante C3
-        sj = (sigma12 + C3) / (sigma1_sq.sqrt() * sigma2_sq.sqrt() + C3)
-        return sj.mean()
-       
+      
     def ms_ssim(self,img1, img2, alpha_M=0.9, beta=0.1, gamma=0.1):
         scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos por defecto
 
@@ -531,7 +482,7 @@ class Trainer_Monodepth:
             img1 = F.avg_pool2d(img1, kernel_size=2)
             img2 = F.avg_pool2d(img2, kernel_size=2)
         
-         # Luminancia se calcula solo en la última escala (último valor de SSIM)
+        # Luminancia se calcula solo en la última escala (último valor de SSIM)
         lM = ssim_vals[-1]
         
         # Los valores anteriores de SSIM representan cj (contraste) y sj (estructura)
@@ -600,10 +551,10 @@ class Trainer_Monodepth:
                 target = inputs[("color", 0, 0)]
                 pred = outputs[("color", frame_id, scale)]
 
-                rep = self.compute_reprojection_loss(pred, target)
+                rep = self.ms_ssim(pred, target)
 
                 pred = inputs[("color", frame_id, source_scale)]
-                rep_identity = self.compute_reprojection_loss(pred, target)
+                rep_identity = self.ms_ssim(pred, target)
                 
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
                 
