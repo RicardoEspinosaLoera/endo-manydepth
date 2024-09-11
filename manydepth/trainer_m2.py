@@ -531,14 +531,16 @@ class Trainer_Monodepth:
             img1 = F.avg_pool2d(img1, kernel_size=2)
             img2 = F.avg_pool2d(img2, kernel_size=2)
         
-        # Luminancia se calcula solo en la última escala (último valor de SSIM)
+         # Luminancia se calcula solo en la última escala (último valor de SSIM)
         lM = ssim_vals[-1]
         
         # Los valores anteriores de SSIM representan cj (contraste) y sj (estructura)
         contrast_and_structure = ssim_vals[:-1]
 
         # Producto acumulado de los términos de contraste y estructura
-        contrast_and_structure_product = torch.prod(torch.stack([ssim ** scale_weights[j] for j, ssim in enumerate(contrast_and_structure)]))
+        contrast_and_structure_product = 1.0
+        for j, ssim in enumerate(contrast_and_structure):
+            contrast_and_structure_product *= ssim ** scale_weights[j]
 
         # MS-SSIM final
         ms_ssim_val = (lM ** alpha_M) * (contrast_and_structure_product ** beta) * (contrast_and_structure_product ** gamma)
