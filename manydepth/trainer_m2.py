@@ -548,13 +548,13 @@ class Trainer_Monodepth:
             #Losses & compute mask
             for frame_id in self.opt.frame_ids[1:]:
                 # Mask
-                target = inputs[("color", 0, 0)]
+                target = inputs[("color_refined", 0, 0)]
                 pred = outputs[("color", frame_id, scale)]
 
-                rep = self.ms_ssim(pred, target)
+                rep = self.compute_reprojection_loss(pred, target)
 
                 pred = inputs[("color", frame_id, source_scale)]
-                rep_identity = self.ms_ssim(pred, target)
+                rep_identity = self.compute_reprojection_loss(pred, target)
                 
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
                 
@@ -596,8 +596,8 @@ class Trainer_Monodepth:
 
         else:
             # we are using automasking
-            print(reprojection_loss.shape)
-            print(identity_reprojection_loss.shape)
+            #print(reprojection_loss.shape)
+            #print(identity_reprojection_loss.shape)
             all_losses = torch.cat([reprojection_loss, identity_reprojection_loss], dim=1)
             idxs = torch.argmin(all_losses, dim=1, keepdim=True)
             reprojection_loss_mask = (idxs == 0).float()
