@@ -524,7 +524,7 @@ class Trainer_Monodepth:
         
         for j in range(5):
             # Calculamos el SSIM en la escala actual
-            ssim_val = self.ssim(img1, img2)
+            ssim_val = self.ssim(img1, img2).mean(1, True)
             ssim_vals.append(ssim_val)
 
             # Aplicamos downsampling para la siguiente escala
