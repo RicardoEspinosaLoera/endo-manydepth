@@ -468,7 +468,7 @@ class Trainer_Monodepth:
         return reprojection_loss
 
       
-    def ms_ssim(self,img1, img2, alpha_M=0.9, beta=0.1, gamma=0.1):
+    def ms_ssim(self,img1, img2):
         scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos por defecto
 
         ssim_vals = []
@@ -493,7 +493,7 @@ class Trainer_Monodepth:
             contrast_and_structure_product *= ssim ** scale_weights[j]
 
         # MS-SSIM final
-        ms_ssim_val = (lM ** alpha_M) * (contrast_and_structure_product ** beta) * (contrast_and_structure_product ** gamma)
+        ms_ssim_val = (lM ** scale_weights[-1]) * (contrast_and_structure_product) * (contrast_and_structure_product)
 
         return ms_ssim_val
     
@@ -549,8 +549,7 @@ class Trainer_Monodepth:
             for frame_id in self.opt.frame_ids[1:]:
                 # Mask
                 target = inputs[("color", 0, 0)]
-                #pred = outputs[("color", frame_id, scale)]
-                pred = outputs[("color_refined", frame_id, scale)]
+                pred = outputs[("color", frame_id, scale)]                
 
                 rep = self.compute_reprojection_loss(pred, target)
 
