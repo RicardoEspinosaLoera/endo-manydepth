@@ -548,8 +548,9 @@ class Trainer_Monodepth:
             #Losses & compute mask
             for frame_id in self.opt.frame_ids[1:]:
                 # Mask
-                target = inputs[("color_refined", 0, 0)]
-                pred = outputs[("color", frame_id, scale)]
+                target = inputs[("color", 0, 0)]
+                #pred = outputs[("color", frame_id, scale)]
+                pred = outputs[("color_refined", frame_id, scale)]
 
                 rep = self.compute_reprojection_loss(pred, target)
 
