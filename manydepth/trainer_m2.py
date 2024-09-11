@@ -522,7 +522,7 @@ class Trainer_Monodepth:
 
         ssim_vals = []
         
-        for j in range(scales):
+        for j in range(5):
             # Calculamos el SSIM en la escala actual
             ssim_val = ssim_fn(img1, img2)
             ssim_vals.append(ssim_val)
