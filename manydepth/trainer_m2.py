@@ -512,7 +512,7 @@ class Trainer_Monodepth:
         sigma1_sq = F.conv2d(img1 * img1, window, padding=window_size // 2, groups=channel) - mu1 ** 2
         sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2 ** 2
         sigma12 = F.conv2d(img1 * img2, window, padding=window_size // 2, groups=channel) - mu1 * mu2
-
+        C2 = 0.03 ** 2  # Constante de contraste
         C3 = C2 / 2  # Ajuste de la constante C3
         sj = (sigma12 + C3) / (sigma1_sq.sqrt() * sigma2_sq.sqrt() + C3)
         return sj.mean()
