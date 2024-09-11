@@ -521,14 +521,14 @@ class Trainer_Monodepth:
         scale_weights_s = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos para la estructura
         
         # Luminancia calculada solo en la última escala
-        lM = luminance_comparison(img1, img2, window_size=window_size)
+        lM = self.luminance_comparison(img1, img2, window_size=window_size)
 
         contrast_terms = []
         structure_terms = []
 
         for j in range(5):
-            cj = contrast_comparison(img1, img2, window_size=window_size)
-            sj = structure_comparison(img1, img2, window_size=window_size)
+            cj = self.contrast_comparison(img1, img2, window_size=window_size)
+            sj = self.structure_comparison(img1, img2, window_size=window_size)
 
             contrast_terms.append(cj ** scale_weights_c[j])
             structure_terms.append(sj ** scale_weights_s[j])
