@@ -471,7 +471,7 @@ class Trainer_Monodepth:
         return gauss / gauss.sum()
 
     def create_window(self,window_size, channel):
-        _1D_window = gaussian_kernel(window_size, 1.5).unsqueeze(1)
+        _1D_window = self.gaussian_kernel(window_size, 1.5).unsqueeze(1)
         _2D_window = _1D_window.mm(_1D_window.t()).float().unsqueeze(0).unsqueeze(0)
         window = _2D_window.expand(channel, 1, window_size, window_size).contiguous()
         return window
