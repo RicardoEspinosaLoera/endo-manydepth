@@ -537,7 +537,7 @@ class Trainer_Monodepth:
         # Los valores anteriores de SSIM representan cj (contraste) y sj (estructura)
         contrast_and_structure = ssim_vals[:-1]
 
-        # Producto acumulado de los términos de contraste y estructura
+         # Producto acumulado de los términos de contraste y estructura
         contrast_and_structure_product = 1.0
         for j, ssim in enumerate(contrast_and_structure):
             contrast_and_structure_product *= ssim ** scale_weights[j]
