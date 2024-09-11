@@ -478,7 +478,7 @@ class Trainer_Monodepth:
 
     def luminance_comparison(self,img1, img2, window_size=11):
         channel = img1.size(1)
-        window = create_window(window_size, channel).to(img1.device)
+        window = self.create_window(window_size, channel).to(img1.device)
 
         mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
         mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
@@ -489,7 +489,7 @@ class Trainer_Monodepth:
 
     def contrast_comparison(self,img1, img2, window_size=11):
         channel = img1.size(1)
-        window = create_window(window_size, channel).to(img1.device)
+        window = self.create_window(window_size, channel).to(img1.device)
 
         mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
         mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
@@ -503,7 +503,7 @@ class Trainer_Monodepth:
 
     def structure_comparison(self,img1, img2, window_size=11):
         channel = img1.size(1)
-        window = create_window(window_size, channel).to(img1.device)
+        window = self.create_window(window_size, channel).to(img1.device)
 
         mu1 = F.conv2d(img1, window, padding=window_size // 2, groups=channel)
         mu2 = F.conv2d(img2, window, padding=window_size // 2, groups=channel)
