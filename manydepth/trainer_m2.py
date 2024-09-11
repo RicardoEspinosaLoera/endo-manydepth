@@ -517,35 +517,33 @@ class Trainer_Monodepth:
         sj = (sigma12 + C3) / (sigma1_sq.sqrt() * sigma2_sq.sqrt() + C3)
         return sj.mean()
        
-    def ms_ssim(self,img1, img2, window_size=11, alpha_M=0.9, beta=0.1, gamma=0.1):
-        scale_weights_c = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos para el contraste
-        scale_weights_s = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos para la estructura
+    def ms_ssim(self,img1, img2, alpha_M=0.9, beta=0.1, gamma=0.1):
+        scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Pesos por defecto
+
+        ssim_vals = []
         
-        # Luminancia calculada solo en la última escala
-        lM = self.luminance_comparison(img1, img2, window_size=window_size)
+        for j in range(scales):
+            # Calculamos el SSIM en la escala actual
+            ssim_val = ssim_fn(img1, img2)
+            ssim_vals.append(ssim_val)
 
-        contrast_terms = []
-        structure_terms = []
-
-        for j in range(5):
-            cj = self.contrast_comparison(img1, img2, window_size=window_size)
-            sj = self.structure_comparison(img1, img2, window_size=window_size)
-
-            contrast_terms.append(cj ** scale_weights_c[j])
-            structure_terms.append(sj ** scale_weights_s[j])
-
-            # Downsampling
+            # Aplicamos downsampling para la siguiente escala
             img1 = F.avg_pool2d(img1, kernel_size=2)
             img2 = F.avg_pool2d(img2, kernel_size=2)
+        
+        # Luminancia se calcula solo en la última escala (último valor de SSIM)
+        lM = ssim_vals[-1]
+        
+        # Los valores anteriores de SSIM representan cj (contraste) y sj (estructura)
+        contrast_and_structure = ssim_vals[:-1]
 
-        contrast_product = torch.prod(torch.stack(contrast_terms))
-        structure_product = torch.prod(torch.stack(structure_terms))
+        # Producto acumulado de los términos de contraste y estructura
+        contrast_and_structure_product = torch.prod(torch.stack([ssim ** scale_weights[j] for j, ssim in enumerate(contrast_and_structure)]))
 
-        # Fórmula final de MS-SSIM con pesos alpha_M, beta, gamma
-        ms_ssim_val = (lM ** alpha_M) * (contrast_product ** beta) * (structure_product ** gamma)
+        # MS-SSIM final
+        ms_ssim_val = (lM ** alpha_M) * (contrast_and_structure_product ** beta) * (contrast_and_structure_product ** gamma)
 
         return ms_ssim_val
-    
     
     def get_ilumination_invariant_loss(self, pred, target):
         features_p = get_ilumination_invariant_features(pred)
