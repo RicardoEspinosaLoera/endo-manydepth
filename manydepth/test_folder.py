@@ -102,7 +102,7 @@ def test_simple(args):
             output = depth_decoder(encoder(input_image))[("disp", 0)]
             
             disp_resized = torch.nn.functional.interpolate(
-                output, (HEIGHT, WIDTH), mode="bilinear", align_corners=False)
+                output, (260, 288), mode="bilinear", align_corners=False)
 
             disp_resized_np = disp_resized.squeeze().cpu().numpy()
             _, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
