@@ -91,10 +91,11 @@ def test_simple(args):
 
 
     # Load input data
-    HEIGHT, WIDTH = 384, 512 
+    
     
     dir_list = os.listdir(args.images_path)
     for idx,i in enumerate(dir_list):
+        HEIGHT, WIDTH = 384, 512 
         input_image, original_size = load_and_preprocess_image(os.path.join(args.images_path,i),resize_width=WIDTH,resize_height=HEIGHT)
 
         with torch.no_grad():
