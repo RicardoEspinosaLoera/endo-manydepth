@@ -91,7 +91,7 @@ def test_simple(args):
 
 
     # Load input data
-    HEIGHT, WIDTH = 288, 260 
+    HEIGHT, WIDTH = 384, 512 
     
     dir_list = os.listdir(args.images_path)
     for idx,i in enumerate(dir_list):
@@ -100,7 +100,7 @@ def test_simple(args):
         with torch.no_grad():
             # Estimate depth
             output = depth_decoder(encoder(input_image))[("disp", 0)]
-            
+            HEIGHT, WIDTH = 288, 260 
             disp_resized = torch.nn.functional.interpolate(
                 output, (HEIGHT, WIDTH), mode="bilinear", align_corners=False)
 
