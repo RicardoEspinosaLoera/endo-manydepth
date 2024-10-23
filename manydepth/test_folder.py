@@ -91,7 +91,7 @@ def test_simple(args):
 
 
     # Load input data
-    HEIGHT, WIDTH = 384, 512 
+    HEIGHT, WIDTH = 288, 260 
     
     dir_list = os.listdir(args.images_path)
     for idx,i in enumerate(dir_list):
@@ -102,12 +102,12 @@ def test_simple(args):
             output = depth_decoder(encoder(input_image))[("disp", 0)]
             
             disp_resized = torch.nn.functional.interpolate(
-                output, (260, 288), mode="bilinear", align_corners=False)
+                output, (HEIGHT, WIDTH), mode="bilinear", align_corners=False)
 
             disp_resized_np = disp_resized.squeeze().cpu().numpy()
             _, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
-            depth = scaled_depth * 52.864  # Metric scale (mm)
-            depth[depth > 300] = 300
+            #depth = scaled_depth * 52.864  # Metric scale (mm)
+            #depth[depth > 300] = 300
             
             im_depth = depth.astype(np.uint16)
             im = pil.fromarray(im_depth)
