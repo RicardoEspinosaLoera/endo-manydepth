@@ -106,8 +106,8 @@ def test_simple(args):
 
             disp_resized_np = disp_resized.squeeze().cpu().numpy()
             _, scaled_depth = disp_to_depth(disp_resized_np, 0.1, 100)  # Scaled depth
-            #depth = scaled_depth * 52.864  # Metric scale (mm)
-            #depth[depth > 300] = 300
+            depth = scaled_depth * 52.864  # Metric scale (mm)
+            depth[depth > 300] = 300
             
             im_depth = depth.astype(np.uint16)
             im = pil.fromarray(im_depth)
