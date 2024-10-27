@@ -558,10 +558,10 @@ class Trainer_Monodepth2:
         top_right = torch.stack([torch.clamp(x + 1, min=0, max=width-1), torch.clamp(y - 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
         bottom_left = torch.stack([torch.clamp(x - 1, min=0, max=width-1), torch.clamp(y + 1, min=0, max=height-1)], dim=-1).to(device=K_inv.device)
         
-        top_left_flat = top_left.view(1,-1, 2).expand(12, -1, -1)
-        bottom_right_flat = bottom_right.view(1,-1, 2).expand(12, -1, -1)
-        top_right_flat = top_right.view(1,-1, 2).expand(12, -1, -1)
-        bottom_left_flat = bottom_left.view(1,-1, 2).expand(12, -1, -1)
+        top_left_flat = top_left.view(1,-1, 2).expand(10, -1, -1)
+        bottom_right_flat = bottom_right.view(1,-1, 2).expand(10, -1, -1)
+        top_right_flat = top_right.view(1,-1, 2).expand(10, -1, -1)
+        bottom_left_flat = bottom_left.view(1,-1, 2).expand(10, -1, -1)
 
         top_left_flat = torch.cat([top_left_flat.permute(0,2,1), ones], dim=1)
         bottom_right_flat = torch.cat([bottom_right_flat.permute(0,2,1), ones], dim=1)
