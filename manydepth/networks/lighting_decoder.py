@@ -52,6 +52,7 @@ class LightingDecoder(nn.Module):
         
         # decoder
         #x = input_features[-1]
+        print(len(last_features))
         x = last_features
         #y = input_features[-1]
         for i in range(4, -1, -1):
