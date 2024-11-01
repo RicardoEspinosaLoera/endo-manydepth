@@ -13,10 +13,10 @@ class SCAREDDataset(MonoDataset):
     def __init__(self, *args, **kwargs):
         super(SCAREDDataset, self).__init__(*args, **kwargs)
         #SCARED Dataset
-        self.K = np.array([[0.82, 0, 0.5, 0],
+        """self.K = np.array([[0.82, 0, 0.5, 0],
                            [0, 1.02, 0.5, 0],
                            [0, 0, 1, 0],
-                           [0, 0, 0, 1]], dtype=np.float32)
+                           [0, 0, 0, 1]], dtype=np.float32)"""
                 
         #256 / 320
         #fx769.807403688120 fy769.720558534159 cx675.226397736271 cy548.903474592445 k1-0.454260397098776 k20.179156666748519 k3-0.0285017743214105 p1-0.00134889190333418 p20.000738912923806121 skew-0.141152521412316
@@ -47,7 +47,15 @@ class SCAREDDataset(MonoDataset):
         Principal Points: cx ≈ 160.75, cy ≈ 127.81
         Image Dimensions: width = 320, height = 256
         """
-        # self.full_res_shape = (1280, 1024)
+
+        #C3VD Dataset
+        #Width height cx cy a0 a2 a3 a4 e f g
+        #1350 1080 679.544839263292 543.975887548343 769.243600037458 -0.000812770624150226 6.25674244578925e-07 -1.19662182144280e-09 0.999986882249990 0.00288273829525059 -0.00296316513429569
+        self.K = np.array([[0.56981, 0, 0.5033665625, 0],
+                           [0, 0.7122625, 0.50368125, 0],
+                           [0, 0, 1, 0],
+                           [0, 0, 0, 1]], dtype=np.float32)
+
         self.side_map = {"2": 2, "3": 3, "l": 2, "r": 3}
 
     def check_depth(self):
