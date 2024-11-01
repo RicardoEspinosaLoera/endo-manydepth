@@ -24,7 +24,7 @@ from torchmetrics.image import MultiScaleStructuralSimilarityIndexMeasure
 import wandb
 import math
 
-wandb.init(project="IISfMLearner", entity="respinosa")
+wandb.init(project="IISfMLearner-C3VD", entity="respinosa")
 """sweep_config = {
     'method': 'random'
     }
@@ -167,7 +167,8 @@ class Trainer_Monodepth:
                          "kitti_odom": datasets.KITTIOdomDataset,
                          "endovis": datasets.SCAREDDataset,
                          "RNNSLAM": datasets.SCAREDDataset,
-                         "colon10k": datasets.SCAREDDataset}
+                         "colon10k": datasets.SCAREDDataset,
+                         "C3VD": datasets.SCAREDDataset}
 
         self.dataset = datasets_dict[self.opt.dataset]
 

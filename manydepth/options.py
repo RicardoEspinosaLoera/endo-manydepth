@@ -55,7 +55,7 @@ class MonodepthOptions:
                                  help="dataset to train on",
                                  default="kitti",
                                  choices=["kitti", "kitti_odom", "kitti_depth", "kitti_test",
-                                          "cityscapes_preprocessed","endovis","RNNSLAM","colon10k"])
+                                          "cityscapes_preprocessed","endovis","RNNSLAM","colon10k","C3VD"])
         self.parser.add_argument("--png",
                                  help="if set, trains from raw KITTI png files (instead of jpgs)",
                                  action="store_true")
