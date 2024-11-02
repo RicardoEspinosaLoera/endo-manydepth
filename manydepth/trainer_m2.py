@@ -554,7 +554,8 @@ class Trainer_Monodepth:
 
                  #Corners mask
                 grayscale_images = color.mean(dim=1)
-                boolean_mask = ((grayscale_images == 0).float()).view(reprojection_loss_mask.shape)
+                boolean_mask = ((grayscale_images == 0).float())
+                print(boolean_mask)
                 reprojection_loss_mask = reprojection_loss_mask * boolean_mask
                 reprojection_loss_mask_iil = reprojection_loss_mask_iil * boolean_mask
                 #Losses
