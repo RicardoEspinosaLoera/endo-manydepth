@@ -387,16 +387,13 @@ def get_feature_oclution_mask(img):
     padding = (3 - 1) // 2  # Padding to maintain input size
     o = F.conv2d(img, kernel.view(1, 1, 3, 3), padding=padding)
     t = torch.cat((o,o,o,o,o,o,o,o), dim = 1)
-    """
-    b, c, h, w = t.shape
-    min_val = t.view(b, c, -1).min(dim=2, keepdim=True)[0].view(b, c, 1, 1)
-    max_val = t.view(b, c, -1).max(dim=2, keepdim=True)[0].view(b, c, 1, 1)
-
-    # Avoid division by zero in case max == min by adding a small epsilon
-    epsilon = 1e-9
-    t_rescaled = (t - min_val) / (max_val - min_val + epsilon)
-    t_norm = F.normalize(t_rescaled, p=2, dim=1) """
+    
     return t
+
+def get_feature_corners_mask(inputs):
+    boolean_mask = inputs != 0
+    return boolean_mask
+
 
 def calculate_surface_normal_from_depth(depth_map, K):
     # Calculate gradients using finite differences
