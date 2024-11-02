@@ -603,7 +603,7 @@ class Trainer_Monodepth:
 
 
             #print(boolean_mask.shape)
-            reprojection_loss_mask = (reprojection_loss_mask * ~boolean_mask)
+            reprojection_loss_mask = (reprojection_loss_mask * boolean_mask*-1)
             
             
         return reprojection_loss_mask
