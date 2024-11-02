@@ -598,8 +598,8 @@ class Trainer_Monodepth:
             #print(reprojection_loss_mask.shape)
             #Corners
             grayscale_images = inputs.mean(dim=1)
-            boolean_mask = ((grayscale_images == 0).float()).view(shape)
-            boolean_mask[-19:, -15:] = 1
+            boolean_mask = (grayscale_images > 0)
+            boolean_mask[-19:, -8:] = 0
 
 
             #print(boolean_mask.shape)
