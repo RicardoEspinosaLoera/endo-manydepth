@@ -595,7 +595,7 @@ class Trainer_Monodepth:
             reprojection_loss_mask = (idxs == 0).float()
 
             grayscale_images = inputs.mean(dim=1)
-            boolean_mask = grayscale_images != 0
+            boolean_mask = (grayscale_images == 0).float()
 
             reprojection_loss_mask = reprojection_loss_mask * boolean_mask
 
