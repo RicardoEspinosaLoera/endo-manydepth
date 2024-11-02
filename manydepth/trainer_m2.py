@@ -64,7 +64,6 @@ import matplotlib.pyplot as plt
 #_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
 _DEPTH_COLORMAP = plt.get_cmap('viridis', 256)  # for plotting
 
-
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
     np.random.seed(worker_seed)
@@ -550,16 +549,7 @@ class Trainer_Monodepth:
                 rep_identity = self.compute_reprojection_loss(pred, target)
                 
                 reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity,target)
-                #Corners mask
-                grayscale_images = color.mean(dim=1)
-                boolean_mask = ((grayscale_images == 0).float())
-                reprojection_loss_mask = reprojection_loss_mask * boolean_mask
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
-
-                
-                #print(boolean_mask)
-                
-                #reprojection_loss_mask_iil = reprojection_loss_mask_iil * boolean_mask
                 #Losses
                 target = outputs[("color_refined", frame_id, scale)] #Lighting
                 pred = outputs[("color", frame_id, scale)]
@@ -604,10 +594,13 @@ class Trainer_Monodepth:
             all_losses = torch.cat([reprojection_loss, identity_reprojection_loss], dim=1)
             idxs = torch.argmin(all_losses, dim=1, keepdim=True)
             reprojection_loss_mask = (idxs == 0).float()
-            #shape = reprojection_loss_mask.shape
-           
+            shape = reprojection_loss_mask.shape
+            #print(reprojection_loss_mask.shape)
+            #Corners
+            grayscale_images = inputs.mean(dim=1)
+            boolean_mask = ((grayscale_images == 0).float()).view(shape)
             #print(boolean_mask.shape)
-            #reprojection_loss_mask = (reprojection_loss_mask)
+            reprojection_loss_mask = (reprojection_loss_mask * boolean_mask)
             
             
         return reprojection_loss_mask
