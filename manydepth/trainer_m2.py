@@ -593,11 +593,13 @@ class Trainer_Monodepth:
             all_losses = torch.cat([reprojection_loss, identity_reprojection_loss], dim=1)
             idxs = torch.argmin(all_losses, dim=1, keepdim=True)
             reprojection_loss_mask = (idxs == 0).float()
-            print(reprojection_loss_mask.shape)
+            shape = reprojection_loss_mask.shape
+            #print(reprojection_loss_mask.shape)
             grayscale_images = inputs.mean(dim=1)
             boolean_mask = (grayscale_images == 0).float()
-            print(boolean_mask.shape)
-            reprojection_loss_mask = reprojection_loss_mask * boolean_mask
+            #print(boolean_mask.shape)
+            reprojection_loss_mask = (reprojection_loss_mask * boolean_mask).reshape(shape)
+            
             
         return reprojection_loss_mask
 
