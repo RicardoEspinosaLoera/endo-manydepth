@@ -599,6 +599,10 @@ class Trainer_Monodepth:
             #Corners
             grayscale_images = inputs.mean(dim=1)
             boolean_mask = ((grayscale_images == 0).float()).view(shape)
+            rect_height, rect_width = 30, 30  # Ajusta estas dimensiones según el tamaño del rectángulo en tu imagen
+            boolean_mask[:, -rect_height:, -rect_width:] = 0 
+
+
             #print(boolean_mask.shape)
             reprojection_loss_mask = (reprojection_loss_mask * boolean_mask)
             
