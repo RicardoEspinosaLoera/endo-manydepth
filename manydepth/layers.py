@@ -391,7 +391,8 @@ def get_feature_oclution_mask(img):
     return t
 
 def get_feature_corners_mask(inputs):
-    boolean_mask = inputs != 0
+    grayscale_images = inputs.mean(dim=1)
+    boolean_mask = grayscale_images != 0
     return boolean_mask
 
 
