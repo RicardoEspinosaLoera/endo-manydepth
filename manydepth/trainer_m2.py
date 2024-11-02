@@ -596,9 +596,9 @@ class Trainer_Monodepth:
             shape = reprojection_loss_mask.shape
             #print(reprojection_loss_mask.shape)
             grayscale_images = inputs.mean(dim=1)
-            boolean_mask = (grayscale_images == 0).float()
+            boolean_mask = ((grayscale_images == 0).float()).view(shape)
             #print(boolean_mask.shape)
-            reprojection_loss_mask = (reprojection_loss_mask * boolean_mask).reshape(shape)
+            reprojection_loss_mask = (reprojection_loss_mask * boolean_mask)
             
             
         return reprojection_loss_mask
