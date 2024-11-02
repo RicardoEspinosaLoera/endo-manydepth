@@ -534,8 +534,6 @@ class Trainer_Monodepth2:
         loss = F.l1_loss(N_s_normalized, N_t_rotated)
         
         return loss
-
-
     
 
     def compute_orth_loss5(self, disp, N_hat, K_inv):
