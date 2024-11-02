@@ -597,7 +597,7 @@ class Trainer_Monodepth:
             shape = reprojection_loss_mask.shape
             #Corners C3VD
             grayscale_images = inputs.mean(dim=1)
-            boolean_mask = (grayscale_images > 0)
+            boolean_mask = (grayscale_images > 0).float()
             boolean_mask[:,-19:, -8:] = 0
             reprojection_loss_mask = (reprojection_loss_mask * boolean_mask.view(shape))
             
