@@ -578,7 +578,7 @@ class Trainer_Monodepth:
     
 
     @staticmethod
-    def compute_loss_masks(reprojection_loss, identity_reprojection_loss):
+    def compute_loss_masks(reprojection_loss, identity_reprojection_loss, inputs):
         """ Compute loss masks for each of standard reprojection and depth hint
         reprojection"""
 
