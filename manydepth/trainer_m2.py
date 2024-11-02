@@ -547,10 +547,8 @@ class Trainer_Monodepth:
                 pred = inputs[("color", frame_id, source_scale)]
                 rep_identity = self.compute_reprojection_loss(pred, target)
                 
-                reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity)
+                reprojection_loss_mask = self.compute_loss_masks(rep,rep_identity,target)
                 reprojection_loss_mask_iil = get_feature_oclution_mask(reprojection_loss_mask)
-                mask_corners = get_feature_corners_mask(inputs[("color", 0, 0)])
-                print(mask_corners.shape)
                 #Losses
                 target = outputs[("color_refined", frame_id, scale)] #Lighting
                 pred = outputs[("color", frame_id, scale)]
@@ -595,6 +593,11 @@ class Trainer_Monodepth:
             all_losses = torch.cat([reprojection_loss, identity_reprojection_loss], dim=1)
             idxs = torch.argmin(all_losses, dim=1, keepdim=True)
             reprojection_loss_mask = (idxs == 0).float()
+
+            grayscale_images = inputs.mean(dim=1)
+            boolean_mask = grayscale_images != 0
+
+            reprojection_loss_mask = reprojection_loss_mask * boolean_mask
 
         return reprojection_loss_mask
 

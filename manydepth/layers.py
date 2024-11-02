@@ -390,10 +390,6 @@ def get_feature_oclution_mask(img):
     
     return t
 
-def get_feature_corners_mask(inputs):
-    grayscale_images = inputs.mean(dim=1)
-    boolean_mask = grayscale_images != 0
-    return boolean_mask
 
 
 def calculate_surface_normal_from_depth(depth_map, K):
