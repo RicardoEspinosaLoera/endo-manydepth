@@ -51,9 +51,25 @@ class SCAREDDataset(MonoDataset):
         #C3VD Dataset
         #Width height cx cy a0 a2 a3 a4 e f g
         #1350 1080 679.544839263292 543.975887548343 769.243600037458 -0.000812770624150226 6.25674244578925e-07 -1.19662182144280e-09 0.999986882249990 0.00288273829525059 -0.00296316513429569
-        
-        self.K = np.array([[0.56981, 0, 0.5033, 0],
-                           [0, 0.7122625, 0.5036, 0],
+        f_x = 769.2436
+        f_y = 769.2436
+        c_x_cropped = 564.5448
+        c_y_cropped = 428.9759
+
+        # Resizing factors
+        scale_x = 320 / 1120
+        scale_y = 256 / 850
+
+        # Adjusted focal lengths and principal points
+        f_x_resized = f_x * scale_x
+        f_y_resized = f_y * scale_y
+        c_x_resized = c_x_cropped * scale_x
+        c_y_resized = c_y_cropped * scale_y
+        w = 320
+        h = 256
+
+        self.K = np.array([[f_x_resized/w, 0, c_x_resized/w, 0],
+                           [0,f_y_resized/h , c_y_resized/h, 0],
                            [0, 0, 1, 0],
                            [0, 0, 0, 1]], dtype=np.float32)
 
