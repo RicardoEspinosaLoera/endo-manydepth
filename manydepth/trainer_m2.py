@@ -705,8 +705,8 @@ class Trainer_Monodepth:
     def load_model(self):
         """Load model(s) from disk
         """
-        #self.opt.load_weights_folder = os.path.expanduser(self.opt.load_weights_folder)
-        self.opt.load_weights_folder = "/workspace/endo-manydepth/manydepth/weights/scared_ill0.5_normal_finalTransformer/models/weights_19"
+        self.opt.load_weights_folder = os.path.expanduser(self.opt.load_weights_folder)
+        #self.opt.load_weights_folder = "/workspace/endo-manydepth/manydepth/weights/scared_ill0.5_normal_finalTransformer/models/weights_19"
         assert os.path.isdir(self.opt.load_weights_folder), \
             "Cannot find folder {}".format(self.opt.load_weights_folder)
         print("loading model from folder {}".format(self.opt.load_weights_folder))
