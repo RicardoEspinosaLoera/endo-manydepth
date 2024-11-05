@@ -96,29 +96,28 @@ class Trainer_Monodepth:
         
         
         #Transformer
-        """
         self.models["encoder"] = networks.mpvit_small()            
         self.models["encoder"].num_ch_enc = [64,64,128,216,288]
         self.models["encoder"].to(self.device)
         self.parameters_to_train += list(self.models["encoder"].parameters())
-        """
-        #Normal Encoder
         
+        #Normal Encoder
+        """
         self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
         self.parameters_to_train += list(self.models["encoder"].parameters()) 
-        
+        """
         #Normal Encoder
-        self.models["depth"] = networks.DepthDecoder(
+        """self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(self.models["depth"].parameters())
+        self.parameters_to_train += list(self.models["depth"].parameters())"""
         #Transformer
-        """
+        
         self.models["depth"] = networks.DepthDecoderT()
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(self.models["depth"].parameters())"""
+        self.parameters_to_train += list(self.models["depth"].parameters())
         
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
@@ -707,8 +706,8 @@ class Trainer_Monodepth:
     def load_model(self):
         """Load model(s) from disk
         """
-        #self.opt.load_weights_folder = os.path.expanduser(self.opt.load_weights_folder)
-        self.opt.load_weights_folder = "/workspace/endo-manydepth/manydepth/weights/scared_ill0.5_normal_finalTransformer/models/weights_19"
+        self.opt.load_weights_folder = os.path.expanduser(self.opt.load_weights_folder)
+        #self.opt.load_weights_folder = "/workspace/endo-manydepth/manydepth/weights/scared_ill0.5_normal_finalTransformer/models/weights_19"
         assert os.path.isdir(self.opt.load_weights_folder), \
             "Cannot find folder {}".format(self.opt.load_weights_folder)
         print("loading model from folder {}".format(self.opt.load_weights_folder))
