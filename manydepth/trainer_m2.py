@@ -61,8 +61,8 @@ import networks
 import matplotlib.pyplot as plt
 
 
-#_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
-_DEPTH_COLORMAP = plt.get_cmap('viridis', 256)  # for plotting
+_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
+#_DEPTH_COLORMAP = plt.get_cmap('viridis', 256)  # for plotting
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
