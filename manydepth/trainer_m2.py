@@ -25,31 +25,6 @@ import wandb
 import math
 
 wandb.init(project="IISfMLearner-C3VD", entity="respinosa")
-"""sweep_config = {
-    'method': 'random'
-    }
-
-metric = {
-    'name': 'losses',
-    'goal': 'minimize'   
-    }
-
-sweep_config['metric'] = metric
-
-parameters_dict({
-    'illumination_invariant': {
-        # a flat distribution between 0 and 0.1
-        'distribution': 'uniform',
-        'min': 0,
-        'max': 1
-      },
-    })
-
-sweep_config['parameters'] = parameters_dict
-
-sweep_id = wandb.sweep(sweep_config, project="sweep_iil")
-
-wandb.agent(sweep_id, train, count=5)"""
 
 import json
 
