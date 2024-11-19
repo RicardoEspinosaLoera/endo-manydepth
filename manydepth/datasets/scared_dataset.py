@@ -56,7 +56,7 @@ class SCAREDDataset(MonoDataset):
         cx = 159.872/w
         fy = 182.617/h
         cy = 130.109/h
-        self.K = np.array([[​fx, 0, cx, 0],
+        self.K = np.array([[fx, 0, cx, 0],
                            [0,fy,cy, 0],
                            [0, 0, 1, 0],
                            [0, 0, 0, 1]], dtype=np.float32)
