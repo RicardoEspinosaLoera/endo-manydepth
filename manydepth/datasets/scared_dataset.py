@@ -52,6 +52,7 @@ class SCAREDDataset(MonoDataset):
         #Width height cx cy a0 a2 a3 a4 e f g
         w=320
         h=256 
+
         self.K = np.array([[​182.711/w, 0, 159.872/w, 0],
                            [0,182.617/h, 130.109/h, 0],
                            [0, 0, 1, 0],
