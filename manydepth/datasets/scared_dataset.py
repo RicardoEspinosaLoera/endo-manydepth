@@ -52,7 +52,7 @@ class SCAREDDataset(MonoDataset):
         #Width height cx cy a0 a2 a3 a4 e f g
         w=320
         h=256 
-        fx = ​182.711/w
+        fx = 182.711/w
         cx = 159.872/w
         fy = 182.617/h
         cy = 130.109/h
