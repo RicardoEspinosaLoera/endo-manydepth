@@ -343,7 +343,7 @@ class Trainer_Monodepth:
                     outputs[("cam_T_cam", 0, f_i)] = transformation_from_parameters(
                         axisangle[:, 0], translation[:, 0])
                     
-                    outputs_lighting = self.models["lighting"](pose_inputs[0])
+                    #outputs_lighting = self.models["lighting"](pose_inputs[0])
                     
                     #Lighting      
                     """    
