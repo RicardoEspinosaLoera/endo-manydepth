@@ -57,8 +57,8 @@ class SCAREDDataset(MonoDataset):
         h=256 
         fx = 615.88153809/w
         cx = 692.16857358/w
-        fy = 648.02153229/h
-        cy = 568.59898787/h
+        fy = 153.679/h
+        cy = 134.741/h
         self.K = np.array([[fx, 0, cx, 0],
                            [0,fy,cy, 0],
                            [0, 0, 1, 0],
