@@ -13,10 +13,10 @@ class SCAREDDataset(MonoDataset):
     def __init__(self, *args, **kwargs):
         super(SCAREDDataset, self).__init__(*args, **kwargs)
         #SCARED Dataset
-        """self.K = np.array([[0.82, 0, 0.5, 0],
+        self.K = np.array([[0.82, 0, 0.5, 0],
                            [0, 1.02, 0.5, 0],
                            [0, 0, 1, 0],
-                           [0, 0, 0, 1]], dtype=np.float32)"""
+                           [0, 0, 0, 1]], dtype=np.float32)
                 
         #256 / 320
         #fx769.807403688120 fy769.720558534159 cx675.226397736271 cy548.903474592445 k1-0.454260397098776 k20.179156666748519 k3-0.0285017743214105 p1-0.00134889190333418 p20.000738912923806121 skew-0.141152521412316
@@ -50,10 +50,10 @@ class SCAREDDataset(MonoDataset):
 
         #C3VD Dataset
         #1350 1080 679.544839263292 543.975887548343 769.243600037458 -0.000812770624150226 6.25674244578925e-07 -1.19662182144280e-09 0.999986882249990 0.00288273829525059 -0.00296316513429569
-        self.K = np.array([[0.5705209375, 0, 0.5, 0],
+        """self.K = np.array([[0.5705209375, 0, 0.5, 0],
                            [0, 0.71185083, 0.5, 0],
                            [0, 0, 1, 0],
-                           [0, 0, 0, 1]], dtype=np.float32)
+                           [0, 0, 0, 1]], dtype=np.float32)"""
     def check_depth(self):
         
         return False
@@ -91,14 +91,14 @@ class SCAREDDataset(MonoDataset):
 
     def get_image_path(self, folder, frame_index, side):
         #SCATER
-        #f_str = "{}{}".format(frame_index, self.img_ext)
-        #image_path = os.path.join(self.data_path, folder, "data", f_str)
+        f_str = "{}{}".format(frame_index, self.img_ext)
+        image_path = os.path.join(self.data_path, folder, "data", f_str)
         #COLON10k
         #f_str=str(frame_index) + self.img_ext
         #image_path = os.path.join(self.data_path, folder,"rgb", f_str)
         #COLON10k
-        f_str=str(frame_index) + self.img_ext
-        image_path = os.path.join(self.data_path, folder, f_str)
+        #f_str=str(frame_index) + self.img_ext
+        #image_path = os.path.join(self.data_path, folder, f_str)
         #Hamlyn
         #f_str = "{}{}".format(frame_index, self.img_ext)
         
