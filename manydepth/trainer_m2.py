@@ -489,12 +489,8 @@ class Trainer_Monodepth:
     def get_ilumination_invariant_loss(self, pred, target):
         features_p = get_ilumination_invariant_features(pred)
         features_t = get_ilumination_invariant_features(target)
-        #abs_diff = torch.abs(features_t - features_p)
-        #l1_loss = abs_diff.mean(1, True)
-        #print(features_p.shape)
         ssim_loss = self.ssim(features_p, features_t).mean(1, True)
-        #ii_loss = 0.85 * ssim_loss + 0.15 * l1_loss
-
+ 
         return ssim_loss
 
     

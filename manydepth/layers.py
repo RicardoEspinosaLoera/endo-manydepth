@@ -325,10 +325,7 @@ def get_ilumination_invariant_features(img):
         img_gray = transforms.functional.rgb_to_grayscale(img,1)
     else: 
         img_gray = img
-    #same padding
     
-    #print(img_gray.shape)
-    #kernel = torch.tensor([[1, 2, 1],[0, 0, 0],[-1, -2, -1]]).to(device=img_gray.device)
     K1 = torch.Tensor([[-1, 0, 1],[-2, 0, 2], [-1, 0, 1]]).to(device=img_gray.device)
     K2 = torch.Tensor([[0, 1, 2], [-1, 0, 1], [-2, -1, 0]]).to(device=img_gray.device)
     K3 = torch.Tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]]).to(device=img_gray.device)
@@ -338,47 +335,30 @@ def get_ilumination_invariant_features(img):
     K7 = torch.Tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]]).to(device=img_gray.device)
     K8 = torch.Tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]]).to(device=img_gray.device)
 
-    #img_gray = F.pad(img_gray, (0, 0, 1, 2))
+    
     padding = (3 - 1) // 2  # Padding to maintain input size
     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
-    #M1 = F.normalize(M1, p=2, dim=1)
-    #M1_norm = ((torch.nn.functional.normalize (M1, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M1,2)
     M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
-    #M2 = F.normalize(M2, p=2, dim=1)
-    #M2_norm = ((torch.nn.functional.normalize (M2, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M2,2)
     M3 = F.conv2d(img_gray, K3.view(1, 1, 3, 3), padding=padding)
-    #M3 = F.normalize(M3, p=2, dim=1)
-    #M3_norm = ((torch.nn.functional.normalize (M3, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M3,2)
     M4 = F.conv2d(img_gray, K4.view(1, 1, 3, 3), padding=padding)
-    #M4 = F.normalize(M4, p=2, dim=1)
-    #M4_norm = ((torch.nn.functional.normalize (M4, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M4,2)
     M5 = F.conv2d(img_gray, K5.view(1, 1, 3, 3), padding=padding)
-    #M5 = F.normalize(M5, p=2, dim=1)
-    #M5_norm = ((torch.nn.functional.normalize (M5, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M5,2)
     M6 = F.conv2d(img_gray, K6.view(1, 1, 3, 3), padding=padding)
-    #M6 = F.normalize(M6, p=2, dim=1)
-    #M6_norm = ((torch.nn.functional.normalize (M6, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M6,2)
     M7 = F.conv2d(img_gray, K7.view(1, 1, 3, 3), padding=padding)
-    #M7 = F.normalize(M7, p=2, dim=1)
-    #M7_norm = ((torch.nn.functional.normalize (M7, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M7,2)
     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
-    #M8 = F.normalize(M8, p=2, dim=1)
-    #M8_norm = ((torch.nn.functional.normalize (M8, p = 2, dim = 1)**2).sum(dim = 1)).view(b,k,h,w)
+    sq_D = sq_D + torch.pow(M7,2)
 
-    #t = torch.cat((M1/nor,M2/nor,M3/nor,M4/nor,M5/nor,M6/nor,M7/nor,M8/nor), dim = 1)
-    t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
+    normD = torch.sqrt(sq_D)
+    eps = 1e-09
+    NormD = NormD + eps
 
-    """
-    b, c, h, w = t.shape
-    min_val = t.view(b, c, -1).min(dim=2, keepdim=True)[0].view(b, c, 1, 1)
-    max_val = t.view(b, c, -1).max(dim=2, keepdim=True)[0].view(b, c, 1, 1)
-
-    # Avoid division by zero in case max == min by adding a small epsilon
-    #epsilon = 1e-9
-    #t_rescaled = (t - min_val) / (max_val - min_val + epsilon)
-    #t_norm = F.normalize(t_rescaled, p=2, dim=1)
-    """
-
+    t = torch.cat((M1/normD,M2/normD,M3/normD,M4/normD,M5/normD,M6/normD,M7/normD,M8/normD), dim = 1)
 
     return t      
 
