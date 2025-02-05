@@ -353,7 +353,10 @@ def get_ilumination_invariant_features(img):
     sq_D += torch.pow(M7,2)
     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
     sq_D += torch.pow(M8,2)
-    NormD = torch.sqrt(sq_D) + 1e-09
+
+    NormD = torch.sqrt(torch.clamp(sq_D, min=1e-9))
+
+
     t = torch.cat((M1/NormD,M2/NormD,M3/NormD,M4/NormD,M5/NormD,M6/NormD,M7/NormD,M8/NormD), dim = 1)
 
     return t      
