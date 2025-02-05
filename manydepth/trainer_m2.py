@@ -156,7 +156,7 @@ class Trainer_Monodepth:
 
         train_filenames = readlines(fpath.format("train"))
         val_filenames = readlines(fpath.format("val"))
-        img_ext = '.png'
+        img_ext = '.jpg'
 
         num_train_samples = len(train_filenames)
         self.num_total_steps = num_train_samples // self.opt.batch_size * self.opt.num_epochs
