@@ -335,7 +335,7 @@ def get_ilumination_invariant_features(img):
     K7 = torch.Tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]]).to(device=img_gray.device)
     K8 = torch.Tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]]).to(device=img_gray.device)
 
-    sq_D = torch.zeros_like(img_gray.shape).to(device=img_gray.device)
+    sq_D = torch.zeros_like(img_gray, device=img_gray.device)
     padding = (3 - 1) // 2  # Padding to maintain input size
     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
     sq_D += torch.pow(M1,2)
