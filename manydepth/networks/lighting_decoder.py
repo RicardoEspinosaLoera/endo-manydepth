@@ -73,5 +73,6 @@ class LightingDecoder(nn.Module):
                 # Store outputs
                 self.outputs[("contrast", i)] = Ct
                 self.outputs[("brightness", i)] = Bt
+                print(i)
 
         return self.outputs
