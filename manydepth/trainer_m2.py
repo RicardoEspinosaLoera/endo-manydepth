@@ -348,8 +348,8 @@ class Trainer_Monodepth:
                         #outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
                         #outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,1,None,:, :]
                         #print(scale)
-                        outputs["b_"+str(scale)+"_"+str(f_i)] = outputs[("brightness", scale)]
-                        outputs["c_"+str(scale)+"_"+str(f_i)] = outputs[("contrast", scale)] 
+                        outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("brightness", scale)]
+                        outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("contrast", scale)] 
                         
             #Lighting
             for f_i in self.opt.frame_ids[1:]:
