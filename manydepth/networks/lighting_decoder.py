@@ -67,8 +67,8 @@ class LightingDecoder(nn.Module):
                 self.outputs[("lighting", i)] = self.convs[("lighting_conv", i)](x)
                 #self.outputs[("constrast", i)] = self.convs[("lighting_conv", i)](y)
                 # Split the output into C_t and B_t
-                Ct = torch.relu(lighting_output[:, 0:1, :, :])  # Contrast (scale)
-                Bt = torch.tanh(lighting_output[:, 1:2, :, :])  # Brightness (shift)
+                Ct = torch.relu(self.outputs[("lighting", i)][:, 0:1, :, :])  # Contrast (scale)
+                Bt = torch.tanh(self.outputs[("lighting", i)][:, 1:2, :, :])  # Brightness (shift)
 
                 # Store outputs
                 self.outputs[("contrast", i)] = Ct
