@@ -338,27 +338,27 @@ def get_ilumination_invariant_features(img):
     sq_D = torch.zeros_like(img_gray, device=img_gray.device)
     padding = (3 - 1) // 2  # Padding to maintain input size
     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M1,2)
+    sq_D += torch.pow(M1,2)
     M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M2,2)
+    sq_D += torch.pow(M2,2)
     M3 = F.conv2d(img_gray, K3.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M3,2)
+    sq_D += torch.pow(M3,2)
     M4 = F.conv2d(img_gray, K4.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M4,2)
+    sq_D += torch.pow(M4,2)
     M5 = F.conv2d(img_gray, K5.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M5,2)
+    sq_D += torch.pow(M5,2)
     M6 = F.conv2d(img_gray, K6.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M6,2)
+    sq_D += torch.pow(M6,2)
     M7 = F.conv2d(img_gray, K7.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M7,2)
+    sq_D += torch.pow(M7,2)
     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M8,2)
+    sq_D += torch.pow(M8,2)
 
-    #NormD = torch.sqrt(torch.clamp(sq_D, min=1e-9))
+    NormD = torch.sqrt(torch.clamp(sq_D, min=1e-9))
 
 
-    #t = torch.cat((M1/NormD,M2/NormD,M3/NormD,M4/NormD,M5/NormD,M6/NormD,M7/NormD,M8/NormD), dim = 1)
-    t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
+    t = torch.cat((M1/NormD,M2/NormD,M3/NormD,M4/NormD,M5/NormD,M6/NormD,M7/NormD,M8/NormD), dim = 1)
+    #t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
 
     return t      
 
