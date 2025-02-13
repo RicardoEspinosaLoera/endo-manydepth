@@ -347,6 +347,7 @@ class Trainer_Monodepth:
                     for scale in self.opt.scales:
                         #outputs["b_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,0,None,:, :]
                         #outputs["c_"+str(scale)+"_"+str(f_i)] = outputs_lighting[("lighting", scale)][:,1,None,:, :]
+                        print(scale)
                         outputs["b_"+str(scale)+"_"+str(f_i)] = outputs[("contrast", scale)]
                         outputs["c_"+str(scale)+"_"+str(f_i)] = outputs[("brightness", scale)] 
                         
