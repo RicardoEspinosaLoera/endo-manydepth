@@ -126,7 +126,7 @@ class Trainer_Monodepth:
             self.parameters_to_train += list(self.models["pose"].parameters())
 
 
-        self.model_optimizer = optim.Adam(self.parameters_to_train, self.opt.learning_rate)
+        self.model_optimizer = optim.AdamW(self.parameters_to_train, self.opt.learning_rate)
         """self.model_lr_scheduler = optim.lr_scheduler.StepLR(
             self.model_optimizer, self.opt.scheduler_step_size, 0.1)"""
         self.model_lr_scheduler = optim.lr_scheduler.ExponentialLR(
