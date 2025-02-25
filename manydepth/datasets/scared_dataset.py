@@ -77,8 +77,8 @@ class SCAREDDataset(MonoDataset):
         folder = line[0]
 
         if len(line) == 3:
-            frame_index = int(line[1])
-            #frame_index = line[1]
+            #frame_index = int(line[1])
+            frame_index = line[1]
         else:
             frame_index = 0
 
@@ -126,7 +126,7 @@ class SCAREDRAWDataset(SCAREDDataset):
         #f_str = "{}{}".format(frame_index, self.img_ext)
         #image_path = os.path.join(self.data_path,folder, f_str)
         #Serv-CT
-        print(frame_index)
+        #print(frame_index)
         f_str = "{}{}".format(frame_index, self.img_ext)
         image_path = os.path.join(self.data_path,"SERV-CT",folder, f_str)
         return image_path
