@@ -126,6 +126,7 @@ class SCAREDRAWDataset(SCAREDDataset):
         #f_str = "{}{}".format(frame_index, self.img_ext)
         #image_path = os.path.join(self.data_path,folder, f_str)
         #Serv-CT
+        print(frame_index)
         f_str = "{}{}".format(frame_index, self.img_ext)
         image_path = os.path.join(self.data_path,"SERV-CT",folder, f_str)
         return image_path
