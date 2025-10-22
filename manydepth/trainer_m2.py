@@ -34,6 +34,7 @@ from layers import *
 import datasets
 import networks
 import matplotlib.pyplot as plt
+import models.endodac as endodac
 
 
 _DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
@@ -69,26 +70,36 @@ class Trainer_Monodepth:
         if self.opt.use_stereo:
             self.opt.frame_ids.append("s")
         
-        
-        #Transformer
+        # Endodac Encoder
+        self.models["encoder"] = encoders.ResnetEncoder(
+            self.opt.num_layers, self.opt.weights_init == "pretrained", num_input_images=2)  # 18
+        self.models["encoder"].to(self.device)
+        self.parameters_to_train_0 += list(self.models["position_encoder"].parameters())
+        # Endodac Decoder
+        self.models["depth"] = endodac.endodac(
+            backbone_size = "base", r=self.opt.lora_rank, lora_type=self.opt.lora_type,
+            image_shape=(224,280), pretrained_path=self.opt.pretrained_path,
+            residual_block_indexes=self.opt.residual_block_indexes,
+            include_cls_token=self.opt.include_cls_token)
+        self.models["depth"].to(self.device)
+        self.parameters_to_train += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
+        #Transformer Encoder
         """
         self.models["encoder"] = networks.mpvit_small()            
         self.models["encoder"].num_ch_enc = [64,64,128,216,288]
         self.models["encoder"].to(self.device)
         self.parameters_to_train += list(self.models["encoder"].parameters())"""
         #Resnet18 Encoder
-        self.models["encoder"] = networks.ResnetEncoder(
+        """self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters()) 
-        #Resnet18 Encoder
-        
-        self.models["depth"] = networks.DepthDecoder(
+        self.parameters_to_train += list(self.models["encoder"].parameters())"""
+        #Resnet18 Decoder
+        """self.models["depth"] = networks.DepthDecoder(
             self.models["encoder"].num_ch_enc, self.opt.scales)
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(self.models["depth"].parameters())
-        
-        #Transformer"
+        self.parameters_to_train += list(self.models["depth"].parameters())"""
+        #Transformer Decoder"
         """
         self.models["depth"] = networks.DepthDecoderT()
         self.models["depth"].to(self.device)
