@@ -35,6 +35,11 @@ class MonodepthOptions:
                                  help="which lora type use for the model",
                                  choices=["lora", "dvlora", "none"],
                                  default="dvlora")
+
+        self.parser.add_argument("--pretrained_path",
+                                 type=str,
+                                 help="pretrained weights path",
+                                 default=os.path.join(file_dir, "dav2_weights"))
         ####################
         self.parser.add_argument("--model_name",
                                  type=str,
