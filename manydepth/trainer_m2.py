@@ -34,7 +34,7 @@ from layers import *
 import datasets
 import networks
 import matplotlib.pyplot as plt
-import networks.endo as endodac
+import networks.endodac as endodac
 
 
 _DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
