@@ -71,10 +71,10 @@ class Trainer_Monodepth:
             self.opt.frame_ids.append("s")
         
         # Endodac Encoder
-        self.models["encoder"] = encoders.ResnetEncoder(
-            self.opt.num_layers, self.opt.weights_init == "pretrained", num_input_images=2)  # 18
+        self.models["encoder"] = networks.ResnetEncoder(
+            self.opt.num_layers, self.opt.weights_init == "pretrained")
         self.models["encoder"].to(self.device)
-        self.parameters_to_train_0 += list(self.models["position_encoder"].parameters())
+        self.parameters_to_train += list(self.models["encoder"].parameters())
         # Endodac Decoder
         self.models["depth"] = endodac.endodac(
             backbone_size = "base", r=self.opt.lora_rank, lora_type=self.opt.lora_type,
