@@ -25,6 +25,12 @@ class MonodepthOptions:
                                  default=os.path.join(os.path.expanduser("~"), "tmp"))
 
         # TRAINING options
+        #################### ENDODAC 
+        self.parser.add_argument("--lora_rank",
+                                 type=int,
+                                 help="the rank of lora",
+                                 default=4)
+        ####################
         self.parser.add_argument("--model_name",
                                  type=str,
                                  help="the name of the folder to save the model in",
