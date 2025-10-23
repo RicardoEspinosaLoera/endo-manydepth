@@ -44,6 +44,10 @@ class MonodepthOptions:
                                  nargs="*", type=int,
                                  help="indexes for residual blocks in vitendodepth encoder",
                                  default=[2,5,8,11])
+        self.parser.add_argument("--include_cls_token",
+                                 type=str2bool,
+                                 help="includes the cls token in the transformer blocks",
+                                 default=True)
         ####################
         self.parser.add_argument("--model_name",
                                  type=str,
