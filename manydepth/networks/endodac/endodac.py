@@ -1,7 +1,7 @@
 import os
 import torch
 import torch.nn as nn
-import models.backbones as backbones
+import networks.backbones as backbones
 from networks.backbones.mylora import Linear as LoraLinear
 from networks.backbones.mylora import DVLinear as DVLinear
 from .layers import HeadDepth
