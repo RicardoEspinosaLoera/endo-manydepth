@@ -40,6 +40,10 @@ class MonodepthOptions:
                                  type=str,
                                  help="pretrained weights path",
                                  default=os.path.join(file_dir, "dav2_weights"))
+        self.parser.add_argument("--residual_block_indexes",
+                                 nargs="*", type=int,
+                                 help="indexes for residual blocks in vitendodepth encoder",
+                                 default=[2,5,8,11])
         ####################
         self.parser.add_argument("--model_name",
                                  type=str,
