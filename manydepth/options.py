@@ -9,6 +9,15 @@ import argparse
 
 file_dir = os.path.dirname(__file__)  # the directory that options.py resides in
 
+def str2bool(v):
+     if isinstance(v, bool):
+          return v
+     if v.lower() in ('yes', 'true', 't', 'y', '1'):
+          return True
+     elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+          return False
+     else:
+          raise argparse.ArgumentTypeError('Boolean value expected.')
 
 class MonodepthOptions:
     def __init__(self):
@@ -44,10 +53,13 @@ class MonodepthOptions:
                                  nargs="*", type=int,
                                  help="indexes for residual blocks in vitendodepth encoder",
                                  default=[2,5,8,11])
+
         self.parser.add_argument("--include_cls_token",
                                  type=str2bool,
                                  help="includes the cls token in the transformer blocks",
                                  default=True)
+
+
         ####################
         self.parser.add_argument("--model_name",
                                  type=str,
