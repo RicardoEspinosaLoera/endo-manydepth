@@ -2,8 +2,8 @@ import os
 import torch
 import torch.nn as nn
 import models.backbones as backbones
-from models.backbones.mylora import Linear as LoraLinear
-from models.backbones.mylora import DVLinear as DVLinear
+from networks.backbones.mylora import Linear as LoraLinear
+from networks.backbones.mylora import DVLinear as DVLinear
 from .layers import HeadDepth
 from .layers import mark_only_part_as_trainable,_make_scratch, _make_fusion_block
 
