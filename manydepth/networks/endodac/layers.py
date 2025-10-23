@@ -1,5 +1,5 @@
 import torch.nn as nn
-import models.backbones as backbones
+import networks.backbones as backbones
 
 def mark_only_part_as_trainable(model: nn.Module, bias: str = 'none', warm_up: bool = True) -> None:
     for n, p in model.named_parameters():
