@@ -357,7 +357,7 @@ class Trainer_Monodepth:
                     ch = outputs[("ch", scale, frame_id)]
                     bh = outputs[("bh", scale, frame_id)]
                     outputs[("color_refined", frame_id, scale)] = ch * color_warped + bh
-                    print(color_warped[0].shape, brightness[0].min(), brightness[0].max())
+                    print(bh[0].shape, bh[0].min(), bh[0].max(), )
                 else:
                     outputs[("color_refined", frame_id, scale)] = color_warped
 
