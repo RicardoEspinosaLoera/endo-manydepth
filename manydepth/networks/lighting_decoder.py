@@ -30,13 +30,13 @@ class LightingDecoder(nn.Module):
         self.register_buffer("gauss", self._make_gaussian_kernel(self.blur_ks))
 
     def _make_gaussian_kernel2d(k, sigma=None, device=None, dtype=None):
-    if sigma is None:
-        sigma = 0.3*((k-1)*0.5 - 1) + 0.8
-    ax = torch.arange(k, device=device, dtype=dtype) - (k-1)/2.0
-    yy, xx = torch.meshgrid(ax, ax, indexing="ij")
-    g = torch.exp(-(xx*xx + yy*yy) / (2*sigma*sigma))
-    g = (g / g.sum()).view(1, 1, k, k)  # [1,1,k,k]
-    return g
+        if sigma is None:
+            sigma = 0.3*((k-1)*0.5 - 1) + 0.8
+        ax = torch.arange(k, device=device, dtype=dtype) - (k-1)/2.0
+        yy, xx = torch.meshgrid(ax, ax, indexing="ij")
+        g = torch.exp(-(xx*xx + yy*yy) / (2*sigma*sigma))
+        g = (g / g.sum()).view(1, 1, k, k)  # [1,1,k,k]
+        return g
 
     def _gaussian_blur_depthwise(x, kmax=11):
         # x: [B,C,H,W]; adaptive odd kernel <= min(H,W)
