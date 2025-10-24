@@ -1,77 +1,71 @@
-# Copyright Niantic 2019. Patent Pending. All rights reserved.
-#
-# This software is licensed under the terms of the Monodepth2 licence
-# which allows for non-commercial use only, the full terms of which are made
-# available in the LICENSE file.
-from __future__ import absolute_import, division, print_function
-
-import numpy as np
 import torch
 import torch.nn as nn
-
-from collections import OrderedDict
-from layers import *
-
+import torch.nn.functional as F
 
 class LightingDecoder(nn.Module):
-    def __init__(self, num_ch_enc, scales= range(4), num_output_channels=2, use_skips=False):
-        super(LightingDecoder, self).__init__()
+    """
+    Low-capacity, low-frequency illumination head:
+    outputs multiplicative gain g and additive bias b.
+    """
+    def __init__(self, num_ch_enc, out_scales=(0,), base_ch=64, alpha=0.10, beta=0.05, blur_ks=11):
+        super().__init__()
+        self.alpha = alpha
+        self.beta = beta
+        self.out_scales = out_scales
+        self.blur_ks = blur_ks
+        bottleneck_ch = num_ch_enc[-1]
 
-        self.num_output_channels = num_output_channels
-        self.use_skips = use_skips
-        self.upsample_mode = 'nearest'
-        self.scales = scales
+        # tiny decoder from bottleneck only (no skips)
+        self.dec = nn.Sequential(
+            nn.Conv2d(bottleneck_ch, base_ch, 3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(base_ch, base_ch//2, 3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(base_ch//2, 2, 3, padding=1)  # 2 channels: contrast, brightness
+        )
+        # Predict at 1/8 resolution (you can change to /16)
+        self.pred_scale = 8
 
-        self.num_ch_enc = num_ch_enc
-        self.num_ch_dec = np.array([16, 32, 64, 128, 256])
+        # fixed gaussian blur (depth-friendly: suppress HF)
+        self.register_buffer("gauss", self._make_gaussian_kernel(self.blur_ks))
 
-        # decoder
-        self.convs = OrderedDict() # 有序字典
-        for i in range(4, -1, -1):
-            # upconv_0
-            num_ch_in = self.num_ch_enc[-1] if i == 4 else self.num_ch_dec[i + 1]
-            num_ch_out = self.num_ch_dec[i]
-            self.convs[("upconv", i, 0)] = ConvBlock(num_ch_in, num_ch_out)
+    @staticmethod
+    def _make_gaussian_kernel(k, sigma=None):
+        if sigma is None: sigma = 0.3*((k-1)*0.5 - 1) + 0.8
+        ax = torch.arange(k) - (k-1)/2.0
+        xx, yy = torch.meshgrid(ax, ax, indexing="ij")
+        g = torch.exp(-(xx**2 + yy**2)/(2*sigma**2))
+        g = (g / g.sum()).view(1,1,k,k)
+        return g
 
-            # upconv_1
-            num_ch_in = self.num_ch_dec[i]
-            if self.use_skips and i > 0:
-                num_ch_in += self.num_ch_enc[i - 1]
-            num_ch_out = self.num_ch_dec[i]
-            self.convs[("upconv", i, 1)] = ConvBlock(num_ch_in, num_ch_out)
+    def _gaussian_blur(self, x):
+        # depth-safe separable blur
+        k = self.gauss
+        padding = (self.blur_ks//2,)*4
+        x = F.pad(x, (self.blur_ks//2,)*4, mode="reflect")
+        x = F.conv2d(x, k, groups=x.shape[1])
+        x = F.conv2d(x, k.transpose(2,3), groups=x.shape[1])
+        return x
 
-        for s in self.scales:
-            self.convs[("lighting_conv", s)] = Conv3x3(self.num_ch_dec[s], self.num_output_channels)
+    def forward(self, feats):
+        B, _, H, W = feats[-1].shape
+        # predict low-res illumination from deepest feature only
+        lr_h, lr_w = H // self.pred_scale, W // self.pred_scale
+        x = F.adaptive_avg_pool2d(feats[-1], (lr_h, lr_w))
+        x = self.dec(x)                                  # [B,2,lr_h,lr_w]
 
-        self.decoder = nn.ModuleList(list(self.convs.values()))
-        #self.sigmoid = nn.Sigmoid()
+        # bound magnitude
+        c_hat = torch.tanh(x[:, 0:1])                   # [-1,1]
+        b_hat = torch.tanh(x[:, 1:1+1])                 # [-1,1]
+        g = 1.0 + self.alpha * c_hat                    # ~[1-α, 1+α]
+        b = self.beta * b_hat                           # ~[-β, β]
 
-    def forward(self, input_features):
-        self.outputs = {}
-        
-        # decoder
-        x = input_features[-1]
-        #y = input_features[-1]
-        for i in range(4, -1, -1):
-            x = self.convs[("upconv", i, 0)](x)
-            #y = self.convs[("upconv", i, 0)](y)
-            x = [upsample(x)]
-            #y = [upsample(y)]
-            if self.use_skips and i > 0:
-                x += [input_features[i - 1]]
-            x = torch.cat(x, 1)
-            #y = torch.cat(y, 1)
-            x = self.convs[("upconv", i, 1)](x)
-            #y = self.convs[("upconv", i, 1)](y)
-            if i in self.scales:
-                self.outputs[("lighting", i)] = self.convs[("lighting_conv", i)](x)
-                #self.outputs[("constrast", i)] = self.convs[("lighting_conv", i)](y)
-                # Split the output into C_t and B_t
-                Ct = torch.relu(self.outputs[("lighting", i)][:, 0:1, :, :])  # Contrast (scale)
-                Bt = torch.tanh(self.outputs[("lighting", i)][:, 1:2, :, :])  # Brightness (shift)
+        # upsample smoothly to input size
+        g = F.interpolate(g, size=(H, W), mode="bilinear", align_corners=False)
+        b = F.interpolate(b, size=(H, W), mode="bilinear", align_corners=False)
 
-                # Store outputs
-                self.outputs[("contrast", i)] = Ct
-                self.outputs[("brightness", i)] = Bt
+        # enforce low-frequency behavior
+        g = self._gaussian_blur(g)
+        b = self._gaussian_blur(b)
 
-        return self.outputs
+        return {"contrast": g, "brightness": b}
