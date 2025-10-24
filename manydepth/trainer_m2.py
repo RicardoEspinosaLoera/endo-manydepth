@@ -289,7 +289,9 @@ class Trainer_Monodepth:
             for i, k in enumerate(self.opt.frame_ids):
                 features[k] = [f[i] for f in all_features]
 
-            outputs = self.models["depth"](features[0])
+            #outputs = self.models["depth"](features[0])
+            output = self.models["depth_model"](inputs[("color_aug", i, 0)])
+
             
         else:
             # Otherwise, we only feed the image with frame_id 0 through the depth encoder
