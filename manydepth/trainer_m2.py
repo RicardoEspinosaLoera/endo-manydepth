@@ -298,7 +298,7 @@ class Trainer_Monodepth:
             #features = self.models["encoder"](inputs["color_aug", 0, 0])
             #outputs = self.models["depth"](features)
 
-            output = self.models["depth_model"](inputs["color_aug", 0, 0])
+            output = self.models["depth"](inputs["color_aug", 0, 0])
         """
         if self.opt.predictive_mask:
             outputs["predictive_mask"] = self.models["predictive_mask"](features)"""
