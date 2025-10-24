@@ -349,7 +349,7 @@ class Trainer_Monodepth:
                     outputs[("translation", 0, f_i)] = translation
                     outputs[("cam_T_cam", 0, f_i)] = transformation_from_parameters(
                         axisangle[:, 0], translation[:, 0])
-
+        
                     if self.opt.pose_model_type == "separate_resnet":
                         lighting_out = self.models["lighting"](pose_inputs[0])
                         for scale in self.opt.scales:
@@ -651,7 +651,9 @@ class Trainer_Monodepth:
             if f_i == "s":
                 continue
             pose_inputs = [inputs["color_aug", f_i, 0], inputs["color_aug", 0, 0]]
+            
             pose_feat = self.models["pose_encoder"](torch.cat(pose_inputs, 1))
+            
             lighting_out = self.models["lighting"](pose_feat)
 
             for scale in self.opt.scales:
@@ -659,7 +661,7 @@ class Trainer_Monodepth:
                 c = lighting_out[("contrast", scale)]
                 bh = F.interpolate(b, [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                 ch = F.interpolate(c, [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
-                src = inputs[("color", f_i, 0)]
+                src = outputs[("color", f_i, scale)]
                 outputs[("bh", scale, f_i)] = bh
                 outputs[("ch", scale, f_i)] = ch
                 outputs[("color_refined_direct", f_i, scale)] = ch * src + bh
