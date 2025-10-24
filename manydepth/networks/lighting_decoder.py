@@ -2,6 +2,37 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+def _make_gaussian_kernel2d(k, sigma=None, device=None, dtype=None):
+        if sigma is None:
+            sigma = 0.3*((k-1)*0.5 - 1) + 0.8
+        ax = torch.arange(k, device=device, dtype=dtype) - (k-1)/2.0
+        yy, xx = torch.meshgrid(ax, ax, indexing="ij")
+        g = torch.exp(-(xx*xx + yy*yy) / (2*sigma*sigma))
+        g = (g / g.sum()).view(1, 1, k, k)  # [1,1,k,k]
+        return g
+
+def _gaussian_blur_depthwise(x, kmax=11):
+    # x: [B,C,H,W]; adaptive odd kernel <= min(H,W)
+    B, C, H, W = x.shape
+    k = min(kmax, H, W)
+    if k < 3:    # too small -> skip
+        return x
+    if k % 2 == 0:
+        k -= 1
+    if k < 3:
+        return x
+    kernel = _make_gaussian_kernel2d(k, device=x.device, dtype=x.dtype)
+    kernel = kernel.expand(C, 1, k, k).contiguous()     # depthwise
+    pad = k // 2
+    x = F.pad(x, (pad, pad, pad, pad), mode="reflect")
+    return F.conv2d(x, kernel, groups=C)
+
+def _upsample_bilinear(x, size=None, scale_factor=2):
+    return F.interpolate(
+        x, size=size, scale_factor=scale_factor,
+        mode="bilinear", align_corners=False
+    )
+
 class LightingDecoder(nn.Module):
     """
     Low-capacity, low-frequency illumination head:
@@ -29,36 +60,7 @@ class LightingDecoder(nn.Module):
         # fixed gaussian blur (depth-friendly: suppress HF)
         self.register_buffer("gauss", self._make_gaussian_kernel(self.blur_ks))
 
-    def _make_gaussian_kernel2d(k, sigma=None, device=None, dtype=None):
-        if sigma is None:
-            sigma = 0.3*((k-1)*0.5 - 1) + 0.8
-        ax = torch.arange(k, device=device, dtype=dtype) - (k-1)/2.0
-        yy, xx = torch.meshgrid(ax, ax, indexing="ij")
-        g = torch.exp(-(xx*xx + yy*yy) / (2*sigma*sigma))
-        g = (g / g.sum()).view(1, 1, k, k)  # [1,1,k,k]
-        return g
-
-    def _gaussian_blur_depthwise(x, kmax=11):
-        # x: [B,C,H,W]; adaptive odd kernel <= min(H,W)
-        B, C, H, W = x.shape
-        k = min(kmax, H, W)
-        if k < 3:    # too small -> skip
-            return x
-        if k % 2 == 0:
-            k -= 1
-        if k < 3:
-            return x
-        kernel = _make_gaussian_kernel2d(k, device=x.device, dtype=x.dtype)
-        kernel = kernel.expand(C, 1, k, k).contiguous()     # depthwise
-        pad = k // 2
-        x = F.pad(x, (pad, pad, pad, pad), mode="reflect")
-        return F.conv2d(x, kernel, groups=C)
-
-    def _upsample_bilinear(x, size=None, scale_factor=2):
-        return F.interpolate(
-            x, size=size, scale_factor=scale_factor,
-            mode="bilinear", align_corners=False
-        )
+    
 
     # --- in your class ---------------------------------------------------------
     # add safe bounds as attributes (you can move these to __init__)
