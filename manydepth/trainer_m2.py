@@ -278,7 +278,27 @@ class Trainer_Monodepth:
         for key, ipt in inputs.items():
             inputs[key] = ipt.to(self.device)
 
-        output = self.models["depth"](inputs["color_aug", 0, 0])
+        if self.opt.pose_model_type == "shared":
+            # If we are using a shared encoder for both depth and pose (as advocated
+            # in monodepthv1), then all images are fed separately through the depth encoder.
+            all_color_aug = torch.cat([inputs[("color_aug", i, 0)] for i in self.opt.frame_ids])
+            all_features = self.models["encoder"](all_color_aug)
+            all_features = [torch.split(f, self.opt.batch_size) for f in all_features]
+
+            features = {}
+            for i, k in enumerate(self.opt.frame_ids):
+                features[k] = [f[i] for f in all_features]
+
+            outputs = self.models["depth"](features[0])
+           
+
+            
+        else:
+            # Otherwise, we only feed the image with frame_id 0 through the depth encoder
+            #features = self.models["encoder"](inputs["color_aug", 0, 0])
+            #outputs = self.models["depth"](features)
+
+            outputs = self.models["depth"](inputs["color_aug", 0, 0])
         """
         if self.opt.predictive_mask:
             outputs["predictive_mask"] = self.models["predictive_mask"](features)"""
