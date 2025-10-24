@@ -29,22 +29,33 @@ class LightingDecoder(nn.Module):
         # fixed gaussian blur (depth-friendly: suppress HF)
         self.register_buffer("gauss", self._make_gaussian_kernel(self.blur_ks))
 
-    @staticmethod
-    def _make_gaussian_kernel(k, sigma=None):
-        if sigma is None: sigma = 0.3*((k-1)*0.5 - 1) + 0.8
-        ax = torch.arange(k) - (k-1)/2.0
+    def _make_gaussian_kernel2d(k, sigma=None, device=None, dtype=None):
+        if sigma is None:
+            sigma = 0.3*((k-1)*0.5 - 1) + 0.8
+        ax = torch.arange(k, device=device, dtype=dtype) - (k-1)/2.0
         xx, yy = torch.meshgrid(ax, ax, indexing="ij")
-        g = torch.exp(-(xx**2 + yy**2)/(2*sigma**2))
-        g = (g / g.sum()).view(1,1,k,k)
-        return g
+        g = torch.exp(-(xx**2 + yy**2) / (2*sigma**2))
+        g = g / g.sum()
+        # weight shape for depthwise conv: (C, 1, k, k) – we'll expand later
+        return g[None, None, ...]  # [1,1,k,k]
 
-    def _gaussian_blur(self, x):
-        # depth-safe separable blur
-        k = self.gauss
-        padding = (self.blur_ks//2,)*4
-        x = F.pad(x, (self.blur_ks//2,)*4, mode="reflect")
-        x = F.conv2d(x, k, groups=x.shape[1])
-        x = F.conv2d(x, k.transpose(2,3), groups=x.shape[1])
+    def _gaussian_blur(self, x, k_max=11):
+        # x: [B, C, H, W]
+        B, C, H, W = x.shape
+        k = min(k_max, H, W)
+        # ensure odd and >=3
+        if k < 3:
+            return x
+        if k % 2 == 0:
+            k -= 1
+        if k < 3:
+            return x
+
+        k2d = _make_gaussian_kernel2d(k, device=x.device, dtype=x.dtype)
+        k2d = k2d.expand(C, 1, k, k).contiguous()  # depthwise
+        pad = k // 2
+        x = F.pad(x, (pad, pad, pad, pad), mode="reflect")
+        x = F.conv2d(x, k2d, groups=C)  # single 2D blur is enough
         return x
 
     def forward(self, feats):
