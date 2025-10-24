@@ -58,7 +58,7 @@ class LightingDecoder(nn.Module):
         self.pred_scale = 8
 
         # fixed gaussian blur (depth-friendly: suppress HF)
-        self.register_buffer("gauss", self._make_gaussian_kernel(self.blur_ks))
+        self.register_buffer("gauss", _make_gaussian_kernel(self.blur_ks))
 
     
 
