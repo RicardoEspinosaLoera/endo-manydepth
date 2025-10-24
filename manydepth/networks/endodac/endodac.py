@@ -74,6 +74,7 @@ class DPTHead(nn.Module):
         
         self.sigmoid = nn.Sigmoid()
     def forward(self, out_features, patch_h, patch_w):
+        
         out = []
         for i, x in enumerate(out_features):
             if self.use_clstoken:
@@ -194,7 +195,8 @@ class endodac(nn.Module):
         mark_only_part_as_trainable(self.encoder)
         mark_only_part_as_trainable(self.depth_head)
     def forward(self, pixel_values):
-        pixel_values = torch.nn.functional.interpolate(pixel_values, size=self.image_shape, mode="bilinear", align_corners=True)
+        device = next(self.parameters()).device
+        pixel_values = torch.nn.functional.interpolate(pixel_values, size=self.image_shape, mode="bilinear", align_corners=True).to(device)
         h, w = pixel_values.shape[-2:]
         
         features = self.encoder.get_intermediate_layers(pixel_values, 4, return_class_token=True)

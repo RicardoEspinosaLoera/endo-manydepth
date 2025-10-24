@@ -57,7 +57,9 @@ class Trainer_Monodepth:
 
         self.models = {}
         self.parameters_to_train = []
-        self.device = torch.device("cpu" if self.opt.no_cuda else "cuda")
+        #self.device = torch.device("cpu" if self.opt.no_cuda else "cuda")
+        self.device = torch.device("cuda" if torch.cuda.is_available() and not self.opt.no_cuda else "cpu")
+
 
         self.num_scales = len(self.opt.scales)
         self.num_input_frames = len(self.opt.frame_ids)
@@ -122,6 +124,9 @@ class Trainer_Monodepth:
 
         if self.opt.load_weights_folder is not None:
             self.load_model()
+
+        for name, model in self.models.items():
+            self.models[name] = model.to(self.device)
 
         print("Training model named:\n  ", self.opt.model_name)
         print("Models and events saved to:\n  ", self.opt.log_dir)
