@@ -74,12 +74,11 @@ class Trainer_Monodepth:
             backbone_size="base",
             r=self.opt.lora_rank,
             lora_type=self.opt.lora_type,
-            image_shape=(self.opt.height, self.opt.width),  # keep consistent
+            image_shape=(224, 280),           # <-- back to ViT/14-safe size
             pretrained_path=self.opt.pretrained_path,
             residual_block_indexes=self.opt.residual_block_indexes,
             include_cls_token=self.opt.include_cls_token
-        ).to(self.device)
-        self.parameters_to_train += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
+        )
 
         # ResNet encoder (only used if pose_model_type == "shared")
         self.models["encoder"] = networks.ResnetEncoder(
