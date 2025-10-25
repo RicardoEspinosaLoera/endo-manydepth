@@ -474,7 +474,7 @@ class Trainer_Monodepth:
             loss_iil_s = 0.0
 
             disp  = outputs[("disp", scale)]
-            #color = inputs[("color", 0, scale)]
+            color = inputs[("color", 0, scale)]
             #target = inputs[("color", 0, scale)]  # <<< use same scale
             target = inputs[("color", 0, 0)]
 
