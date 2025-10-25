@@ -290,7 +290,8 @@ class Trainer_Monodepth:
                 outputs.update(self.predict_poses(inputs, None))
 
         self.generate_images_pred(inputs, outputs)  # builds color_warped and color_refined (warped-only path)
-        losses = self.compute_losses(inputs, outputs)
+        #losses = self.compute_losses(inputs, outputs)
+        losses = self._compute_joint_losses(inputs, outputs)
         return outputs, losses
 
     def predict_poses(self, inputs, features):
@@ -418,6 +419,111 @@ class Trainer_Monodepth:
         features_p = get_ilumination_invariant_features(pred)
         features_t = get_ilumination_invariant_features(target)
         return self.ssim(features_p, features_t).mean(1, True)
+
+    def _compute_joint_losses(self, inputs, outputs):
+        """
+        One-optimizer, one-phase — but block cross-gradients:
+        - Phase A (pose+lighting): disp_detached + T_live + (c,b)_live
+        - Phase B (depth):         disp_live     + T_det  + (c,b)_det
+        """
+        losses = {}
+        total = 0.0
+
+        illum_w = float(self.opt.illumination_invariant)
+        S = len(self.opt.scales)
+        valid_fids = [fid for fid in self.opt.frame_ids[1:] if fid != "s"]
+        num_src = max(1, len(valid_fids))
+
+        accA_rep = accA_iil = accB_rep = accB_iil = 0.0
+
+        for s in self.opt.scales:
+            src_scale = s if self.opt.v1_multiscale else 0
+
+            disp_live = outputs[("disp", s)]
+            if not self.opt.v1_multiscale:
+                disp_live = F.interpolate(disp_live, [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
+            _, depth_live = disp_to_depth(disp_live, self.opt.min_depth, self.opt.max_depth)
+
+            disp_det = disp_live.detach()
+            _, depth_det = disp_to_depth(disp_det, self.opt.min_depth, self.opt.max_depth)
+
+            K, invK = inputs[("K", src_scale)], inputs[("inv_K", src_scale)]
+            target  = inputs[("color", 0, 0)]
+            color0  = inputs[("color", 0, s)]
+
+            A_rep = A_iil = B_rep = B_iil = 0.0
+
+            for f in valid_fids:
+                src = inputs[("color", f, src_scale)]
+
+                T_live = outputs[("cam_T_cam", 0, f)]
+                T_det  = T_live.detach()
+
+                if self.use_pose_net and self.opt.pose_model_type == "separate_resnet":
+                    c_live = outputs[("ch", s, f)]; b_live = outputs[("bh", s, f)]
+                    c_det  = c_live.detach();       b_det  = b_live.detach()
+                else:
+                    c_live = c_det = 1.0
+                    b_live = b_det = 0.0
+
+                # Phase A (pose+light only)
+                camA = self.backproject_depth[src_scale](depth_det, invK)
+                pixA = self.project_3d[src_scale](camA, K, T_live)
+                warpA = F.grid_sample(src, pixA, padding_mode="border", align_corners=True)
+                refA  = c_live * warpA + b_live
+
+                # Phase B (depth only)
+                camB = self.backproject_depth[src_scale](depth_live, invK)
+                pixB = self.project_3d[src_scale](camB, K, T_det)
+                warpB = F.grid_sample(src, pixB, padding_mode="border", align_corners=True)
+                refB  = c_det * warpB + b_det
+
+                # stash for logging (use B stream)
+                outputs[("color", f, s)]         = warpB
+                outputs[("color_refined", f, s)] = refB
+
+                rep_id = self.compute_reprojection_loss(src, target)
+
+                repA = self.compute_reprojection_loss(refA, target)
+                mA   = self.compute_loss_masks(repA, rep_id, None)
+                iA   = get_feature_oclution_mask(mA)
+
+                repB = self.compute_reprojection_loss(refB, target)
+                mB   = self.compute_loss_masks(repB, rep_id, None)
+                iB   = get_feature_oclution_mask(mB)
+
+                A_rep += (repA * mA).sum() / (mA.sum() + 1e-8)
+                A_iil += (self.get_ilumination_invariant_loss(refA, target) * iA).sum() / (iA.sum() + 1e-8)
+
+                B_rep += (repB * mB).sum() / (mB.sum() + 1e-8)
+                B_iil += (self.get_ilumination_invariant_loss(refB, target) * iB).sum() / (iB.sum() + 1e-8)
+
+            A_rep /= num_src; A_iil /= num_src
+            B_rep /= num_src; B_iil /= num_src
+
+            # smoothness for depth (Phase B)
+            mean_disp = outputs[("disp", s)].mean(2, True).mean(3, True)
+            norm_disp = outputs[("disp", s)] / (mean_disp + 1e-7)
+            smooth    = get_smooth_loss(norm_disp, color0) / (2 ** s)
+
+            phaseA = A_rep + illum_w * A_iil
+            phaseB = B_rep + illum_w * B_iil + self.opt.disparity_smoothness * smooth
+
+            total += (phaseA + phaseB)
+
+            losses[f"phaseA/loss/{s}"] = phaseA
+            losses[f"phaseB/loss/{s}"] = phaseB
+
+            accA_rep += A_rep; accA_iil += A_iil
+            accB_rep += B_rep; accB_iil += B_iil
+
+        total /= S
+        losses["loss"] = total
+        losses["phaseA/loss/reprojection"] = torch.as_tensor(accA_rep / S, device=self.device)
+        losses["phaseA/loss/iil"]          = torch.as_tensor((accA_iil / S) * illum_w, device=self.device)
+        losses["phaseB/loss/reprojection"] = torch.as_tensor(accB_rep / S, device=self.device)
+        losses["phaseB/loss/iil"]          = torch.as_tensor((accB_iil / S) * illum_w, device=self.device)
+        return losses
 
     def compute_losses(self, inputs, outputs):
         losses = {}
@@ -588,7 +694,8 @@ class Trainer_Monodepth:
                 to_save['use_stereo'] = self.opt.use_stereo
             torch.save(to_save, path)
         # save both optimizers
-        torch.save(self.opt.state_dict(),  os.path.join(save_folder, "adam_pose.pth"))
+        #torch.save(self.opt.state_dict(),  os.path.join(save_folder, "adam_pose.pth"))
+        torch.save(self.optim.state_dict(), os.path.join(save_folder, "adam_joint.pth"))
         #torch.save(self.opt_depth.state_dict(), os.path.join(save_folder, "adam_depth.pth"))
 
     def load_model(self):
@@ -612,6 +719,7 @@ class Trainer_Monodepth:
             self.opt.load_state_dict(torch.load(pose_path, map_location=self.device))
         else:
             print("Adam pose/light randomly initialized")
+            
         # if os.path.isfile(depth_path):
         #     print("Loading Adam (depth)")
         #     self.opt_depth.load_state_dict(torch.load(depth_path, map_location=self.device))
