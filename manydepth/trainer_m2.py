@@ -242,9 +242,6 @@ class Trainer_Monodepth:
         self.step = 0
         self.start_time = time.time()
         for self.epoch in range(self.opt.num_epochs):
-            if self.epoch > 1:
-                for p in self.models["lighting"].parameters():
-                    p.requires_grad = False
             self.run_epoch()
             if (self.epoch + 1) % self.opt.save_frequency == 0:
                 self.save_model()
