@@ -84,7 +84,7 @@ class Trainer_Monodepth:
             include_cls_token=self.opt.include_cls_token
         )
         # Depth params go to depth optimizer
-        self.params_depth += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
+        self.params += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
 
         # ResNet encoder (only used if pose_model_type == "shared")
         self.models["encoder"] = networks.ResnetEncoder(
