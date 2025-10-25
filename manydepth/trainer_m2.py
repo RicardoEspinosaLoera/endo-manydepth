@@ -236,7 +236,7 @@ class Trainer_Monodepth:
             outputs, losses = self.process_batch(inputs)
 
             # ---- joint step (two optimizers / param groups) ----
-            self.opt.zero_grad(set_to_none=True)
+            self.optim.zero_grad(set_to_none=True)
             #self.opt_depth.zero_grad(set_to_none=True)
 
             losses["loss"].backward()
@@ -245,12 +245,12 @@ class Trainer_Monodepth:
             torch.nn.utils.clip_grad_norm_(self.params, max_norm=1.0)
             #torch.nn.utils.clip_grad_norm_(self.params_depth,      max_norm=1.0)
 
-            self.opt.step()
+            self.optim.step()
             #self.opt_depth.step()
 
             # ---- logging / quick val ----
             duration = time.time() - before_op_time
-            early_phase = batch_idx % self.opt.log_frequency == 0 and self.step < 2000
+            early_phase = batch_idx % self.optim.log_frequency == 0 and self.step < 2000
             late_phase  = self.step % 2000 == 0
             if early_phase or late_phase:
                 self.log_time(batch_idx, duration, losses["loss"].detach().cpu().data)
