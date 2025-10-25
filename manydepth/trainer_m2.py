@@ -34,7 +34,7 @@ import networks.endodac as endodac
 
 wandb.init(project="IISfMLearner-ENDOVIS", entity="respinosa")
 
-_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
+_DEPTH_COLORMAP = plt.get_cmap('plasma_r', 256)  # for plotting
 
 
 def seed_worker(worker_id):
