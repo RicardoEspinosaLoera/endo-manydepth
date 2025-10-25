@@ -196,41 +196,12 @@ class Trainer_Monodepth:
         self.save_opts()
 
     # ---------------- Modes ----------------
-    def set_train_pose_light(self):
-        """Train pose+lighting (and shared encoder if used); freeze depth."""
-        for name, m in self.models.items():
-            if name in ["pose_encoder", "pose", "lighting", "encoder"]:
-                m.train()
-            else:
-                m.eval()
-        # freeze depth params
-        for p in self.models["depth"].parameters():
-            p.requires_grad = False
-        # enable grads for pose/light
-        for name in ["pose_encoder", "pose", "lighting", "encoder"]:
-            if name in self.models:
-                for p in self.models[name].parameters():
-                    p.requires_grad = True
-
-    def set_train_depth(self):
-        """Train depth; freeze pose+lighting."""
-        for name, m in self.models.items():
-            if name == "depth":
-                m.train()
-            else:
-                m.eval()
-        # enable depth grads
-        for p in self.models["depth"].parameters():
+    def set_train(self):
+    """Set all models to training mode and enable gradients for every parameter."""
+    for name, model in self.models.items():
+        model.train()
+        for p in model.parameters():
             p.requires_grad = True
-        # optional warm-up: train only part of depth at early steps
-        if getattr(endodac, "mark_only_part_as_trainable", None) is not None:
-            warm_up = (self.step < getattr(self.opt, "warm_up_step", 0))
-            endodac.mark_only_part_as_trainable(self.models["depth"], warm_up=warm_up)
-        # freeze pose+lighting
-        for name in ["pose_encoder", "pose", "lighting", "encoder"]:
-            if name in self.models:
-                for p in self.models[name].parameters():
-                    p.requires_grad = False
 
     def set_eval(self):
         for m in self.models.values():
@@ -247,41 +218,54 @@ class Trainer_Monodepth:
                 self.save_model()
 
     def run_epoch(self):
+        """
+        One-phase training:
+        - Forward depth, pose, lighting ONCE per batch
+        - Loss blocks cross-gradients internally (via detach in _compute_joint_losses)
+        - Single backward; step both optimizers
+        """
         print("Training", self.epoch)
+
+        # ensure all modules are in train mode
+        self.set_train()
 
         for batch_idx, inputs in enumerate(self.train_loader):
             before_op_time = time.time()
 
-            # -------- Phase A: pose + lighting step --------
-            self.set_train_pose_light()
-            outputs, losses = self.process_batch(inputs)   # depth forward runs, depth params frozen
-            self.opt_pose.zero_grad(set_to_none=True)
-            losses["loss"].backward()
-            torch.nn.utils.clip_grad_norm_(self.params_pose_light, max_norm=1.0)
-            self.opt_pose.step()
+            # ---- single forward + joint losses (A+B) ----
+            outputs, losses = self.process_batch_joint(inputs)
 
-            # -------- Phase B: depth step --------
-            self.set_train_depth()
-            outputs, losses = self.process_batch(inputs)   # recompute graph after pose/light changed
+            # ---- joint step (two optimizers / param groups) ----
+            self.opt_pose.zero_grad(set_to_none=True)
             self.opt_depth.zero_grad(set_to_none=True)
+
             losses["loss"].backward()
-            torch.nn.utils.clip_grad_norm_(self.params_depth, max_norm=1.0)
+
+            # gradient clipping for stability
+            torch.nn.utils.clip_grad_norm_(self.params_pose_light, max_norm=1.0)
+            torch.nn.utils.clip_grad_norm_(self.params_depth,      max_norm=1.0)
+
+            self.opt_pose.step()
             self.opt_depth.step()
 
+            # ---- logging / quick val ----
             duration = time.time() - before_op_time
             early_phase = batch_idx % self.opt.log_frequency == 0 and self.step < 2000
             late_phase  = self.step % 2000 == 0
             if early_phase or late_phase:
                 self.log_time(batch_idx, duration, losses["loss"].detach().cpu().data)
                 if "depth_gt" in inputs:
-                    self.compute_depth_losses(inputs, outputs, losses)
+                    # compute metrics on the same outputs for convenience
+                    self.compute_depth_losses(inputs, outputs, dict(losses))
                 self.log("train", inputs, outputs, losses)
                 self.val()
 
             self.step += 1
 
+        # lr schedulers step once per epoch
         self.sched_pose.step()
         self.sched_depth.step()
+
 
     # ---------------- Full pipeline ----------------
     def process_batch(self, inputs):
