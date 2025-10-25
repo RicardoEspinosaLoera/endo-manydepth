@@ -393,28 +393,91 @@ class Trainer_Monodepth:
         features_t = get_ilumination_invariant_features(target)
         return self.ssim(features_p, features_t).mean(1, True)
 
+    # def compute_losses(self, inputs, outputs):
+    #     losses = {}
+    #     loss_reprojection = 0.0
+    #     loss_ilumination_invariant = 0.0
+    #     total_loss = 0.0
+
+    #     # optional ramp for illumination loss
+    #     illum_w = float(self.opt.illumination_invariant)  # or ramp if you prefer
+
+    #     for scale in self.opt.scales:
+    #         loss = 0.0
+    #         source_scale = scale if self.opt.v1_multiscale else 0
+
+    #         disp = outputs[("disp", scale)]
+    #         color = inputs[("color", 0, scale)]
+
+    #         for frame_id in self.opt.frame_ids[1:]:
+    #             if frame_id == "s":  # skip stereo for monocular photometric loss
+    #                 continue
+
+    #             target = inputs[("color", 0, 0)]
+    #             pred_warped = outputs[("color", frame_id, scale)]  # warped, before lighting
+    #             rep = self.compute_reprojection_loss(pred_warped, target)
+
+    #             pred_identity = inputs[("color", frame_id, source_scale)]
+    #             rep_identity = self.compute_reprojection_loss(pred_identity, target)
+
+    #             mask = self.compute_loss_masks(rep, rep_identity, target)
+    #             iil_mask = get_feature_oclution_mask(mask)
+
+    #             # *** ONLY refined (warped + lighting) is supervised ***
+    #             pred_ref = outputs[("color_refined", frame_id, scale)]
+    #             loss_reprojection += (self.compute_reprojection_loss(pred_ref, target) * mask).sum() / mask.sum()
+
+    #             loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask).sum() / iil_mask.sum()
+
+    #         # disparity smoothness
+    #         mean_disp = disp.mean(2, True).mean(3, True)
+    #         norm_disp = disp / (mean_disp + 1e-7)
+    #         smooth_loss = get_smooth_loss(norm_disp, color)
+
+    #         loss += (loss_reprojection / 2.0)
+    #         loss += illum_w * (loss_ilumination_invariant / 2.0)
+    #         loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
+
+    #         total_loss += loss
+    #         losses[f"loss/{scale}"] = loss
+
+    #     total_loss /= self.num_scales
+    #     losses["loss"] = total_loss
+
+    #     # For monitoring
+    #     losses["loss/reprojection"] = torch.as_tensor(loss_reprojection, device=self.device)
+    #     losses["loss/iil"] = torch.as_tensor(loss_ilumination_invariant, device=self.device)
+
+    #     return losses
+
     def compute_losses(self, inputs, outputs):
         losses = {}
-        loss_reprojection = 0.0
-        loss_ilumination_invariant = 0.0
         total_loss = 0.0
 
-        # optional ramp for illumination loss
-        illum_w = float(self.opt.illumination_invariant)  # or ramp if you prefer
+        illum_w = float(self.opt.illumination_invariant)
+
+        num_scales = len(self.opt.scales)
+        # count how many non-stereo source frames you actually use
+        valid_frame_ids = [fid for fid in self.opt.frame_ids[1:] if fid != "s"]
+        num_src = max(1, len(valid_frame_ids))  # avoid div by 0
+
+        # for logging (averaged later)
+        log_reproj_acc = 0.0
+        log_iil_acc = 0.0
 
         for scale in self.opt.scales:
-            loss = 0.0
             source_scale = scale if self.opt.v1_multiscale else 0
 
-            disp = outputs[("disp", scale)]
+            # per-scale accumulators (reset each scale!)
+            loss_reprojection_s = 0.0
+            loss_iil_s = 0.0
+
+            disp  = outputs[("disp", scale)]
             color = inputs[("color", 0, scale)]
+            target = inputs[("color", 0, scale)]  # <<< use same scale
 
-            for frame_id in self.opt.frame_ids[1:]:
-                if frame_id == "s":  # skip stereo for monocular photometric loss
-                    continue
-
-                target = inputs[("color", 0, 0)]
-                pred_warped = outputs[("color", frame_id, scale)]  # warped, before lighting
+            for frame_id in valid_frame_ids:
+                pred_warped = outputs[("color", frame_id, scale)]       # warped, pre-lighting
                 rep = self.compute_reprojection_loss(pred_warped, target)
 
                 pred_identity = inputs[("color", frame_id, source_scale)]
@@ -423,32 +486,47 @@ class Trainer_Monodepth:
                 mask = self.compute_loss_masks(rep, rep_identity, target)
                 iil_mask = get_feature_oclution_mask(mask)
 
-                # *** ONLY refined (warped + lighting) is supervised ***
+                # supervise the refined image
                 pred_ref = outputs[("color_refined", frame_id, scale)]
-                loss_reprojection += (self.compute_reprojection_loss(pred_ref, target) * mask).sum() / mask.sum()
+                reproj_term = (self.compute_reprojection_loss(pred_ref, target) * mask)
+                iil_term    = (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask)
 
-                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask).sum() / iil_mask.sum()
+                # normalize by valid pixels
+                loss_reprojection_s += reproj_term.sum() / (mask.sum() + 1e-8)
+                loss_iil_s          += iil_term.sum() / (iil_mask.sum() + 1e-8)
+
+            # average over the number of used source frames (no magic /2.0)
+            loss_reprojection_s /= num_src
+            loss_iil_s          /= num_src
 
             # disparity smoothness
             mean_disp = disp.mean(2, True).mean(3, True)
             norm_disp = disp / (mean_disp + 1e-7)
-            smooth_loss = get_smooth_loss(norm_disp, color)
+            smooth_loss = get_smooth_loss(norm_disp, color) / (2 ** scale)
 
-            loss += (loss_reprojection / 2.0)
-            loss += illum_w * (loss_ilumination_invariant / 2.0)
-            loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
+            # assemble per-scale loss
+            loss_s = loss_reprojection_s + illum_w * loss_iil_s + self.opt.disparity_smoothness * smooth_loss
 
-            total_loss += loss
-            losses[f"loss/{scale}"] = loss
+            total_loss += loss_s
 
-        total_loss /= self.num_scales
+            # log per-scale (optional)
+            losses[f"loss/{scale}"] = loss_s
+
+            # accumulators for overall logging (averaged later)
+            log_reproj_acc += loss_reprojection_s
+            log_iil_acc    += loss_iil_s
+
+        # average across scales once
+        total_loss /= num_scales
         losses["loss"] = total_loss
 
-        # For monitoring
-        losses["loss/reprojection"] = torch.as_tensor(loss_reprojection, device=self.device)
-        losses["loss/iil"] = torch.as_tensor(loss_ilumination_invariant, device=self.device)
+        # averaged monitors (more interpretable)
+        device = self.device if hasattr(self, "device") else next(self.parameters()).device
+        losses["loss/reprojection"] = torch.as_tensor(log_reproj_acc / num_scales, device=device)
+        losses["loss/iil"]          = torch.as_tensor((log_iil_acc / num_scales) * illum_w, device=device)
 
         return losses
+
 
     @staticmethod
     def compute_loss_masks(reprojection_loss, identity_reprojection_loss, inputs):
