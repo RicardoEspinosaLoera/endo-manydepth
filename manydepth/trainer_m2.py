@@ -32,7 +32,6 @@ wandb.init(project="IISfMLearner-ENDOVIS", entity="respinosa")
 _DEPTH_COLORMAP = plt.get_cmap('plasma_r', 256)
 
 
-
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
     np.random.seed(worker_seed)
@@ -43,8 +42,8 @@ class Trainer_Monodepth:
     """
     Lighting is learned ONLY on top of warped images.
     Pipeline per batch:
-      - depth (EndoDAC) predicts disparity
-      - pose predicts T (and pose features feed the LightingDecoder)
+      - Phase A (pose+lighting): pose predicts T; lighting predicts (c, b)
+      - Phase B (depth/EndoDAC): depth predicts disparity
       - warp sources with depth+pose -> color_warped
       - refine: color_refined = c * color_warped + b
       - losses compare color_refined vs target
@@ -57,10 +56,12 @@ class Trainer_Monodepth:
         assert self.opt.width  % 32 == 0, "'width' must be multiple of 32"
 
         self.models = {}
-        self.parameters_to_train = []
-        #self.device = torch.device("cpu" if self.opt.no_cuda else "cuda")
-        self.device = torch.device("cuda" if torch.cuda.is_available() and not self.opt.no_cuda else "cpu")
+        # Two disjoint param groups for two-phase training
+        self.params_pose_light = []
+        self.params_depth = []
 
+        # self.device = torch.device("cpu" if self.opt.no_cuda else "cuda")
+        self.device = torch.device("cuda" if torch.cuda.is_available() and not self.opt.no_cuda else "cpu")
 
         self.num_scales = len(self.opt.scales)
         self.num_input_frames = len(self.opt.frame_ids)
@@ -77,51 +78,55 @@ class Trainer_Monodepth:
             backbone_size="base",
             r=self.opt.lora_rank,
             lora_type=self.opt.lora_type,
-            image_shape=(224, 280),           # <-- back to ViT/14-safe size
+            image_shape=(224, 280),           # ViT/14-safe size
             pretrained_path=self.opt.pretrained_path,
             residual_block_indexes=self.opt.residual_block_indexes,
             include_cls_token=self.opt.include_cls_token
         )
+        # Depth params go to depth optimizer
+        self.params_depth += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
 
         # ResNet encoder (only used if pose_model_type == "shared")
         self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained"
         ).to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters())
+        self.params_pose_light += list(self.models["encoder"].parameters())
 
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
                 self.models["pose_encoder"] = networks.ResnetEncoder(
                     self.opt.num_layers, self.opt.weights_init == "pretrained", num_input_images=self.num_pose_frames
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["pose_encoder"].parameters())
+                self.params_pose_light += list(self.models["pose_encoder"].parameters())
 
                 self.models["pose"] = networks.PoseDecoder(
                     self.models["pose_encoder"].num_ch_enc, num_input_features=1, num_frames_to_predict_for=2
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["pose"].parameters())
+                self.params_pose_light += list(self.models["pose"].parameters())
 
                 # LightingDecoder takes pose features and predicts (c, b)
                 self.models["lighting"] = networks.LightingDecoder(
                     self.models["pose_encoder"].num_ch_enc, self.opt.scales
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["lighting"].parameters())
+                self.params_pose_light += list(self.models["lighting"].parameters())
 
             elif self.opt.pose_model_type == "shared":
                 self.models["pose"] = networks.PoseDecoder(
                     self.models["encoder"].num_ch_enc, self.num_pose_frames
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["pose"].parameters())
+                self.params_pose_light += list(self.models["pose"].parameters())
 
             elif self.opt.pose_model_type == "posecnn":
                 self.models["pose"] = networks.PoseCNN(
                     self.num_input_frames if self.opt.pose_model_input == "all" else 2
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["pose"].parameters())
+                self.params_pose_light += list(self.models["pose"].parameters())
 
-        # ---------------- Optimizer / Sched ----------------
-        self.model_optimizer = optim.AdamW(self.parameters_to_train, lr=self.opt.learning_rate)
-        self.model_lr_scheduler = optim.lr_scheduler.ExponentialLR(self.model_optimizer, 0.9)
+        # ---------------- Two Optimizers / Two Schedulers ----------------
+        self.opt_pose = optim.AdamW(self.params_pose_light, lr=self.opt.learning_rate)
+        self.opt_depth = optim.AdamW(self.params_depth,      lr=self.opt.learning_rate)
+        self.sched_pose  = optim.lr_scheduler.ExponentialLR(self.opt_pose,  0.9)
+        self.sched_depth = optim.lr_scheduler.ExponentialLR(self.opt_depth, 0.9)
 
         if self.opt.load_weights_folder is not None:
             self.load_model()
@@ -191,13 +196,41 @@ class Trainer_Monodepth:
         self.save_opts()
 
     # ---------------- Modes ----------------
-    def set_train(self):
-        for m in self.models.values():
-            m.train()
-        # Optional: LoRA warm-up support if implemented in endodac
+    def set_train_pose_light(self):
+        """Train pose+lighting (and shared encoder if used); freeze depth."""
+        for name, m in self.models.items():
+            if name in ["pose_encoder", "pose", "lighting", "encoder"]:
+                m.train()
+            else:
+                m.eval()
+        # freeze depth params
+        for p in self.models["depth"].parameters():
+            p.requires_grad = False
+        # enable grads for pose/light
+        for name in ["pose_encoder", "pose", "lighting", "encoder"]:
+            if name in self.models:
+                for p in self.models[name].parameters():
+                    p.requires_grad = True
+
+    def set_train_depth(self):
+        """Train depth; freeze pose+lighting."""
+        for name, m in self.models.items():
+            if name == "depth":
+                m.train()
+            else:
+                m.eval()
+        # enable depth grads
+        for p in self.models["depth"].parameters():
+            p.requires_grad = True
+        # optional warm-up: train only part of depth at early steps
         if getattr(endodac, "mark_only_part_as_trainable", None) is not None:
             warm_up = (self.step < getattr(self.opt, "warm_up_step", 0))
             endodac.mark_only_part_as_trainable(self.models["depth"], warm_up=warm_up)
+        # freeze pose+lighting
+        for name in ["pose_encoder", "pose", "lighting", "encoder"]:
+            if name in self.models:
+                for p in self.models[name].parameters():
+                    p.requires_grad = False
 
     def set_eval(self):
         for m in self.models.values():
@@ -215,17 +248,25 @@ class Trainer_Monodepth:
 
     def run_epoch(self):
         print("Training", self.epoch)
-        self.set_train()
 
         for batch_idx, inputs in enumerate(self.train_loader):
             before_op_time = time.time()
 
-            outputs, losses = self.process_batch(inputs)
-
-            self.model_optimizer.zero_grad()
+            # -------- Phase A: pose + lighting step --------
+            self.set_train_pose_light()
+            outputs, losses = self.process_batch(inputs)   # depth forward runs, depth params frozen
+            self.opt_pose.zero_grad(set_to_none=True)
             losses["loss"].backward()
-            torch.nn.utils.clip_grad_norm_(self.parameters_to_train, max_norm=1.0)
-            self.model_optimizer.step()
+            torch.nn.utils.clip_grad_norm_(self.params_pose_light, max_norm=1.0)
+            self.opt_pose.step()
+
+            # -------- Phase B: depth step --------
+            self.set_train_depth()
+            outputs, losses = self.process_batch(inputs)   # recompute graph after pose/light changed
+            self.opt_depth.zero_grad(set_to_none=True)
+            losses["loss"].backward()
+            torch.nn.utils.clip_grad_norm_(self.params_depth, max_norm=1.0)
+            self.opt_depth.step()
 
             duration = time.time() - before_op_time
             early_phase = batch_idx % self.opt.log_frequency == 0 and self.step < 2000
@@ -239,7 +280,8 @@ class Trainer_Monodepth:
 
             self.step += 1
 
-        self.model_lr_scheduler.step()
+        self.sched_pose.step()
+        self.sched_depth.step()
 
     # ---------------- Full pipeline ----------------
     def process_batch(self, inputs):
@@ -369,7 +411,6 @@ class Trainer_Monodepth:
         ssim_loss = self.ssim(pred, target).mean(1, True)
         return 0.85 * ssim_loss + 0.15 * l1_loss
 
-    
     def ms_ssim(self, img1, img2):
         scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]
         ssim_vals = []
@@ -393,63 +434,6 @@ class Trainer_Monodepth:
         features_p = get_ilumination_invariant_features(pred)
         features_t = get_ilumination_invariant_features(target)
         return self.ssim(features_p, features_t).mean(1, True)
-
-    # def compute_losses(self, inputs, outputs):
-    #     losses = {}
-    #     loss_reprojection = 0.0
-    #     loss_ilumination_invariant = 0.0
-    #     total_loss = 0.0
-
-    #     # optional ramp for illumination loss
-    #     illum_w = float(self.opt.illumination_invariant)  # or ramp if you prefer
-
-    #     for scale in self.opt.scales:
-    #         loss = 0.0
-    #         source_scale = scale if self.opt.v1_multiscale else 0
-
-    #         disp = outputs[("disp", scale)]
-    #         color = inputs[("color", 0, scale)]
-
-    #         for frame_id in self.opt.frame_ids[1:]:
-    #             if frame_id == "s":  # skip stereo for monocular photometric loss
-    #                 continue
-
-    #             target = inputs[("color", 0, 0)]
-    #             pred_warped = outputs[("color", frame_id, scale)]  # warped, before lighting
-    #             rep = self.compute_reprojection_loss(pred_warped, target)
-
-    #             pred_identity = inputs[("color", frame_id, source_scale)]
-    #             rep_identity = self.compute_reprojection_loss(pred_identity, target)
-
-    #             mask = self.compute_loss_masks(rep, rep_identity, target)
-    #             iil_mask = get_feature_oclution_mask(mask)
-
-    #             # *** ONLY refined (warped + lighting) is supervised ***
-    #             pred_ref = outputs[("color_refined", frame_id, scale)]
-    #             loss_reprojection += (self.compute_reprojection_loss(pred_ref, target) * mask).sum() / mask.sum()
-
-    #             loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask).sum() / iil_mask.sum()
-
-    #         # disparity smoothness
-    #         mean_disp = disp.mean(2, True).mean(3, True)
-    #         norm_disp = disp / (mean_disp + 1e-7)
-    #         smooth_loss = get_smooth_loss(norm_disp, color)
-
-    #         loss += (loss_reprojection / 2.0)
-    #         loss += illum_w * (loss_ilumination_invariant / 2.0)
-    #         loss += self.opt.disparity_smoothness * smooth_loss / (2 ** scale)
-
-    #         total_loss += loss
-    #         losses[f"loss/{scale}"] = loss
-
-    #     total_loss /= self.num_scales
-    #     losses["loss"] = total_loss
-
-    #     # For monitoring
-    #     losses["loss/reprojection"] = torch.as_tensor(loss_reprojection, device=self.device)
-    #     losses["loss/iil"] = torch.as_tensor(loss_ilumination_invariant, device=self.device)
-
-    #     return losses
 
     def compute_losses(self, inputs, outputs):
         losses = {}
@@ -475,12 +459,12 @@ class Trainer_Monodepth:
 
             disp  = outputs[("disp", scale)]
             color = inputs[("color", 0, scale)]
-            #target = inputs[("color", 0, scale)]  # <<< use same scale
+            # supervise at the native target scale (0 for historical reasons)
             target = inputs[("color", 0, 0)]
 
             for frame_id in valid_frame_ids:
                 pred_warped = outputs[("color", frame_id, scale)]       # warped, pre-lighting
-                
+
                 rep = self.compute_reprojection_loss(pred_warped, target)
 
                 pred_identity = inputs[("color", frame_id, source_scale)]
@@ -498,7 +482,7 @@ class Trainer_Monodepth:
                 loss_reprojection_s += reproj_term.sum() / (mask.sum() + 1e-8)
                 loss_iil_s          += iil_term.sum() / (iil_mask.sum() + 1e-8)
 
-            # average over the number of used source frames (no magic /2.0)
+            # average over the number of used source frames
             loss_reprojection_s /= num_src
             loss_iil_s          /= num_src
 
@@ -530,7 +514,6 @@ class Trainer_Monodepth:
 
         return losses
 
-
     @staticmethod
     def compute_loss_masks(reprojection_loss, identity_reprojection_loss, inputs):
         if identity_reprojection_loss is None:
@@ -555,7 +538,8 @@ class Trainer_Monodepth:
             self.log("val", inputs, outputs, losses)
             del inputs, outputs, losses
 
-        self.set_train()
+        # return to a default train phase (depth) after quick val
+        self.set_train_depth()
 
     def compute_depth_losses(self, inputs, outputs, losses):
         depth_pred = outputs[("depth", 0, 0)]
@@ -619,7 +603,9 @@ class Trainer_Monodepth:
                 to_save['width']  = self.opt.width
                 to_save['use_stereo'] = self.opt.use_stereo
             torch.save(to_save, path)
-        torch.save(self.model_optimizer.state_dict(), os.path.join(save_folder, "adam.pth"))
+        # save both optimizers
+        torch.save(self.opt_pose.state_dict(),  os.path.join(save_folder, "adam_pose.pth"))
+        torch.save(self.opt_depth.state_dict(), os.path.join(save_folder, "adam_depth.pth"))
 
     def load_model(self):
         self.opt.load_weights_folder = os.path.expanduser(self.opt.load_weights_folder)
@@ -630,17 +616,23 @@ class Trainer_Monodepth:
             print("Loading {} weights...".format(n))
             path = os.path.join(self.opt.load_weights_folder, "{}.pth".format(n))
             model_dict = self.models[n].state_dict()
-            pretrained_dict = torch.load(path)
+            pretrained_dict = torch.load(path, map_location=self.device)
             pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
             model_dict.update(pretrained_dict)
             self.models[n].load_state_dict(model_dict)
 
-        opt_path = os.path.join(self.opt.load_weights_folder, "adam.pth")
-        if os.path.isfile(opt_path):
-            print("Loading Adam weights")
-            self.model_optimizer.load_state_dict(torch.load(opt_path))
+        pose_path  = os.path.join(self.opt.load_weights_folder, "adam_pose.pth")
+        depth_path = os.path.join(self.opt.load_weights_folder, "adam_depth.pth")
+        if os.path.isfile(pose_path):
+            print("Loading Adam (pose/light)")
+            self.opt_pose.load_state_dict(torch.load(pose_path, map_location=self.device))
         else:
-            print("Cannot find Adam weights so Adam is randomly initialized")
+            print("Adam pose/light randomly initialized")
+        if os.path.isfile(depth_path):
+            print("Loading Adam (depth)")
+            self.opt_depth.load_state_dict(torch.load(depth_path, map_location=self.device))
+        else:
+            print("Adam depth randomly initialized")
 
     # ---------------- Viz helpers ----------------
     def flow2rgb(self, flow_map, max_value):
