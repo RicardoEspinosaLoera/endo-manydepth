@@ -197,11 +197,11 @@ class Trainer_Monodepth:
 
     # ---------------- Modes ----------------
     def set_train(self):
-    """Set all models to training mode and enable gradients for every parameter."""
-    for name, model in self.models.items():
-        model.train()
-        for p in model.parameters():
-            p.requires_grad = True
+        """Set all models to training mode and enable gradients for every parameter."""
+        for name, model in self.models.items():
+            model.train()
+            for p in model.parameters():
+                p.requires_grad = True
 
     def set_eval(self):
         for m in self.models.values():
