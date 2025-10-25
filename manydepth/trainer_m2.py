@@ -434,6 +434,12 @@ class Trainer_Monodepth:
 
         return outputs
 
+    def set_train(self):
+        """Put all modules in train() mode without touching requires_grad flags.
+        The two-phase loop (set_train_pose_light / set_train_depth) controls grads."""
+        for m in self.models.values():
+            m.train()
+
     def val(self):
         """Validate on a single minibatch."""
         self.set_eval()
