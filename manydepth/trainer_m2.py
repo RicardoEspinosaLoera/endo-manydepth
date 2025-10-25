@@ -523,7 +523,7 @@ class Trainer_Monodepth:
             del inputs, outputs, losses
 
         # return to a default train phase (depth) after quick val
-        self.set_train_depth()
+        self.set_train()
 
     def compute_depth_losses(self, inputs, outputs, losses):
         depth_pred = outputs[("depth", 0, 0)]
