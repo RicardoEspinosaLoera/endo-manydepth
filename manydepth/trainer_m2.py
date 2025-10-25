@@ -34,7 +34,7 @@ import networks.endodac as endodac
 
 wandb.init(project="IISfMLearner-ENDOVIS", entity="respinosa")
 
-_DEPTH_COLORMAP = plt.get_cmap('plasma_r', 256)  # for plotting
+_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
 
 
 def seed_worker(worker_id):
@@ -138,7 +138,7 @@ class Trainer_Monodepth:
         # ------------------------------
         # Optimizer & LR scheduler
         # ------------------------------
-        self.model_optimizer = optim.AdamW(self.parameters_to_train, self.opt.learning_rate)
+        self.model_optimizer = optim.Adam(self.parameters_to_train, self.opt.learning_rate)
         self.model_lr_scheduler = optim.lr_scheduler.ExponentialLR(self.model_optimizer, 0.9)
 
         # ------------------------------
