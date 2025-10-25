@@ -369,6 +369,7 @@ class Trainer_Monodepth:
         ssim_loss = self.ssim(pred, target).mean(1, True)
         return 0.85 * ssim_loss + 0.15 * l1_loss
 
+    
     def ms_ssim(self, img1, img2):
         scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]
         ssim_vals = []
@@ -473,11 +474,13 @@ class Trainer_Monodepth:
             loss_iil_s = 0.0
 
             disp  = outputs[("disp", scale)]
-            color = inputs[("color", 0, scale)]
-            target = inputs[("color", 0, scale)]  # <<< use same scale
+            #color = inputs[("color", 0, scale)]
+            #target = inputs[("color", 0, scale)]  # <<< use same scale
+            target = inputs[("color", 0, 0)]
 
             for frame_id in valid_frame_ids:
                 pred_warped = outputs[("color", frame_id, scale)]       # warped, pre-lighting
+                
                 rep = self.compute_reprojection_loss(pred_warped, target)
 
                 pred_identity = inputs[("color", frame_id, source_scale)]
