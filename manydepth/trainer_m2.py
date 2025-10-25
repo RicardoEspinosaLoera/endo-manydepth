@@ -307,7 +307,6 @@ class Trainer_Monodepth:
 
     def run_epoch(self):
         print("Training", self.epoch)
-        self.set_train()
 
         for batch_idx, inputs in enumerate(self.train_loader):
             before_op_time = time.time()
