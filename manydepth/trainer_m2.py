@@ -125,7 +125,7 @@ class Trainer_Monodepth:
         # ---------------- Two Optimizers / Two Schedulers ----------------
         self.opt = optim.AdamW(self.params, lr=self.opt.learning_rate)
         #self.opt_depth = optim.AdamW(self.params_depth,      lr=self.opt.learning_rate)
-        self.sched  = optim.lr_scheduler.ExponentialLR(self.opt_pose,  0.9)
+        self.sched  = optim.lr_scheduler.ExponentialLR(self.opt,  0.9)
         #self.sched_depth = optim.lr_scheduler.ExponentialLR(self.opt_depth, 0.9)
 
         if self.opt.load_weights_folder is not None:
