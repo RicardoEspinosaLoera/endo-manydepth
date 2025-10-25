@@ -476,7 +476,7 @@ class Trainer_Monodepth:
                 # supervise the refined image
                 pred_ref = outputs[("color_refined", frame_id, scale)]
                 reproj_term = (self.compute_reprojection_loss(pred_ref, target) * mask)
-                iil_term    = (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask)
+                iil_term    = (self.get_ilumination_invariant_loss(pred_warped, target) * iil_mask)
 
                 # normalize by valid pixels
                 loss_reprojection_s += reproj_term.sum() / (mask.sum() + 1e-8)
