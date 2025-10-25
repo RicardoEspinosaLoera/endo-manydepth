@@ -57,8 +57,8 @@ class Trainer_Monodepth:
 
         self.models = {}
         # Two disjoint param groups for two-phase training
-        self.params_pose_light = []
-        self.params_depth = []
+        self.params = []
+        #self.params_depth = []
 
         # self.device = torch.device("cpu" if self.opt.no_cuda else "cuda")
         self.device = torch.device("cuda" if torch.cuda.is_available() and not self.opt.no_cuda else "cpu")
@@ -90,43 +90,43 @@ class Trainer_Monodepth:
         self.models["encoder"] = networks.ResnetEncoder(
             self.opt.num_layers, self.opt.weights_init == "pretrained"
         ).to(self.device)
-        self.params_pose_light += list(self.models["encoder"].parameters())
+        self.params += list(self.models["encoder"].parameters())
 
         if self.use_pose_net:
             if self.opt.pose_model_type == "separate_resnet":
                 self.models["pose_encoder"] = networks.ResnetEncoder(
                     self.opt.num_layers, self.opt.weights_init == "pretrained", num_input_images=self.num_pose_frames
                 ).to(self.device)
-                self.params_pose_light += list(self.models["pose_encoder"].parameters())
+                self.params += list(self.models["pose_encoder"].parameters())
 
                 self.models["pose"] = networks.PoseDecoder(
                     self.models["pose_encoder"].num_ch_enc, num_input_features=1, num_frames_to_predict_for=2
                 ).to(self.device)
-                self.params_pose_light += list(self.models["pose"].parameters())
+                self.params += list(self.models["pose"].parameters())
 
                 # LightingDecoder takes pose features and predicts (c, b)
                 self.models["lighting"] = networks.LightingDecoder(
                     self.models["pose_encoder"].num_ch_enc, self.opt.scales
                 ).to(self.device)
-                self.params_pose_light += list(self.models["lighting"].parameters())
+                self.params += list(self.models["lighting"].parameters())
 
             elif self.opt.pose_model_type == "shared":
                 self.models["pose"] = networks.PoseDecoder(
                     self.models["encoder"].num_ch_enc, self.num_pose_frames
                 ).to(self.device)
-                self.params_pose_light += list(self.models["pose"].parameters())
+                self.params += list(self.models["pose"].parameters())
 
             elif self.opt.pose_model_type == "posecnn":
                 self.models["pose"] = networks.PoseCNN(
                     self.num_input_frames if self.opt.pose_model_input == "all" else 2
                 ).to(self.device)
-                self.params_pose_light += list(self.models["pose"].parameters())
+                self.params += list(self.models["pose"].parameters())
 
         # ---------------- Two Optimizers / Two Schedulers ----------------
-        self.opt_pose = optim.AdamW(self.params_pose_light, lr=self.opt.learning_rate)
-        self.opt_depth = optim.AdamW(self.params_depth,      lr=self.opt.learning_rate)
-        self.sched_pose  = optim.lr_scheduler.ExponentialLR(self.opt_pose,  0.9)
-        self.sched_depth = optim.lr_scheduler.ExponentialLR(self.opt_depth, 0.9)
+        self.opt = optim.AdamW(self.params, lr=self.opt.learning_rate)
+        #self.opt_depth = optim.AdamW(self.params_depth,      lr=self.opt.learning_rate)
+        self.sched  = optim.lr_scheduler.ExponentialLR(self.opt_pose,  0.9)
+        #self.sched_depth = optim.lr_scheduler.ExponentialLR(self.opt_depth, 0.9)
 
         if self.opt.load_weights_folder is not None:
             self.load_model()
@@ -233,20 +233,20 @@ class Trainer_Monodepth:
             before_op_time = time.time()
 
             # ---- single forward + joint losses (A+B) ----
-            outputs, losses = self.process_batch_joint(inputs)
+            outputs, losses = self.process_batch(inputs)
 
             # ---- joint step (two optimizers / param groups) ----
-            self.opt_pose.zero_grad(set_to_none=True)
-            self.opt_depth.zero_grad(set_to_none=True)
+            self.opt.zero_grad(set_to_none=True)
+            #self.opt_depth.zero_grad(set_to_none=True)
 
             losses["loss"].backward()
 
             # gradient clipping for stability
-            torch.nn.utils.clip_grad_norm_(self.params_pose_light, max_norm=1.0)
-            torch.nn.utils.clip_grad_norm_(self.params_depth,      max_norm=1.0)
+            torch.nn.utils.clip_grad_norm_(self.params, max_norm=1.0)
+            #torch.nn.utils.clip_grad_norm_(self.params_depth,      max_norm=1.0)
 
-            self.opt_pose.step()
-            self.opt_depth.step()
+            self.opt.step()
+            #self.opt_depth.step()
 
             # ---- logging / quick val ----
             duration = time.time() - before_op_time
@@ -263,8 +263,8 @@ class Trainer_Monodepth:
             self.step += 1
 
         # lr schedulers step once per epoch
-        self.sched_pose.step()
-        self.sched_depth.step()
+        self.sched.step()
+        #self.sched_depth.step()
 
 
     # ---------------- Full pipeline ----------------
@@ -588,8 +588,8 @@ class Trainer_Monodepth:
                 to_save['use_stereo'] = self.opt.use_stereo
             torch.save(to_save, path)
         # save both optimizers
-        torch.save(self.opt_pose.state_dict(),  os.path.join(save_folder, "adam_pose.pth"))
-        torch.save(self.opt_depth.state_dict(), os.path.join(save_folder, "adam_depth.pth"))
+        torch.save(self.opt.state_dict(),  os.path.join(save_folder, "adam_pose.pth"))
+        #torch.save(self.opt_depth.state_dict(), os.path.join(save_folder, "adam_depth.pth"))
 
     def load_model(self):
         self.opt.load_weights_folder = os.path.expanduser(self.opt.load_weights_folder)
@@ -609,14 +609,14 @@ class Trainer_Monodepth:
         depth_path = os.path.join(self.opt.load_weights_folder, "adam_depth.pth")
         if os.path.isfile(pose_path):
             print("Loading Adam (pose/light)")
-            self.opt_pose.load_state_dict(torch.load(pose_path, map_location=self.device))
+            self.opt.load_state_dict(torch.load(pose_path, map_location=self.device))
         else:
             print("Adam pose/light randomly initialized")
-        if os.path.isfile(depth_path):
-            print("Loading Adam (depth)")
-            self.opt_depth.load_state_dict(torch.load(depth_path, map_location=self.device))
-        else:
-            print("Adam depth randomly initialized")
+        # if os.path.isfile(depth_path):
+        #     print("Loading Adam (depth)")
+        #     self.opt_depth.load_state_dict(torch.load(depth_path, map_location=self.device))
+        # else:
+        #     print("Adam depth randomly initialized")
 
     # ---------------- Viz helpers ----------------
     def flow2rgb(self, flow_map, max_value):
