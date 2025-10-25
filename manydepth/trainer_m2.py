@@ -148,6 +148,7 @@ class Trainer_Monodepth:
             "colon10k": datasets.SCAREDDataset,
             "C3VD": datasets.SCAREDDataset,
         }
+
         self.dataset = datasets_dict[self.opt.dataset]
 
         fpath = os.path.join(os.path.dirname(__file__), "splits", self.opt.split, "{}_files.txt")
@@ -194,6 +195,108 @@ class Trainer_Monodepth:
         print("There are {:d} training items and {:d} validation items\n".format(len(train_dataset), len(val_dataset)))
 
         self.save_opts()
+
+        Total_params = 0
+        Trainable_params = 0
+        NonTrainable_params = 0
+        for name, param in self.models["depth"].named_parameters():
+            mulValue = np.prod(param.size())
+            Total_params += mulValue
+            if param.requires_grad == False:
+                NonTrainable_params += mulValue
+                # print(name)
+            else:
+                Trainable_params += mulValue
+
+
+        print(f'Total params: {Total_params}')
+        print(f'Trainable params: {Trainable_params}')
+        print(f'Non-trainable params: {NonTrainable_params}')
+        print(f'Trainable params ratio: {100 * Trainable_params / Total_params}%')
+
+
+    def set_train_0(self):
+        """Convert all models to training mode
+        """
+        for param in self.models["position_encoder"].parameters():
+            param.requires_grad = True
+        for param in self.models["position"].parameters():
+            param.requires_grad = True
+
+        for param in self.models["depth_model"].parameters():
+            param.requires_grad = False
+        for param in self.models["pose_encoder"].parameters():
+            param.requires_grad = False
+        for param in self.models["pose"].parameters():
+            param.requires_grad = False
+        for param in self.models["transform_encoder"].parameters():
+            param.requires_grad = False
+        for param in self.models["transform"].parameters():
+            param.requires_grad = False
+        if self.opt.learn_intrinsics:
+            for param in self.models["intrinsics_head"].parameters():
+                param.requires_grad = False
+            
+        self.models["position_encoder"].train()
+        self.models["position"].train()
+
+        self.models["depth_model"].eval()
+        self.models["pose_encoder"].eval()
+        self.models["pose"].eval()
+        self.models["transform_encoder"].eval()
+        self.models["transform"].eval()
+        if self.opt.learn_intrinsics:
+            self.models["intrinsics_head"].eval()
+
+    def set_train(self):
+        """Convert all models to training mode
+        """
+        for param in self.models["position_encoder"].parameters():
+            param.requires_grad = False
+        for param in self.models["position"].parameters():
+            param.requires_grad = False
+
+        for name, param in self.models["depth_model"].named_parameters():
+            if "seed_" not in name:
+                param.requires_grad = True
+        if self.step < self.opt.warm_up_step:
+            warm_up = True
+        else:
+            warm_up = False
+        endodac.mark_only_part_as_trainable(self.models["depth_model"], warm_up=warm_up)
+        for param in self.models["pose_encoder"].parameters():
+            param.requires_grad = True
+        for param in self.models["pose"].parameters():
+            param.requires_grad = True
+        for param in self.models["transform_encoder"].parameters():
+            param.requires_grad = True
+        for param in self.models["transform"].parameters():
+            param.requires_grad = True
+        if self.opt.learn_intrinsics:
+            for param in self.models["intrinsics_head"].parameters():
+                param.requires_grad = True
+
+        self.models["position_encoder"].eval()
+        self.models["position"].eval()
+
+        self.models["depth_model"].train()
+        self.models["pose_encoder"].train()
+        self.models["pose"].train()
+        self.models["transform_encoder"].train()
+        self.models["transform"].train()
+        if self.opt.learn_intrinsics:
+            self.models["intrinsics_head"].train()
+
+    def set_eval(self):
+        """Convert all models to testing/evaluation mode
+        """
+        self.models["depth_model"].eval()
+        self.models["transform_encoder"].eval()
+        self.models["transform"].eval()
+        self.models["pose_encoder"].eval()
+        self.models["pose"].eval()
+        if self.opt.learn_intrinsics:
+            self.models["intrinsics_head"].eval()
 
     # ---------------- Modes ----------------
     def set_train_pose_light(self):
@@ -247,6 +350,11 @@ class Trainer_Monodepth:
                 self.save_model()
 
     def run_epoch(self):
+        """
+        Two-phase training per batch:
+        Phase A: update pose + lighting (depth frozen / no grad)
+        Phase B: update depth (pose + lighting frozen)
+        """
         print("Training", self.epoch)
 
         for batch_idx, inputs in enumerate(self.train_loader):
@@ -254,20 +362,22 @@ class Trainer_Monodepth:
 
             # -------- Phase A: pose + lighting step --------
             self.set_train_pose_light()
-            outputs, losses = self.process_batch(inputs)   # depth forward runs, depth params frozen
-            self.opt_pose.zero_grad(set_to_none=True)
-            losses["loss"].backward()
+            _, losses_0 = self.process_batch_0(inputs)  # depth used but detached
+            self.opt_pose.zero_grad()
+            losses_0["loss"].backward()
             torch.nn.utils.clip_grad_norm_(self.params_pose_light, max_norm=1.0)
             self.opt_pose.step()
 
             # -------- Phase B: depth step --------
             self.set_train_depth()
-            outputs, losses = self.process_batch(inputs)   # recompute graph after pose/light changed
+            outputs, losses = self.process_batch(inputs)  # full pipeline; pose/light frozen
             self.opt_depth.zero_grad(set_to_none=True)
             losses["loss"].backward()
+            # (optional) clip for depth as well:
             torch.nn.utils.clip_grad_norm_(self.params_depth, max_norm=1.0)
             self.opt_depth.step()
 
+            # ---- logging / quick val ----
             duration = time.time() - before_op_time
             early_phase = batch_idx % self.opt.log_frequency == 0 and self.step < 2000
             late_phase  = self.step % 2000 == 0
@@ -275,39 +385,315 @@ class Trainer_Monodepth:
                 self.log_time(batch_idx, duration, losses["loss"].detach().cpu().data)
                 if "depth_gt" in inputs:
                     self.compute_depth_losses(inputs, outputs, losses)
-                self.log("train", inputs, outputs, losses)
+                # log both phase losses for visibility
+                self.log("train", inputs, outputs, {**losses, "phaseA/loss": losses_0["loss"].detach()})
                 self.val()
 
             self.step += 1
 
+        # schedulers step once per epoch
         self.sched_pose.step()
         self.sched_depth.step()
 
+
     # ---------------- Full pipeline ----------------
+
     def process_batch(self, inputs):
+        """
+        Phase B (depth step):
+        - moves inputs to device
+        - runs DEPTH forward with grads (trainable)
+        - runs POSE (+ lighting) forward under no_grad (frozen)
+        - builds warped/refined images
+        - computes full loss (reprojection + IIL + smoothness)
+        """
         # to device
         for key, ipt in inputs.items():
             inputs[key] = ipt.to(self.device)
 
         features = None
+
+        # ---- DEPTH forward (trainable) ----
         if self.opt.pose_model_type == "shared":
+            # shared encoder features for ALL frames (depth uses features[0])
             all_color_aug = torch.cat([inputs[("color_aug", i, 0)] for i in self.opt.frame_ids])
-            all_features  = self.models["encoder"](all_color_aug)
-            all_features  = [torch.split(f, self.opt.batch_size) for f in all_features]
-            features = {k: [f[i] for f in all_features] for i, k in enumerate(self.opt.frame_ids)}
+            # encoder is frozen in depth phase; no grads needed for its forward either
+            with torch.no_grad():
+                all_features = self.models["encoder"](all_color_aug)
+                all_features = [torch.split(f, self.opt.batch_size) for f in all_features]
+                features = {k: [f[i] for f in all_features] for i, k in enumerate(self.opt.frame_ids)}
             outputs = self.models["depth"](features[0])
         else:
             outputs = self.models["depth"](inputs["color_aug", 0, 0])
 
+        # ---- POSE (+ lighting) forward (frozen; no grad) ----
+        if self.use_pose_net:
+            with torch.no_grad():
+                if self.opt.pose_model_type == "shared":
+                    outputs.update(self.predict_poses(inputs, features))
+                else:
+                    outputs.update(self.predict_poses(inputs, None))
+
+        # ---- Build warped/refined images & compute losses ----
+        self.generate_images_pred(inputs, outputs)
+        losses = self.compute_losses(inputs, outputs)
+        return outputs, losses
+
+    def process_batch_0(self, inputs):
+        """
+        Phase A forward:
+        - move inputs to device
+        - get disparity from depth model with no grad (frozen)
+        - predict poses (and lighting) with grads
+        - build warped + refined views using *detached* disparity
+        - compute Phase-A loss (reprojection + illumination-invariant), averaged over frames/scales
+        """
+        # to device
+        for k, v in inputs.items():
+            inputs[k] = v.to(self.device)
+
+        outputs = {}
+
+        # 1) Depth forward with no grad (freeze depth contribution)
+        with torch.no_grad():
+            depth_out = self.models["depth"](inputs["color_aug", 0, 0])
+
+        # Copy and detach disparities into outputs so downstream ops see them
+        for s in self.opt.scales:
+            disp = depth_out[("disp", s)].detach()
+            outputs[("disp", s)] = disp
+
+        # 2) Pose (and lighting) forward with grads enabled
         if self.use_pose_net:
             if self.opt.pose_model_type == "shared":
+                # shared encoder case (rare in this setup)
+                all_color_aug = torch.cat([inputs[("color_aug", i, 0)] for i in self.opt.frame_ids])
+                all_features  = self.models["encoder"](all_color_aug)
+                all_features  = [torch.split(f, self.opt.batch_size) for f in all_features]
+                features = {k: [f[i] for f in all_features] for i, k in enumerate(self.opt.frame_ids)}
                 outputs.update(self.predict_poses(inputs, features))
             else:
                 outputs.update(self.predict_poses(inputs, None))
 
-        self.generate_images_pred(inputs, outputs)  # builds color_warped and color_refined (warped-only path)
-        losses = self.compute_losses(inputs, outputs)
-        return outputs, losses
+        # 3) Build warped + refined images using detached disparity
+        #    (generate_images_pred reads outputs[("disp", s)] which we already detached)
+        self.generate_images_pred(inputs, outputs)
+
+        # 4) Phase-A loss (pose + lighting only)
+        losses_0 = self.compute_losses_0(inputs, outputs)
+        return outputs, losses_0
+
+    def compute_losses_0(self, inputs, outputs):
+        """
+        Phase-A loss used to train ONLY pose + lighting.
+        Uses:
+        - photometric reprojection on refined views
+        - illumination-invariant similarity on refined views
+        Notes:
+        - No disparity smoothness term here (depth is frozen/detached).
+        - Averages over valid non-stereo source frames and scales.
+        """
+        losses = {}
+        total_loss = 0.0
+
+        illum_w = float(self.opt.illumination_invariant)
+
+        num_scales = len(self.opt.scales)
+        valid_frame_ids = [fid for fid in self.opt.frame_ids[1:] if fid != "s"]
+        num_src = max(1, len(valid_frame_ids))
+
+        log_reproj = 0.0
+        log_iil    = 0.0
+
+        for scale in self.opt.scales:
+            source_scale = scale if self.opt.v1_multiscale else 0
+
+            # per-scale accumulators
+            loss_reproj_s = 0.0
+            loss_iil_s    = 0.0
+
+            # supervise against target at canonical scale 0 (as in your main loss)
+            target = inputs[("color", 0, 0)]
+
+            for frame_id in valid_frame_ids:
+                pred_warped = outputs[("color", frame_id, scale)]  # pre-lighting (not used directly in loss here)
+
+                rep_id   = self.compute_reprojection_loss(inputs[("color", frame_id, source_scale)], target)
+                # refined prediction (lighting applied)
+                pred_ref = outputs[("color_refined", frame_id, scale)]
+                rep_ref  = self.compute_reprojection_loss(pred_ref, target)
+
+                mask     = self.compute_loss_masks(rep_ref, rep_id, target)
+                iil_mask = get_feature_oclution_mask(mask)
+
+                # accumulate normalized terms
+                loss_reproj_s += (rep_ref * mask).sum() / (mask.sum() + 1e-8)
+                loss_iil_s    += (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask).sum() / (iil_mask.sum() + 1e-8)
+
+            # average over sources
+            loss_reproj_s /= num_src
+            loss_iil_s    /= num_src
+
+            loss_s = loss_reproj_s + illum_w * loss_iil_s
+            total_loss += loss_s
+
+            # logs
+            losses[f"phaseA/loss/{scale}"] = loss_s
+            log_reproj += loss_reproj_s
+            log_iil    += loss_iil_s
+
+        total_loss /= num_scales
+        losses["loss"] = total_loss
+        losses["phaseA/loss/reprojection"] = torch.as_tensor(log_reproj / num_scales, device=self.device)
+        losses["phaseA/loss/iil"]          = torch.as_tensor((log_iil / num_scales) * illum_w, device=self.device)
+        return losses
+
+    def compute_losses_0(self, inputs, outputs):
+        """
+        Phase A: optimize POSE + LIGHTING only.
+        Uses refined (warped + lighting) images.
+        No disparity smoothness, and depth is detached upstream.
+        """
+        losses = {}
+        total_loss = 0.0
+
+        illum_w = float(self.opt.illumination_invariant)
+        num_scales = len(self.opt.scales)
+
+        # non-stereo sources only
+        valid_frame_ids = [fid for fid in self.opt.frame_ids[1:] if fid != "s"]
+        num_src = max(1, len(valid_frame_ids))
+
+        # logging accumulators (averaged later)
+        acc_reproj = 0.0
+        acc_iil    = 0.0
+
+        for scale in self.opt.scales:
+            source_scale = scale if self.opt.v1_multiscale else 0
+
+            # per-scale accumulators
+            loss_reproj_s = 0.0
+            loss_iil_s    = 0.0
+
+            # supervise against scale-0 target (consistent with your pipeline)
+            target = inputs[("color", 0, 0)]
+
+            for frame_id in valid_frame_ids:
+                # identity reprojection (baseline)
+                pred_identity = inputs[("color", frame_id, source_scale)]
+                rep_identity  = self.compute_reprojection_loss(pred_identity, target)
+
+                # refined view (lighting applied after warping)
+                pred_ref  = outputs[("color_refined", frame_id, scale)]
+                rep_ref   = self.compute_reprojection_loss(pred_ref, target)
+
+                # automask & IIL mask
+                mask     = self.compute_loss_masks(rep_ref, rep_identity, target)
+                iil_mask = get_feature_oclution_mask(mask)
+
+                # normalized accumulations
+                loss_reproj_s += (rep_ref * mask).sum() / (mask.sum() + 1e-8)
+                loss_iil_s    += (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask).sum() / (iil_mask.sum() + 1e-8)
+
+            # average over sources
+            loss_reproj_s /= num_src
+            loss_iil_s    /= num_src
+
+            # assemble per-scale (no smoothness here)
+            loss_s = loss_reproj_s + illum_w * loss_iil_s
+            total_loss += loss_s
+
+            # per-scale logs
+            losses[f"phaseA/loss/{scale}"] = loss_s
+
+            acc_reproj += loss_reproj_s
+            acc_iil    += loss_iil_s
+
+        # average over scales
+        total_loss /= num_scales
+        losses["loss"] = total_loss
+        losses["phaseA/loss/reprojection"] = torch.as_tensor(acc_reproj / num_scales, device=self.device)
+        losses["phaseA/loss/iil"]          = torch.as_tensor((acc_iil / num_scales) * illum_w, device=self.device)
+
+        return losses
+
+    def compute_losses(self, inputs, outputs):
+        """
+        Phase B: optimize DEPTH only.
+        Uses refined (warped + lighting) images + disparity smoothness.
+        Pose & lighting are frozen (no grad), but their outputs are used.
+        """
+        losses = {}
+        total_loss = 0.0
+
+        illum_w = float(self.opt.illumination_invariant)
+        num_scales = len(self.opt.scales)
+
+        valid_frame_ids = [fid for fid in self.opt.frame_ids[1:] if fid != "s"]
+        num_src = max(1, len(valid_frame_ids))
+
+        # logging accumulators (averaged later)
+        acc_reproj = 0.0
+        acc_iil    = 0.0
+
+        for scale in self.opt.scales:
+            source_scale = scale if self.opt.v1_multiscale else 0
+
+            # per-scale accumulators
+            loss_reproj_s = 0.0
+            loss_iil_s    = 0.0
+
+            disp  = outputs[("disp", scale)]
+            color = inputs[("color", 0, scale)]
+            target = inputs[("color", 0, 0)]
+
+            for frame_id in valid_frame_ids:
+                # identity reprojection (baseline)
+                pred_identity = inputs[("color", frame_id, source_scale)]
+                rep_identity  = self.compute_reprojection_loss(pred_identity, target)
+
+                # refined view (lighting applied after warping)
+                pred_ref  = outputs[("color_refined", frame_id, scale)]
+                rep_ref   = self.compute_reprojection_loss(pred_ref, target)
+
+                # automask & IIL mask
+                mask     = self.compute_loss_masks(rep_ref, rep_identity, target)
+                iil_mask = get_feature_oclution_mask(mask)
+
+                # normalized accumulations
+                loss_reproj_s += (rep_ref * mask).sum() / (mask.sum() + 1e-8)
+                loss_iil_s    += (self.get_ilumination_invariant_loss(pred_ref, target) * iil_mask).sum() / (iil_mask.sum() + 1e-8)
+
+            # average over sources
+            loss_reproj_s /= num_src
+            loss_iil_s    /= num_src
+
+            # disparity smoothness (edge-aware inside get_smooth_loss)
+            mean_disp  = disp.mean(2, True).mean(3, True)
+            norm_disp  = disp / (mean_disp + 1e-7)
+            smoothness = get_smooth_loss(norm_disp, color) / (2 ** scale)
+
+            # assemble per-scale
+            loss_s = loss_reproj_s + illum_w * loss_iil_s + self.opt.disparity_smoothness * smoothness
+            total_loss += loss_s
+
+            # per-scale log
+            losses[f"loss/{scale}"] = loss_s
+
+            acc_reproj += loss_reproj_s
+            acc_iil    += loss_iil_s
+
+        # average over scales
+        total_loss /= num_scales
+        losses["loss"] = total_loss
+
+        # averaged monitors (easier to track)
+        losses["loss/reprojection"] = torch.as_tensor(acc_reproj / num_scales, device=self.device)
+        losses["loss/iil"]          = torch.as_tensor((acc_iil / num_scales) * illum_w, device=self.device)
+
+        return losses
+
+
 
     def predict_poses(self, inputs, features):
         outputs = {}
@@ -434,85 +820,6 @@ class Trainer_Monodepth:
         features_p = get_ilumination_invariant_features(pred)
         features_t = get_ilumination_invariant_features(target)
         return self.ssim(features_p, features_t).mean(1, True)
-
-    def compute_losses(self, inputs, outputs):
-        losses = {}
-        total_loss = 0.0
-
-        illum_w = float(self.opt.illumination_invariant)
-
-        num_scales = len(self.opt.scales)
-        # count how many non-stereo source frames you actually use
-        valid_frame_ids = [fid for fid in self.opt.frame_ids[1:] if fid != "s"]
-        num_src = max(1, len(valid_frame_ids))  # avoid div by 0
-
-        # for logging (averaged later)
-        log_reproj_acc = 0.0
-        log_iil_acc = 0.0
-
-        for scale in self.opt.scales:
-            source_scale = scale if self.opt.v1_multiscale else 0
-
-            # per-scale accumulators (reset each scale!)
-            loss_reprojection_s = 0.0
-            loss_iil_s = 0.0
-
-            disp  = outputs[("disp", scale)]
-            color = inputs[("color", 0, scale)]
-            # supervise at the native target scale (0 for historical reasons)
-            target = inputs[("color", 0, 0)]
-
-            for frame_id in valid_frame_ids:
-                pred_warped = outputs[("color", frame_id, scale)]       # warped, pre-lighting
-
-                rep = self.compute_reprojection_loss(pred_warped, target)
-
-                pred_identity = inputs[("color", frame_id, source_scale)]
-                rep_identity = self.compute_reprojection_loss(pred_identity, target)
-
-                mask = self.compute_loss_masks(rep, rep_identity, target)
-                iil_mask = get_feature_oclution_mask(mask)
-
-                # supervise the refined image
-                pred_ref = outputs[("color_refined", frame_id, scale)]
-                reproj_term = (self.compute_reprojection_loss(pred_ref, target) * mask)
-                iil_term    = (self.get_ilumination_invariant_loss(pred_warped, target) * iil_mask)
-
-                # normalize by valid pixels
-                loss_reprojection_s += reproj_term.sum() / (mask.sum() + 1e-8)
-                loss_iil_s          += iil_term.sum() / (iil_mask.sum() + 1e-8)
-
-            # average over the number of used source frames
-            loss_reprojection_s /= num_src
-            loss_iil_s          /= num_src
-
-            # disparity smoothness
-            mean_disp = disp.mean(2, True).mean(3, True)
-            norm_disp = disp / (mean_disp + 1e-7)
-            smooth_loss = get_smooth_loss(norm_disp, color) / (2 ** scale)
-
-            # assemble per-scale loss
-            loss_s = loss_reprojection_s + illum_w * loss_iil_s + self.opt.disparity_smoothness * smooth_loss
-
-            total_loss += loss_s
-
-            # log per-scale (optional)
-            losses[f"loss/{scale}"] = loss_s
-
-            # accumulators for overall logging (averaged later)
-            log_reproj_acc += loss_reprojection_s
-            log_iil_acc    += loss_iil_s
-
-        # average across scales once
-        total_loss /= num_scales
-        losses["loss"] = total_loss
-
-        # averaged monitors (more interpretable)
-        device = self.device if hasattr(self, "device") else next(self.parameters()).device
-        losses["loss/reprojection"] = torch.as_tensor(log_reproj_acc / num_scales, device=device)
-        losses["loss/iil"]          = torch.as_tensor((log_iil_acc / num_scales) * illum_w, device=device)
-
-        return losses
 
     @staticmethod
     def compute_loss_masks(reprojection_loss, identity_reprojection_loss, inputs):
