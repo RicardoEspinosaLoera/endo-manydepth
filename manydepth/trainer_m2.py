@@ -289,9 +289,9 @@ class Trainer_Monodepth:
             for p in self.models["lighting"].parameters():
                 p.requires_grad = False
 
-        def set_eval(self):
-            for m in self.models.values():
-                m.eval()
+    def set_eval(self):
+        for m in self.models.values():
+            m.eval()
 
     # ------------------------------
     # Train loop
