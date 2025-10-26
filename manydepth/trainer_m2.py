@@ -34,7 +34,7 @@ import networks.endodac as endodac
 
 wandb.init(project="IISfMLearner-ENDOVIS", entity="respinosa")
 
-_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
+_DEPTH_COLORMAP = plt.get_cmap('plasma_r', 256)  # for plotting
 
 
 def seed_worker(worker_id):
@@ -704,11 +704,9 @@ class Trainer_Monodepth:
                     wandb.log({"color_pred_refined_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_refined", frame_id,s)][j].data)},step=self.step)
                     wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("ch",s, frame_id)][j].data)},step=self.step)
                     wandb.log({"brightness_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("bh",s, frame_id)][j].data)},step=self.step)
-            #disp = self.colormap(outputs[("disp", s)][j, 0])
-            d = outputs[("disp", s)][j, 0]                 # (H,W) of item 0
-            vis = viz_invdisp(d.unsqueeze(0))              # HxWx3 uint8
+            disp = self.colormap(outputs[("disp", s)][j, 0])
             #wandb.log({f"{mode}/disp_inv/0": wandb.Image(vis)}, step=self.step)
-            wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(vis)},step=self.step)
+            wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
 
     # ------------------------------
     # Save / load
