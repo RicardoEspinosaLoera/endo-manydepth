@@ -110,15 +110,7 @@ class MonodepthOptions:
         self.parser.add_argument("--illumination_invariant",
                                  type=float,
                                  help="illumination invariant weight",
-                                 default=0.5)
-        self.parser.add_argument("--orthogonal",
-                                 type=float,
-                                 help="orthogonal weight",
-                                 default=0.5)
-        self.parser.add_argument("--normal",
-                                 type=float,
-                                 help="normal loss weight",
-                                 default=0.01)
+                                 default=0.02)
         self.parser.add_argument("--scales",
                                  nargs="+",
                                  type=int,
@@ -147,7 +139,7 @@ class MonodepthOptions:
         self.parser.add_argument("--learning_rate",
                                  type=float,
                                  help="learning rate",
-                                 default=1e-5)
+                                 default=1e-4)
                                  #default=5e-5)
 
         self.parser.add_argument("--num_epochs",
