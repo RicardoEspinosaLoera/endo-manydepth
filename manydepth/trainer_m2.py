@@ -646,49 +646,39 @@ class Trainer_Monodepth:
         for i, metric in enumerate(self.depth_metric_names):
             losses[metric] = np.array(depth_errors[i].cpu())
 
-    def log_time(self, batch_idx, duration, loss_scalar):
+    
+    def log_time(self, batch_idx, duration, loss):
+        """Print a logging statement to the terminal
+        """
         samples_per_sec = self.opt.batch_size / duration
         time_sofar = time.time() - self.start_time
-        training_time_left = (self.num_total_steps / max(1, self.step) - 1.0) * time_sofar if self.step > 0 else 0
-        print_string = "epoch {:>3} | batch {:>6} | examples/s: {:5.1f} | loss: {:.5f} | time elapsed: {} | time left: {}"
-        print(print_string.format(self.epoch, batch_idx, samples_per_sec, loss_scalar,
+        training_time_left = (
+            self.num_total_steps / self.step - 1.0) * time_sofar if self.step > 0 else 0
+        print_string = "epoch {:>3} | batch {:>6} | examples/s: {:5.1f}" + \
+            " | loss: {:.5f} | time elapsed: {} | time left: {}"
+        print(print_string.format(self.epoch, batch_idx, samples_per_sec, loss,
                                   sec_to_hm_str(time_sofar), sec_to_hm_str(training_time_left)))
 
     def log(self, mode, inputs, outputs, losses):
-        # Scalars
-        log_dict = {}
+        """Write an event to the tensorboard events file
+        """
+        #writer = self.writers[mode]
         for l, v in losses.items():
-            if isinstance(v, torch.Tensor):
-                log_dict[mode + f"/{l}"] = float(v.detach().cpu())
-            else:
-                log_dict[mode + f"/{l}"] = v
-        wandb.log(log_dict, step=self.step)
+            wandb.log({mode+"{}".format(l):v},step =self.step)
 
-        # Images (log only scale 0 to keep bandwidth low)
-        s = 0
-        max_imgs = min(4, self.opt.batch_size)
-        for j in range(max_imgs):
-            # input frames
+        for j in range(min(4, self.opt.batch_size)):  # write a maxmimum of four images
+            s = 0  # log only max scale
             for frame_id in self.opt.frame_ids:
-                wandb.log({f"{mode}/color_{frame_id}_{s}/{j}": wandb.Image(inputs[("color", frame_id, s)][j].data)}, step=self.step)
 
-            # predictions for source frames
-            for frame_id in self.opt.frame_ids[1:]:
-                if (frame_id, ) == ("s", ):
-                    continue
-                if ("color", frame_id, s) in outputs:
-                    wandb.log({f"{mode}/color_pred_{frame_id}_{s}/{j}": wandb.Image(outputs[("color", frame_id, s)][j].data)}, step=self.step)
-                if ("color_refined", frame_id, s) in outputs:
-                    wandb.log({f"{mode}/color_pred_refined_{frame_id}_{s}/{j}": wandb.Image(outputs[("color_refined", frame_id, s)][j].data)}, step=self.step)
-                if ("ch", s, frame_id) in outputs:
-                    wandb.log({f"{mode}/contrast_{frame_id}_{s}/{j}": wandb.Image(outputs[("ch", s, frame_id)][j].data)}, step=self.step)
-                if ("bh", s, frame_id) in outputs:
-                    wandb.log({f"{mode}/brightness_{frame_id}_{s}/{j}": wandb.Image(outputs[("bh", s, frame_id)][j].data)}, step=self.step)
-
-            # disparity colormap
-            if ("disp", s) in outputs:
-                disp = self.colormap(outputs[("disp", s)][j, 0])
-                wandb.log({f"{mode}/disp_multi_{s}/{j}": wandb.Image(disp.transpose(1, 2, 0))}, step=self.step)
+                wandb.log({ "color_{}_{}/{}".format(frame_id, s, j): wandb.Image(inputs[("color", frame_id, s)][j].data)},step=self.step)
+                
+                if s == 0 and frame_id != 0:
+                    wandb.log({"color_pred_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color", frame_id, s)][j].data)},step=self.step)
+                    wandb.log({"color_pred_refined_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_refined", frame_id,s)][j].data)},step=self.step)
+                    wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("ch",s, frame_id)][j].data)},step=self.step)
+                    wandb.log({"brightness_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("bh",s, frame_id)][j].data)},step=self.step)
+            disp = self.colormap(outputs[("disp", s)][j, 0])
+            wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
 
     # ------------------------------
     # Save / load
