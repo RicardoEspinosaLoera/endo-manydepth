@@ -132,8 +132,8 @@ class LightingDecoder(nn.Module):
                 Bt = self.beta * b_hat                           # additive bias
 
                 # enforce low-frequency so it can't explain geometry edges
-                #Ct = self._gaussian_blur_depthwise(Ct)
-                #Bt = self._gaussian_blur_depthwise(Bt)
+                Ct = self._gaussian_blur_depthwise(Ct)
+                Bt = self._gaussian_blur_depthwise(Bt)
 
                 self.outputs[("contrast", i)] = Ct
                 self.outputs[("brightness", i)] = Bt
