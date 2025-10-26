@@ -409,7 +409,7 @@ class Trainer_Monodepth:
                 outputs[("cam_T_cam", 0, f_i)] = transformation_from_parameters(
                     axisangle[:, 0], translation[:, 0]
                 )
-                """
+                
                 # Lighting decoder (only defined for separate_resnet here)
                 if self.opt.pose_model_type == "separate_resnet":
                     lighting_dict = self.models["lighting"](pose_inputs[0])
@@ -430,7 +430,7 @@ class Trainer_Monodepth:
                         outputs[("ch", scale, f_i)] = F.interpolate(
                             outputs[(f"c_{scale}", f_i)], [self.opt.height, self.opt.width],
                             mode="bilinear", align_corners=False
-                        )"""
+                        )
 
         return outputs
 
@@ -496,13 +496,13 @@ class Trainer_Monodepth:
                     padding_mode="border", align_corners=True
                 )
                 outputs[("color", frame_id, scale)] = warped
-                """
+                
                 # Apply lighting calibration if available: refined = c * warped + b (clamped)
                 if (("ch", scale, frame_id) in outputs) and (("bh", scale, frame_id) in outputs):
                     refined = outputs[("ch", scale, frame_id)] * warped + outputs[("bh", scale, frame_id)]
                     outputs[("color_refined", frame_id, scale)] = torch.clamp(refined, 0.0, 1.0)
                 else:
-                    outputs[("color_refined", frame_id, scale)] = warped  # fallback"""
+                    outputs[("color_refined", frame_id, scale)] = warped  # fallback
 
     # ------------------------------
     # Losses
@@ -592,8 +592,8 @@ class Trainer_Monodepth:
                 #reprojection_mask_iil = get_feature_oclution_mask(reprojection_mask)   # from utils
 
                 # (a) Calibrated photometric loss (refined)
-                #pred_cal = outputs[("color_refined", frame_id, scale)]
-                pred_cal = outputs[("color", frame_id, scale)]
+                pred_cal = outputs[("color_refined", frame_id, scale)]
+                #pred_cal = outputs[("color", frame_id, scale)]
                 loss_reprojection += (self.compute_reprojection_loss(pred_cal, target) * reprojection_mask).sum() / (reprojection_mask.sum() + 1e-7)
 
                 # (b) Illumination-invariant loss (use refined vs target; mask is feature-occlusion)
