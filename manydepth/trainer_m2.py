@@ -545,24 +545,12 @@ class Trainer_Monodepth:
             reprojection_loss = 0.85 * ssim_loss + 0.15 * l1_loss
         return reprojection_loss
 
-    @staticmethod
-    def _illumination_invariant_features(img, eps=1e-3):
-        """
-        Illumination-invariant representation per pixel:
-            f = log(I+eps) - mean_c(log(I+eps))
-        Keeps 3 channels, removing per-pixel lighting level.
-        """
-        x = torch.clamp(img, 0.0, 1.0)
-        x = torch.log(x + eps)
-        mean_c = x.mean(1, keepdim=True)
-        return x - mean_c
-
     def get_ilumination_invariant_loss(self, pred, target):
-        """SSIM on II features (treated as images)."""
-        fp = self._illumination_invariant_features(pred)
-        ft = self._illumination_invariant_features(target)
-        # Use same mixing as photometric if desired; here we follow your provided version:
-        return self.ssim(fp, ft).mean(1, True)
+        features_p = get_ilumination_invariant_features(pred)
+        features_t = get_ilumination_invariant_features(target)
+        ssim_loss = self.ssim(features_p, features_t).mean(1, True)
+ 
+        return ssim_loss
 
     @staticmethod
     def compute_loss_masks(reprojection_loss, identity_reprojection_loss, _target_unused):
