@@ -191,13 +191,12 @@ class Trainer_Monodepth:
             self.params_depth += list(self.models["encoder"].parameters())
 
         # ---- two optimizers ----
-        self.opt_pose = optim.AdamW(self.params_pose_light, lr=self.opt.learning_rate)
-        self.opt_depth = optim.AdamW(self.params_depth, lr=self.opt.learning_rate)
+        self.opt_pose = optim.Adam(self.params_pose_light, lr=self.opt.learning_rate)
+        self.opt_depth = optim.Adam(self.params_depth, lr=self.opt.learning_rate)
 
         # ---- schedulers ----
-        self.sched_pose = optim.lr_scheduler.ExponentialLR(self.opt_pose, gamma=0.9)
-        self.sched_depth = optim.lr_scheduler.ExponentialLR(self.opt_depth, gamma=0.9)
-
+        self.sched_pose = optim.lr_scheduler.StepLR(self.opt_pose, self.opt.scheduler_step_size, 0.1)
+        self.sched_depth = optim.lr_scheduler.StepLR(self.opt_depth, self.opt.scheduler_step_size, 0.1)
         # ------------------------------
         # Load weights (optional)
         # ------------------------------
