@@ -731,8 +731,8 @@ class Trainer_Monodepth:
             torch.save(to_save, save_path)
 
         save_path = os.path.join(save_folder, "{}.pth".format("adam"))
-        torch.save(self.self.opt_pose.state_dict(), save_path)
-        torch.save(self.self.opt_depth.state_dict(), save_path)
+        torch.save(self.opt_pose.state_dict(), save_path)
+        torch.save(self.opt_depth.state_dict(), save_path)
         #self.opt_pose = optim.AdamW(self.params_pose_light, lr=self.opt.learning_rate)
         #self.opt_depth = optim.AdamW(self.params_depth, lr=self.opt.learning_rate)
 
