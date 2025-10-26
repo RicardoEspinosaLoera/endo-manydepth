@@ -597,7 +597,7 @@ class Trainer_Monodepth:
                 loss_reprojection += (self.compute_reprojection_loss(pred_cal, target) * reprojection_mask).sum() / (reprojection_mask.sum() + 1e-7)
 
                 # (b) Illumination-invariant loss (use refined vs target; mask is feature-occlusion)
-                #loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_cal, target) * reprojection_mask_iil).sum() / (reprojection_mask_iil.sum() + 1e-7)
+                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_cal, target) * reprojection_mask_iil).sum() / (reprojection_mask_iil.sum() + 1e-7)
 
             # average across sources
             denom = max(1, valid_sources)
@@ -610,7 +610,7 @@ class Trainer_Monodepth:
 
             # accumulate
             loss += (loss_reprojection / denom)
-            #loss += w_ii * (loss_ilumination_invariant / denom)
+            loss += w_ii * (loss_ilumination_invariant / denom)
             loss += w_ds * smooth_loss / (2 ** scale)
 
             total_loss += loss
