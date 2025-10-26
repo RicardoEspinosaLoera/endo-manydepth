@@ -547,93 +547,93 @@ class Trainer_Monodepth:
         return mask
 
     def compute_losses(self, inputs, outputs):
-    """
-    Loss per scale:
-      L = Lphoto (warped vs target, with delayed identity masking)
-        + w_ii(t) * L_II  (log-chromaticity)
-        + w_ds * L_smooth
-        + w_dc * L_disp_center  (anti-collapse prior on mean disparity)
-    """
-    losses, total_loss = {}, 0.0
+        """
+        Loss per scale:
+        L = Lphoto (warped vs target, with delayed identity masking)
+            + w_ii(t) * L_II  (log-chromaticity)
+            + w_ds * L_smooth
+            + w_dc * L_disp_center  (anti-collapse prior on mean disparity)
+        """
+        losses, total_loss = {}, 0.0
 
-    # ---- schedules / weights ----
-    w_ii_base = getattr(self.opt, "illumination_invariant", 0.2)
-    w_ds = self.opt.disparity_smoothness
-    w_dc = getattr(self.opt, "disp_center_weight", 0.01)   # NEW: small anti-collapse prior
-    # II warm-up (prevents early saturation)
-    ii_warmup_steps = getattr(self.opt, "ii_warmup_steps", 4000)
-    w_ii = w_ii_base * min(1.0, float(self.step) / max(1, ii_warmup_steps))
+        # ---- schedules / weights ----
+        w_ii_base = getattr(self.opt, "illumination_invariant", 0.2)
+        w_ds = self.opt.disparity_smoothness
+        w_dc = getattr(self.opt, "disp_center_weight", 0.01)   # NEW: small anti-collapse prior
+        # II warm-up (prevents early saturation)
+        ii_warmup_steps = getattr(self.opt, "ii_warmup_steps", 4000)
+        w_ii = w_ii_base * min(1.0, float(self.step) / max(1, ii_warmup_steps))
 
-    # Delay identity auto-masking a bit so depth must learn to warp first
-    use_identity = (self.step >= getattr(self.opt, "identity_mask_start", 1500))
+        # Delay identity auto-masking a bit so depth must learn to warp first
+        use_identity = (self.step >= getattr(self.opt, "identity_mask_start", 1500))
 
-    for scale in self.opt.scales:
-        if self.opt.v1_multiscale:
-            source_scale = scale
-        else:
-            source_scale = 0
-
-        disp = outputs[("disp", scale)]
-        target = inputs[("color", 0, 0)]
-        loss_photo, loss_ii, loss = 0.0, 0.0, 0.0
-
-        # ---- photo + II over sources ----
-        n_src = 0
-        for frame_id in self.opt.frame_ids[1:]:
-            if frame_id == "s":
-                continue
-            n_src += 1
-
-            pred_warp = outputs[("color", frame_id, scale)]
-            rep = self.compute_reprojection_loss(pred_warp, target)
-
-            if use_identity:
-                pred_ident = inputs[("color", frame_id, source_scale)]
-                rep_identity = self.compute_reprojection_loss(pred_ident, target)
-                reprojection_mask = self.compute_loss_masks(rep, rep_identity, target)  # Bx1xHxW
+        for scale in self.opt.scales:
+            if self.opt.v1_multiscale:
+                source_scale = scale
             else:
-                # hard enable learning early on
-                reprojection_mask = torch.ones_like(rep)
+                source_scale = 0
 
-            # a) photometric
-            loss_photo += (rep * reprojection_mask).sum() / (reprojection_mask.sum() + 1e-7)
+            disp = outputs[("disp", scale)]
+            target = inputs[("color", 0, 0)]
+            loss_photo, loss_ii, loss = 0.0, 0.0, 0.0
 
-            # b) illumination invariant (log-chromaticity)
-            ii_mask = get_feature_oclution_mask(reprojection_mask)  # your util
-            loss_ii += (self.get_ilumination_invariant_loss(pred_warp, target) * ii_mask).sum() / (ii_mask.sum() + 1e-7)
+            # ---- photo + II over sources ----
+            n_src = 0
+            for frame_id in self.opt.frame_ids[1:]:
+                if frame_id == "s":
+                    continue
+                n_src += 1
 
-        denom = max(1, n_src)
-        loss += loss_photo / denom
-        loss += w_ii * (loss_ii / denom)
+                pred_warp = outputs[("color", frame_id, scale)]
+                rep = self.compute_reprojection_loss(pred_warp, target)
 
-        # ---- disparity smoothness (edge-aware) ----
-        mean_disp = disp.mean(2, True).mean(3, True)
-        norm_disp = disp / (mean_disp + 1e-7)
-        tgt_for_smooth = F.interpolate(target, size=disp.shape[-2:], mode="bilinear", align_corners=False)
-        loss_smooth = get_smooth_loss(norm_disp, tgt_for_smooth)
-        loss += w_ds * loss_smooth / (2 ** scale)
+                if use_identity:
+                    pred_ident = inputs[("color", frame_id, source_scale)]
+                    rep_identity = self.compute_reprojection_loss(pred_ident, target)
+                    reprojection_mask = self.compute_loss_masks(rep, rep_identity, target)  # Bx1xHxW
+                else:
+                    # hard enable learning early on
+                    reprojection_mask = torch.ones_like(rep)
 
-        # ---- NEW: anti-collapse prior on disparity mean ----
-        # Encourage a small but non-zero mean disparity. Choose a weak target μ0.
-        # For monocular indoor/endoscopic, μ0 around 0.08–0.15 works as a gentle anchor.
-        mu0 = getattr(self.opt, "disp_center_mu", 0.1)
-        disp_mean = disp.mean()
-        loss_disp_center = torch.abs(disp_mean - mu0)
-        loss += w_dc * loss_disp_center
+                # a) photometric
+                loss_photo += (rep * reprojection_mask).sum() / (reprojection_mask.sum() + 1e-7)
 
-        total_loss += loss
-        losses[f"loss/{scale}"] = loss
+                # b) illumination invariant (log-chromaticity)
+                ii_mask = get_feature_oclution_mask(reprojection_mask)  # your util
+                loss_ii += (self.get_ilumination_invariant_loss(pred_warp, target) * ii_mask).sum() / (ii_mask.sum() + 1e-7)
 
-    total_loss /= self.num_scales
-    losses["loss"] = total_loss
+            denom = max(1, n_src)
+            loss += loss_photo / denom
+            loss += w_ii * (loss_ii / denom)
 
-    # ---- debug prints every 200 steps ----
-    if self.step % 200 == 0:
-        d0 = outputs[("disp", 0)]
-        print(f"[{self.step}] w_ii={w_ii:.4f}  use_identity={use_identity}  "
-              f"disp[min,max,mean]=({float(d0.min()):.4f}, {float(d0.max()):.4f}, {float(d0.mean()):.4f})")
+            # ---- disparity smoothness (edge-aware) ----
+            mean_disp = disp.mean(2, True).mean(3, True)
+            norm_disp = disp / (mean_disp + 1e-7)
+            tgt_for_smooth = F.interpolate(target, size=disp.shape[-2:], mode="bilinear", align_corners=False)
+            loss_smooth = get_smooth_loss(norm_disp, tgt_for_smooth)
+            loss += w_ds * loss_smooth / (2 ** scale)
 
-    return losses
+            # ---- NEW: anti-collapse prior on disparity mean ----
+            # Encourage a small but non-zero mean disparity. Choose a weak target μ0.
+            # For monocular indoor/endoscopic, μ0 around 0.08–0.15 works as a gentle anchor.
+            mu0 = getattr(self.opt, "disp_center_mu", 0.1)
+            disp_mean = disp.mean()
+            loss_disp_center = torch.abs(disp_mean - mu0)
+            loss += w_dc * loss_disp_center
+
+            total_loss += loss
+            losses[f"loss/{scale}"] = loss
+
+        total_loss /= self.num_scales
+        losses["loss"] = total_loss
+
+        # ---- debug prints every 200 steps ----
+        if self.step % 200 == 0:
+            d0 = outputs[("disp", 0)]
+            print(f"[{self.step}] w_ii={w_ii:.4f}  use_identity={use_identity}  "
+                f"disp[min,max,mean]=({float(d0.min()):.4f}, {float(d0.max()):.4f}, {float(d0.mean()):.4f})")
+
+        return losses
 
 
     # ------------------------------
