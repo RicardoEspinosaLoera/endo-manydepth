@@ -114,8 +114,8 @@ class SCAREDRAWDataset(SCAREDDataset):
 
     def get_image_path(self, folder, frame_index, side):
         #SCATER
-        #f_str = "{}{}".format(frame_index, self.img_ext)
-        #image_path = os.path.join(self.data_path, folder, "data", f_str)
+        f_str = "{}{}".format(frame_index, self.img_ext)
+        image_path = os.path.join(self.data_path, folder, "data", f_str)
         
         #COLON10k
         #frame = folder.replace("depth","image").replace("/","_") + self.img_ext
@@ -127,8 +127,10 @@ class SCAREDRAWDataset(SCAREDDataset):
         #image_path = os.path.join(self.data_path,folder, f_str)
         #Serv-CT
         #print(frame_index)
-        f_str = "{}{}".format(frame_index, self.img_ext)
-        image_path = os.path.join(self.data_path,"SERV-CT",folder, f_str)
+        
+        #SERV-CT
+        # f_str = "{}{}".format(frame_index, self.img_ext)
+        # image_path = os.path.join(self.data_path,"SERV-CT",folder, f_str)
         return image_path
 
     def get_depth(self, folder, frame_index, side, do_flip):
