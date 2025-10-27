@@ -166,6 +166,7 @@ def evaluate(opt):
             
             if opt.eval_split == 'endovis':
                 gt_depth = gt_depths[i]
+                print(data)
                 sequence = str(np.array(data['sequence'][0]))
                 keyframe = str(np.array(data['keyframe'][0]))
                 frame_id = "{:06d}".format(data['frame_id'][0])
