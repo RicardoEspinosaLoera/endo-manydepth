@@ -255,6 +255,11 @@ class MonodepthOptions:
                                  action='store_true')
 
         # EVALUATION options
+        self.parser.add_argument("--model_type",
+                                 type=str,
+                                 help="which training split to use",
+                                 choices=["endodac", "afsfm"],
+                                 default="endodac")
         self.parser.add_argument("--eval_stereo",
                                  help="if set evaluates in stereo mode",
                                  action="store_true")
