@@ -12,8 +12,8 @@ from PIL import Image
 import matplotlib
 import scipy.stats as st
 
-from utils.layers import disp_to_depth
-from utils.utils import readlines, compute_errors
+from utils import *
+from layers import *
 from options import MonodepthOptions
 import datasets
 import networks
