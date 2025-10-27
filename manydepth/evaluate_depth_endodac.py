@@ -166,10 +166,10 @@ def evaluate(opt):
             
             if opt.eval_split == 'endovis':
                 gt_depth = gt_depths[i]
-                print(data)
-                sequence = str(np.array(data['sequence'][0]))
-                keyframe = str(np.array(data['keyframe'][0]))
-                frame_id = "{:06d}".format(data['frame_id'][0])
+                #print(data)
+                #sequence = str(np.array(data['sequence'][0]))
+                #keyframe = str(np.array(data['keyframe'][0]))
+                #frame_id = "{:06d}".format(data['frame_id'][0])
             elif opt.eval_split == 'hamlyn' or opt.eval_split == 'c3vd':
                 gt_depth = data["depth_gt"].squeeze().numpy()
 
@@ -177,11 +177,6 @@ def evaluate(opt):
             pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
             pred_depth = 1/pred_disp
             mask = np.logical_and(gt_depth > MIN_DEPTH, gt_depth < MAX_DEPTH)
-            
-            if opt.visualize_depth:
-                vis_pred_depth = render_depth(pred_disp)
-                vis_file_name = os.path.join(vis_dir, sequence + "_" +  keyframe + "_" + frame_id + ".png")
-                cv2.imwrite(vis_file_name, vis_pred_depth)
             
             pred_depth = pred_depth[mask]
             gt_depth = gt_depth[mask]
