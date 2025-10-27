@@ -16,9 +16,8 @@ from utils.layers import disp_to_depth
 from utils.utils import readlines, compute_errors
 from options import MonodepthOptions
 import datasets
-import models.encoders as encoders
-import models.decoders as decoders
-import models.endodac as endodac
+import networks
+import networks.endodac as endodac
 
 cv2.setNumThreads(0)  # This speeds up evaluation 5x on our unix systems (OpenCV 3.3.1)
 
