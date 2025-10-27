@@ -255,6 +255,9 @@ class MonodepthOptions:
                                  action='store_true')
 
         # EVALUATION options
+        self.parser.add_argument("--visualize_depth",
+                                 help="if set saves visualized depth map",
+                                 action="store_true")
         self.parser.add_argument("--model_type",
                                  type=str,
                                  help="which training split to use",
