@@ -344,6 +344,7 @@ class Trainer_Monodepth:
 
         outputs = {}
         outputs.update(self.predict_poses_0(inputs))
+        self.generate_images_pred(inputs, outputs)
         losses = self.compute_losses_0(inputs, outputs)
 
         return outputs, losses
