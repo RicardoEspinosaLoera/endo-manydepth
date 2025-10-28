@@ -182,11 +182,11 @@ def evaluate(opt):
             gt_depth = gt_depth[mask]
             
             pred_depth *= opt.pred_depth_scale_factor
-            if not opt.disable_median_scaling:
-                ratio = np.median(gt_depth) / np.median(pred_depth)
-                if not np.isnan(ratio).all():
-                    ratios.append(ratio)
-                pred_depth *= ratio
+            #if not opt.disable_median_scaling:
+            ratio = np.median(gt_depth) / np.median(pred_depth)
+            if not np.isnan(ratio).all():
+                ratios.append(ratio)
+            pred_depth *= ratio
             pred_depth[pred_depth < MIN_DEPTH] = MIN_DEPTH
             pred_depth[pred_depth > MAX_DEPTH] = MAX_DEPTH
             error = compute_errors(gt_depth, pred_depth)
