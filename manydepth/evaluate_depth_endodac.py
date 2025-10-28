@@ -189,8 +189,8 @@ def evaluate(opt):
                 output_disp = output[("disp", 0)]
             pred_disp, _ = disp_to_depth(output_disp, opt.min_depth, opt.max_depth)
             pred_disp = pred_disp.cpu()[:, 0].numpy()
-            #pred_disp = pred_disp[0]
-            pred_disps.append(pred_disp)
+            pred_disp = pred_disp[0]
+            #pred_disps.append(pred_disp)
             # else:
             #     pred_disp = pred_disps[i]
             #     inference_time = 1
@@ -207,7 +207,7 @@ def evaluate(opt):
 
             gt_height, gt_width = gt_depth.shape[:2]
             pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
-            pred_depth = pred_disp
+            pred_depth = 1 / pred_disp
             mask = np.logical_and(gt_depth > MIN_DEPTH, gt_depth < MAX_DEPTH)
             
             pred_depth = pred_depth[mask]
