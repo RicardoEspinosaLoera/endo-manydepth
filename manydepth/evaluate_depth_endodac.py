@@ -17,6 +17,7 @@ splits_dir = os.path.join(os.path.dirname(__file__), "splits")
 _DEPTH_COLORMAP = plt.get_cmap('plasma', 256)
 STEREO_SCALE_FACTOR = 5.4
 
+HEIGHT, WIDTH = 224, 280   # both divisible by 14
 
 def disp_to_depth(disp, min_depth, max_depth):
     """Monodepth2 convention: returns (depth, scaled_disp)."""
