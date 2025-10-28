@@ -342,7 +342,7 @@ class Trainer_Monodepth:
         for key, ipt in inputs.items():
             inputs[key] = ipt.to(self.device)
 
-        outputs = {}
+        outputs = self.models["depth_model"](inputs["color_aug", 0, 0])
         outputs.update(self.predict_poses_0(inputs))
         self.generate_images_pred(inputs, outputs)
         losses = self.compute_losses_0(inputs, outputs)
