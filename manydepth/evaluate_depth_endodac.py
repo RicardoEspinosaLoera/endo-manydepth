@@ -30,26 +30,6 @@ def render_depth(disp):
     disp_color = cv2.applyColorMap(disp, cv2.COLORMAP_INFERNO)
     return disp_color
 
-def compute_errors(gt, pred):
-    """Computation of error metrics between predicted and ground truth depths
-    """
-    thresh = np.maximum((gt / pred), (pred / gt))
-    a1 = (thresh < 1.25     ).mean()
-    a2 = (thresh < 1.25 ** 2).mean()
-    a3 = (thresh < 1.25 ** 3).mean()
-
-    rmse = (gt - pred) ** 2
-    rmse = np.sqrt(rmse.mean())
-
-    rmse_log = (np.log(gt) - np.log(pred)) ** 2
-    rmse_log = np.sqrt(rmse_log.mean())
-
-    abs_rel = np.mean(np.abs(gt - pred) / gt)
-
-    sq_rel = np.mean(((gt - pred) ** 2) / gt)
-
-    return abs_rel, sq_rel, rmse, rmse_log, a1, a2, a3
-
 
 def batch_post_process_disparity(l_disp, r_disp):
     """Apply the disparity post-processing method as introduced in Monodepthv1
@@ -147,8 +127,11 @@ def evaluate(opt):
 
     if opt.eval_split == 'endovis':
         gt_path = os.path.join(splits_dir, opt.eval_split, "gt_depths.npz")
-        gt_depths = np.load(gt_path, fix_imports=True,allow_pickle=True, encoding='latin1')["data"]
+        gt_depths = np.load(gt_path, fix_imports=True, encoding='latin1')["data"]
         
+    if opt.visualize_depth:
+        vis_dir = os.path.join(opt.load_weights_folder, "vis_depth")
+        os.makedirs(vis_dir, exist_ok=True)
 
     inference_times = []
     sequences = []
@@ -199,10 +182,11 @@ def evaluate(opt):
             gt_depth = gt_depth[mask]
             
             pred_depth *= opt.pred_depth_scale_factor
-            ratio = np.median(gt_depth) / np.median(pred_depth)
-            if not np.isnan(ratio).all():
-                ratios.append(ratio)
-            pred_depth *= ratio
+            if not opt.disable_median_scaling:
+                ratio = np.median(gt_depth) / np.median(pred_depth)
+                if not np.isnan(ratio).all():
+                    ratios.append(ratio)
+                pred_depth *= ratio
             pred_depth[pred_depth < MIN_DEPTH] = MIN_DEPTH
             pred_depth[pred_depth > MAX_DEPTH] = MAX_DEPTH
             error = compute_errors(gt_depth, pred_depth)
