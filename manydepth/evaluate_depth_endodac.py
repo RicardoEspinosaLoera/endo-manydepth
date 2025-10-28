@@ -69,8 +69,8 @@ def evaluate(opt):
 
     # ---------- Load data ----------
     filenames = readlines(os.path.join(splits_dir, opt.eval_split, "test_files.txt"))
-    #HEIGHT, WIDTH = (getattr(opt, "height", 256), getattr(opt, "width", 320))
-    HEIGHT, WIDTH = 224, 280   # both divisible by 14
+    HEIGHT, WIDTH = (getattr(opt, "height", 256), getattr(opt, "width", 320))
+    #HEIGHT, WIDTH = 224, 280   # both divisible by 14
     img_ext = '.png' if getattr(opt, "png", False) else '.jpg'
 
     if opt.eval_split == 'endovis':
@@ -96,14 +96,15 @@ def evaluate(opt):
 
     # Build EndoDAC with safe defaults (override via opt if present)
     depther = endodac.endodac(
-        backbone_size=getattr(opt, "backbone_size", "base"),
-        r=getattr(opt, "lora_rank", 8),
-        lora_type=getattr(opt, "lora_type", "lora"),
-        image_shape=(HEIGHT, WIDTH),
-        pretrained_path=getattr(opt, "pretrained_path", None),
-        residual_block_indexes=getattr(opt, "residual_block_indexes", None),
-        include_cls_token=getattr(opt, "include_cls_token", False),
+        backbone_size="base",
+        r=self.opt.lora_rank,
+        lora_type=self.opt.lora_type,
+        image_shape=(224, 280),
+        pretrained_path=self.opt.pretrained_path,
+        residual_block_indexes=self.opt.residual_block_indexes,
+        include_cls_token=self.opt.include_cls_token,
     )
+    
     model_dict = depther.state_dict()
     depther.load_state_dict({k: v for k, v in depther_state.items() if k in model_dict}, strict=False)
     depther.cuda().eval()
