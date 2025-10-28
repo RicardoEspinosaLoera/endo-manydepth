@@ -13,7 +13,7 @@ import matplotlib
 import scipy.stats as st
 
 from utils import *
-from layers import *
+#from layers import *
 from options import MonodepthOptions
 import datasets
 import networks
@@ -23,6 +23,17 @@ cv2.setNumThreads(0)  # This speeds up evaluation 5x on our unix systems (OpenCV
 
 
 splits_dir = os.path.join(os.path.dirname(__file__), "splits")
+
+def disp_to_depth(disp, min_depth, max_depth):
+    """Convert network's sigmoid output into depth prediction
+    The formula for this conversion is given in the 'additional considerations'
+    section of the paper.
+    """
+    min_disp = 1 / max_depth
+    max_disp = 1 / min_depth
+    scaled_disp = min_disp + (max_disp - min_disp) * disp
+    depth = 1 / scaled_disp
+    return scaled_disp, depth
 
 def render_depth(disp):
     disp = (disp - disp.min()) / (disp.max() - disp.min()) * 255.0
@@ -170,18 +181,18 @@ def evaluate(opt):
                 # Post-processed results require each image to have two forward passes
                 input_color = torch.cat((input_color, torch.flip(input_color, [3])), 0)
 
-            if opt.ext_disp_to_eval is None:
-                time_start = time.time()
-                output = depther(input_color)
-                inference_time = time.time() - time_start
-                if opt.model_type == 'endodac' or opt.model_type == 'afsfm':
-                    output_disp = output[("disp", 0)]
-                pred_disp, _ = disp_to_depth(output_disp, opt.min_depth, opt.max_depth)
-                pred_disp = pred_disp.cpu()[:, 0].numpy()
-                pred_disp = pred_disp[0]
-            else:
-                pred_disp = pred_disps[i]
-                inference_time = 1
+            i#f opt.ext_disp_to_eval is None:
+            time_start = time.time()
+            output = depther(input_color)
+            inference_time = time.time() - time_start
+            if opt.model_type == 'endodac' or opt.model_type == 'afsfm':
+                output_disp = output[("disp", 0)]
+            pred_disp, _ = disp_to_depth(output_disp, opt.min_depth, opt.max_depth)
+            pred_disp = pred_disp.cpu()[:, 0].numpy()
+            pred_disp = pred_disp[0]
+            # else:
+            #     pred_disp = pred_disps[i]
+            #     inference_time = 1
             inference_times.append(inference_time)
             
             if opt.eval_split == 'endovis':
