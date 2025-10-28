@@ -17,7 +17,6 @@ splits_dir = os.path.join(os.path.dirname(__file__), "splits")
 _DEPTH_COLORMAP = plt.get_cmap('plasma', 256)
 STEREO_SCALE_FACTOR = 5.4
 
-HEIGHT, WIDTH = 224, 280   # both divisible by 14
 
 def disp_to_depth(disp, min_depth, max_depth):
     """Monodepth2 convention: returns (depth, scaled_disp)."""
@@ -70,7 +69,8 @@ def evaluate(opt):
 
     # ---------- Load data ----------
     filenames = readlines(os.path.join(splits_dir, opt.eval_split, "test_files.txt"))
-    HEIGHT, WIDTH = (getattr(opt, "height", 256), getattr(opt, "width", 320))
+    #HEIGHT, WIDTH = (getattr(opt, "height", 256), getattr(opt, "width", 320))
+    HEIGHT, WIDTH = 224, 280   # both divisible by 14
     img_ext = '.png' if getattr(opt, "png", False) else '.jpg'
 
     if opt.eval_split == 'endovis':
