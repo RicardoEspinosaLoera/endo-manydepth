@@ -97,14 +97,14 @@ def evaluate(opt):
     # Build EndoDAC with safe defaults (override via opt if present)
     depther = endodac.endodac(
         backbone_size="base",
-        r=self.opt.lora_rank,
-        lora_type=self.opt.lora_type,
+        r=opt.lora_rank,
+        lora_type=opt.lora_type,
         image_shape=(224, 280),
-        pretrained_path=self.opt.pretrained_path,
-        residual_block_indexes=self.opt.residual_block_indexes,
-        include_cls_token=self.opt.include_cls_token,
+        pretrained_path=opt.pretrained_path,
+        residual_block_indexes=opt.residual_block_indexes,
+        include_cls_token=opt.include_cls_token,
     )
-    
+
     model_dict = depther.state_dict()
     depther.load_state_dict({k: v for k, v in depther_state.items() if k in model_dict}, strict=False)
     depther.cuda().eval()
