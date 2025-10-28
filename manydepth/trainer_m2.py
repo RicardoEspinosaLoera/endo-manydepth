@@ -274,7 +274,7 @@ class Trainer_Monodepth:
         self.models["pose_encoder"].eval()
         self.models["pose"].eval()
 
-        self.models["depth_model"].train()
+        self.models["depth"].train()
 
     def set_eval(self):
         for m in self.models.values():
