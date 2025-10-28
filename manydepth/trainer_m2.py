@@ -255,9 +255,9 @@ class Trainer_Monodepth:
 
     def set_train_depth(self):
         """Enable grads for depth (and shared encoder); freeze pose+lighting."""
-        for param in self.models["position_encoder"].parameters():
+        for param in self.models["pose_encoder"].parameters():
             param.requires_grad = False
-        for param in self.models["position"].parameters():
+        for param in self.models["pose"].parameters():
             param.requires_grad = False
         for param in self.models["lighting"].parameters():
                 param.requires_grad = False
@@ -271,8 +271,8 @@ class Trainer_Monodepth:
             warm_up = False
         endodac.mark_only_part_as_trainable(self.models["depth"], warm_up=warm_up)
 
-        self.models["position_encoder"].eval()
-        self.models["position"].eval()
+        self.models["pose_encoder"].eval()
+        self.models["pose"].eval()
 
         self.models["depth_model"].train()
 
