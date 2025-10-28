@@ -189,7 +189,8 @@ def evaluate(opt):
                 output_disp = output[("disp", 0)]
             pred_disp, _ = disp_to_depth(output_disp, opt.min_depth, opt.max_depth)
             pred_disp = pred_disp.cpu()[:, 0].numpy()
-            pred_disp = pred_disp[0]
+            #pred_disp = pred_disp[0]
+            pred_disps.append(pred_disp)
             # else:
             #     pred_disp = pred_disps[i]
             #     inference_time = 1
