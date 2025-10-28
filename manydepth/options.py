@@ -61,6 +61,11 @@ class MonodepthOptions:
 
 
         ####################
+
+        self.parser.add_argument("--warm_up_step",
+                                 type=int,
+                                 help="warm up step",
+                                 default=20000)
         self.parser.add_argument("--model_name",
                                  type=str,
                                  help="the name of the folder to save the model in",

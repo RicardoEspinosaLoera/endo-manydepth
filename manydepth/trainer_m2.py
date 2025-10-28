@@ -234,6 +234,7 @@ class Trainer_Monodepth:
         g = torch.Generator()
         g.manual_seed(getattr(self.opt, "seed", 42))
 
+        
         train_dataset = self.dataset(
             self.opt.data_path, train_filenames, self.opt.height, self.opt.width,
             self.opt.frame_ids, 4, is_train=True, img_ext=img_ext)
@@ -303,6 +304,11 @@ class Trainer_Monodepth:
         # enable depth
         for p in self.models["depth"].parameters():
             p.requires_grad = True
+        if self.step < self.opt.warm_up_step:
+            warm_up = True
+        else:
+            warm_up = False
+        endodac.mark_only_part_as_trainable(self.models["depth"], warm_up=warm_up)
         if self.opt.pose_model_type == "shared":
             for p in self.models["encoder"].parameters():
                 p.requires_grad = True
