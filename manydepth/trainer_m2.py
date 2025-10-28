@@ -580,7 +580,6 @@ class Trainer_Monodepth:
             # accumulate
             loss += (loss_reprojection / denom)
             loss += w_ii * (loss_ilumination_invariant / denom)
-            loss += w_ds * smooth_loss / (2 ** scale)
 
             total_loss += loss
             losses[f"loss/{scale}"] = loss
