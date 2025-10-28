@@ -34,45 +34,8 @@ import networks.endodac as endodac
 
 wandb.init(project="IISfMLearner-ENDOVIS", entity="respinosa")
 
-_DEPTH_COLORMAP = plt.get_cmap('plasma_r', 256)  # for plotting
+_DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
 
-
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
-
-def _to_uint8(vis):
-    vis = np.clip(vis * 255.0, 0, 255).astype(np.uint8)
-    return vis
-
-def _normalize(img, eps=1e-8):
-    # per-image min-max
-    mn = img.amin(dim=(-2,-1), keepdim=True)
-    mx = img.amax(dim=(-2,-1), keepdim=True)
-    return (img - mn) / (mx - mn + eps)
-
-def _normalize_pclip(img, lo=2.0, hi=98.0, eps=1e-8):
-    # percentile clip (robust to outliers)
-    x = img.detach().cpu().numpy()
-    lo_v = np.percentile(x, lo, axis=(-2,-1), keepdims=True)
-    hi_v = np.percentile(x, hi, axis=(-2,-1), keepdims=True)
-    x = (x - lo_v) / (hi_v - lo_v + eps)
-    x = np.clip(x, 0, 1)
-    return torch.from_numpy(x).to(img.device)
-
-def viz_invdisp(disp_1hw):
-    """
-    disp_1hw: (1,H,W) torch tensor
-    Returns HxWx3 uint8 (plasma_r).
-    """
-    d = disp_1hw
-    d = _normalize(d)               # or _normalize_pclip(d)
-    d = 1.0 - d                     # inverse for readability
-    d = d[0].detach().cpu().numpy() # HxW
-    cmap = plt.get_cmap('plasma_r', 256)
-    vis = cmap(d)[..., :3]          # HxWx3 float [0,1]
-    return _to_uint8(vis)
 
 class Trainer_Monodepth:
     """
@@ -459,11 +422,11 @@ class Trainer_Monodepth:
                     for scale in self.opt.scales:
                         outputs[("bh", scale, f_i)] = F.interpolate(
                             outputs[(f"b_{scale}", f_i)], [self.opt.height, self.opt.width],
-                            mode="bilinear", align_corners=False
+                            mode="bilinear", align_corners=True
                         )
                         outputs[("ch", scale, f_i)] = F.interpolate(
                             outputs[(f"c_{scale}", f_i)], [self.opt.height, self.opt.width],
-                            mode="bilinear", align_corners=False
+                            mode="bilinear", align_corners=True
                         )
 
         return outputs
@@ -499,7 +462,7 @@ class Trainer_Monodepth:
             if self.opt.v1_multiscale:
                 source_scale = scale
             else:
-                disp = F.interpolate(disp, [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
+                disp = F.interpolate(disp, [self.opt.height, self.opt.width], mode="bilinear", align_corners=True)
                 source_scale = 0
 
             _, depth = disp_to_depth(disp, self.opt.min_depth, self.opt.max_depth)
