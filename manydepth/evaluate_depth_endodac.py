@@ -195,7 +195,7 @@ def evaluate(opt):
 
             gt_height, gt_width = gt_depth.shape[:2]
             pred_disp = cv2.resize(pred_disp, (gt_width, gt_height))
-            pred_depth = 1/pred_disp
+            pred_depth = pred_disp
             mask = np.logical_and(gt_depth > MIN_DEPTH, gt_depth < MAX_DEPTH)
             
             pred_depth = pred_depth[mask]
@@ -213,10 +213,10 @@ def evaluate(opt):
             if not np.isnan(error).all():
                 errors.append(error)
 
-    if not opt.disable_median_scaling:
-        ratios = np.array(ratios)
-        med = np.median(ratios)
-        print(" Scaling ratios | med: {:0.3f} | std: {:0.3f}".format(med, np.std(ratios / med)))
+    #if not opt.disable_median_scaling:
+    ratios = np.array(ratios)
+    med = np.median(ratios)
+    print(" Scaling ratios | med: {:0.3f} | std: {:0.3f}".format(med, np.std(ratios / med)))
 
     errors = np.array(errors)
     mean_errors = np.mean(errors, axis=0)
