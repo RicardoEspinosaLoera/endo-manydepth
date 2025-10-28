@@ -466,6 +466,7 @@ class Trainer_Monodepth:
                 source_scale = 0
 
             _, depth = disp_to_depth(disp, self.opt.min_depth, self.opt.max_depth)
+            print(depth.shape)
             outputs[("depth", 0, scale)] = depth
 
             for _, frame_id in enumerate(self.opt.frame_ids[1:]):
