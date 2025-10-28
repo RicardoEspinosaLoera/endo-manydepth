@@ -53,7 +53,10 @@ class Trainer_Monodepth:
         assert self.opt.width % 32 == 0, "'width' must be a multiple of 32"
 
         self.models = {}
-        self.parameters_to_train = []
+        #self.parameters_to_train = []
+        #self.parameters_to_train_0 = []
+        self.params_pose_light = []
+        self.params_depth = []
 
         self.device = torch.device("cpu" if self.opt.no_cuda else "cuda")
 
@@ -71,10 +74,10 @@ class Trainer_Monodepth:
         # ------------------------------
         # Encoder (only needed if pose_model_type == "shared")
         # ------------------------------
-        self.models["encoder"] = networks.ResnetEncoder(
-            self.opt.num_layers, self.opt.weights_init == "pretrained")
-        self.models["encoder"].to(self.device)
-        self.parameters_to_train += list(self.models["encoder"].parameters())
+        # self.models["encoder"] = networks.ResnetEncoder(
+        #     self.opt.num_layers, self.opt.weights_init == "pretrained")
+        # self.models["encoder"].to(self.device)
+        # self.parameters_to_train += list(self.models["encoder"].parameters())
 
         # ------------------------------
         # Depth backbone (ENDODAC)
@@ -89,7 +92,7 @@ class Trainer_Monodepth:
             include_cls_token=self.opt.include_cls_token
         )
         self.models["depth"].to(self.device)
-        self.parameters_to_train += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
+        self.params_depth += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
 
         # ------------------------------
         # Pose + Lighting heads
@@ -101,14 +104,14 @@ class Trainer_Monodepth:
                     self.opt.weights_init == "pretrained",
                     num_input_images=self.num_pose_frames
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["pose_encoder"].parameters())
+                self.params_pose_light += list(self.models["pose_encoder"].parameters())
 
                 self.models["pose"] = networks.PoseDecoder(
                     self.models["pose_encoder"].num_ch_enc,
                     num_input_features=1,
                     num_frames_to_predict_for=2
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["pose"].parameters())
+                self.params_pose_light += list(self.models["pose"].parameters())
 
                 # Lighting decoder: predicts per-pixel contrast (c) and brightness (b)
                 # Expected outputs per scale:
@@ -117,49 +120,42 @@ class Trainer_Monodepth:
                 self.models["lighting"] = networks.LightingDecoder(
                     self.models["pose_encoder"].num_ch_enc, self.opt.scales
                 ).to(self.device)
-                self.parameters_to_train += list(self.models["lighting"].parameters())
+                self.params_pose_light += list(self.models["lighting"].parameters())
 
-            elif self.opt.pose_model_type == "shared":
-                self.models["pose"] = networks.PoseDecoder(
-                    self.models["encoder"].num_ch_enc, self.num_pose_frames
-                ).to(self.device)
-                self.parameters_to_train += list(self.models["pose"].parameters())
-
-            elif self.opt.pose_model_type == "posecnn":
-                self.models["pose"] = networks.PoseCNN(
-                    self.num_input_frames if self.opt.pose_model_input == "all" else 2
-                ).to(self.device)
-                self.parameters_to_train += list(self.models["pose"].parameters())
 
         # ---- parameter groups ----
-        self.params_pose_light = []
-        self.params_depth = []
 
-        # depth params
-        self.params_depth += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
 
-        # pose params
-        if self.use_pose_net:
-            self.params_pose_light += list(self.models["pose"].parameters())
-            if "pose_encoder" in self.models:
-                self.params_pose_light += list(self.models["pose_encoder"].parameters())
+        # # depth params
+        # self.params_depth += list(filter(lambda p: p.requires_grad, self.models["depth"].parameters()))
 
-        # lighting params (the lighting decoder + any related heads)
-        if "lighting" in self.models:
-            self.params_pose_light += list(self.models["lighting"].parameters())
+        # # pose params
+        # if self.use_pose_net:
+        #     self.params_pose_light += list(self.models["pose"].parameters())
+        #     if "pose_encoder" in self.models:
+        #         self.params_pose_light += list(self.models["pose_encoder"].parameters())
 
-        # (optional) if pose_model_type=="shared", the shared encoder might also feed pose;
-        # usually keep it in depth group; if you prefer, move it to pose_light instead.
-        if self.opt.pose_model_type == "shared":
-            self.params_depth += list(self.models["encoder"].parameters())
+        # # lighting params (the lighting decoder + any related heads)
+        # if "lighting" in self.models:
+        #     self.params_pose_light += list(self.models["lighting"].parameters())
+
+        # # (optional) if pose_model_type=="shared", the shared encoder might also feed pose;
+        # # usually keep it in depth group; if you prefer, move it to pose_light instead.
+        # if self.opt.pose_model_type == "shared":
+        #     self.params_depth += list(self.models["encoder"].parameters())
 
         # ---- two optimizers ----
         self.opt_pose = optim.AdamW(self.params_pose_light, lr=self.opt.learning_rate)
         self.opt_depth = optim.AdamW(self.params_depth, lr=self.opt.learning_rate)
+        
 
         # ---- schedulers ----
-        self.sched_pose = optim.lr_scheduler.ExponentialLR(self.opt_pose,0.9)
-        self.sched_depth = optim.lr_scheduler.ExponentialLR(self.opt_depth,0.9)
+        self.sched_pose = optim.lr_scheduler.StepLR(
+            self.opt_pose, self.opt.scheduler_step_size, 0.1)
+        self.sched_depth = optim.lr_scheduler.StepLR(
+            self.opt_depth, self.opt.scheduler_step_size, 0.1)
+
+        #self.sched_depth = optim.lr_scheduler.ExponentialLR(self.opt_depth,0.9)
         #self.sched_pose = optim.lr_scheduler.StepLR(self.opt_pose, self.opt.scheduler_step_size, 0.1)
         #self.sched_depth = optim.lr_scheduler.StepLR(self.opt_depth, self.opt.scheduler_step_size, 0.1)
         # ------------------------------
@@ -211,7 +207,7 @@ class Trainer_Monodepth:
             val_dataset, self.opt.batch_size, True,
             num_workers=self.opt.num_workers, pin_memory=True, drop_last=True)
         self.val_iter = iter(self.val_loader)
-        self.val_iter = iter(self.val_loader)
+
 
         # ------------------------------
         # Loss helpers
@@ -240,51 +236,45 @@ class Trainer_Monodepth:
     # ------------------------------
     def set_train_pose_light(self):
         """Enable grads for pose+lighting; freeze depth."""
-        for m in self.models.values():
-            m.train()
-        # freeze depth
-        for p in self.models["depth"].parameters():
-            p.requires_grad = False
-        # shared encoder (if any) stays with depth phase by default
-        if self.opt.pose_model_type == "shared":
-            for p in self.models["encoder"].parameters():
-                p.requires_grad = False
-        # enable pose + lighting
-        if self.use_pose_net:
-            for p in self.models["pose"].parameters():
-                p.requires_grad = True
-            if "pose_encoder" in self.models:
-                for p in self.models["pose_encoder"].parameters():
-                    p.requires_grad = True
-        if "lighting" in self.models:
-            for p in self.models["lighting"].parameters():
-                p.requires_grad = True
+
+        for param in self.models["pose_encoder"].parameters():
+            param.requires_grad = True
+        for param in self.models["pose"].parameters():
+            param.requires_grad = True
+        for param in self.models["lighting"].parameters():
+                param.requires_grad = True
+
+        for param in self.models["depth"].parameters():
+            param.requires_grad = False
+
+            
+        self.models["pose_encoder"].train()
+        self.models["pose"].train()
+        self.models["depth"].eval()
+        
 
     def set_train_depth(self):
         """Enable grads for depth (and shared encoder); freeze pose+lighting."""
-        for m in self.models.values():
-            m.train()
-        # enable depth
-        for p in self.models["depth"].parameters():
-            p.requires_grad = True
+        for param in self.models["position_encoder"].parameters():
+            param.requires_grad = False
+        for param in self.models["position"].parameters():
+            param.requires_grad = False
+        for param in self.models["lighting"].parameters():
+                param.requires_grad = False
+
+        for name, param in self.models["depth"].named_parameters():
+            if "seed_" not in name:
+                param.requires_grad = True
         if self.step < self.opt.warm_up_step:
             warm_up = True
         else:
             warm_up = False
         endodac.mark_only_part_as_trainable(self.models["depth"], warm_up=warm_up)
-        if self.opt.pose_model_type == "shared":
-            for p in self.models["encoder"].parameters():
-                p.requires_grad = True
-        # freeze pose + lighting
-        if self.use_pose_net:
-            for p in self.models["pose"].parameters():
-                p.requires_grad = False
-            if "pose_encoder" in self.models:
-                for p in self.models["pose_encoder"].parameters():
-                    p.requires_grad = False
-        if "lighting" in self.models:
-            for p in self.models["lighting"].parameters():
-                p.requires_grad = False
+
+        self.models["position_encoder"].eval()
+        self.models["position"].eval()
+
+        self.models["depth_model"].train()
 
     def set_eval(self):
         for m in self.models.values():
@@ -311,10 +301,9 @@ class Trainer_Monodepth:
             # -------- Phase A: pose + lighting step --------
             self.set_train_pose_light()
             # forward (depth is frozen but still used for warping)
-            outputs_A, losses_A = self.process_batch(inputs)
+            outputs_A, losses_A = self.process_batch_0(inputs)
             self.opt_pose.zero_grad(set_to_none=True)
             losses_A["loss"].backward()
-            torch.nn.utils.clip_grad_norm_(self.params_pose_light, max_norm=1.0)
             self.opt_pose.step()
 
             # -------- Phase B: depth step --------
@@ -323,7 +312,6 @@ class Trainer_Monodepth:
             outputs_B, losses_B = self.process_batch(inputs)
             self.opt_depth.zero_grad(set_to_none=True)
             losses_B["loss"].backward()
-            torch.nn.utils.clip_grad_norm_(self.params_depth, max_norm=1.0)
             self.opt_depth.step()
 
             # pick what to log (depth phase)
@@ -348,38 +336,40 @@ class Trainer_Monodepth:
     # ------------------------------
     # Forward passes
     # ------------------------------
-    def process_batch(self, inputs):
-        """Forward: depth (ENDODAC), pose, lighting; synthesize warped views; compute losses."""
+    def process_batch_0(self, inputs):
+        """Pass a minibatch through the network and generate images and losses
+        """
         for key, ipt in inputs.items():
             inputs[key] = ipt.to(self.device)
 
-        # Depth
-        if self.opt.pose_model_type == "shared":
-            # Build per-frame features if you need them for shared pose
-            all_color_aug = torch.cat([inputs[("color_aug", i, 0)] for i in self.opt.frame_ids], dim=0)
-            all_features = self.models["encoder"](all_color_aug)
-            # split features per frame id
-            all_features = [torch.split(f, self.opt.batch_size) for f in all_features]
-            features = {i: [lvl[k] for lvl in all_features] for k, i in enumerate(self.opt.frame_ids)}
-        outputs = self.models["depth"](inputs["color_aug", 0, 0])
+        outputs = {}
+        outputs.update(self.predict_poses_0(inputs))
+        losses = self.compute_losses_0(inputs, outputs)
 
-        # Pose + lighting fields
+        return outputs, losses
+    
+    def process_batch(self, inputs):
+        """Pass a minibatch through the network and generate images and losses
+        """
+        for key, ipt in inputs.items():
+            inputs[key] = ipt.to(self.device)
+        outputs = self.models["depth_model"](inputs["color_aug", 0, 0])
+
         if self.use_pose_net:
-            outputs.update(
-                self.predict_poses(
-                    inputs,
-                    features if self.opt.pose_model_type == "shared" else None
-                )
-            )
+            outputs.update(self.predict_poses_0(inputs, outputs))
 
-        # Geometry-based warps
         self.generate_images_pred(inputs, outputs)
-
-        # Losses
         losses = self.compute_losses(inputs, outputs)
+
         return outputs, losses
 
-    def predict_poses(self, inputs, shared_features=None):
+    def predict_poses(self, inputs):
+        """Predict poses between input frames for monocular sequences.
+        """
+        
+        return outputs
+
+    def predict_poses_0(self, inputs, shared_features=None):
         """Predict relative poses and per-pixel lighting fields (contrast c, brightness b)."""
         outputs = {}
         if self.num_pose_frames == 2:
@@ -530,6 +520,73 @@ class Trainer_Monodepth:
         idxs = torch.argmin(all_losses, dim=1, keepdim=True)
         mask = (idxs == 0).float()
         return mask
+
+    def compute_losses_0(self, inputs, outputs):
+        """
+        Total loss per scale:
+          L = Lphoto_cal (on color_refined)
+            + λ_II * L_II (on II features, refined vs target; mask via get_feature_oclution_mask)
+        """
+        losses = {}
+        total_loss = 0.0
+
+        # weights
+        w_ii = getattr(self.opt, "illumination_invariant", 0.15)  # lambda for II term
+        #w_ds = self.opt.disparity_smoothness
+
+        for scale in self.opt.scales:
+            loss_reprojection = 0.0
+            loss_ilumination_invariant = 0.0
+            loss = 0.0
+
+            if self.opt.v1_multiscale:
+                source_scale = scale
+            else:
+                source_scale = 0
+
+            #disp = outputs[("disp", scale)]
+            color_t = inputs[("color", 0, 0)]  # target full-res
+
+            # per-source losses
+            valid_sources = 0
+            for frame_id in self.opt.frame_ids[1:]:
+                if frame_id == "s":
+                    continue
+                valid_sources += 1
+
+                # auto-mask using standard (unrefined) reprojection
+                target = color_t
+                pred_warp = outputs[("color", frame_id, scale)]
+                rep = self.compute_reprojection_loss(pred_warp, target)
+
+                pred_ident = inputs[("color", frame_id, source_scale)]
+                rep_identity = self.compute_reprojection_loss(pred_ident, target)
+
+                reprojection_mask = self.compute_loss_masks(rep, rep_identity, target)  # Bx1xHxW
+                reprojection_mask_iil = get_feature_oclution_mask(reprojection_mask)   # from utils
+
+                # (a) Calibrated photometric loss (refined)
+                pred_cal = outputs[("color_refined", frame_id, scale)]
+                #pred_cal = outputs[("color", frame_id, scale)]
+                loss_reprojection += (self.compute_reprojection_loss(pred_cal, target) * reprojection_mask).sum() / (reprojection_mask.sum() + 1e-7)
+
+                # (b) Illumination-invariant loss (use refined vs target; mask is feature-occlusion)
+                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_cal, target) * reprojection_mask_iil).sum() / (reprojection_mask_iil.sum() + 1e-7)
+
+            # average across sources
+            denom = max(1, valid_sources)
+
+            # accumulate
+            loss += (loss_reprojection / denom)
+            loss += w_ii * (loss_ilumination_invariant / denom)
+            loss += w_ds * smooth_loss / (2 ** scale)
+
+            total_loss += loss
+            losses[f"loss/{scale}"] = loss
+
+        total_loss /= self.num_scales
+        losses["loss"] = total_loss
+        return losses
 
     def compute_losses(self, inputs, outputs):
         """
