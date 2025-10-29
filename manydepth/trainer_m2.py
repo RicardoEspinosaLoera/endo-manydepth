@@ -486,11 +486,12 @@ class Trainer_Monodepth:
                 outputs[("color", frame_id, scale)] = warped
                 
                 # Apply lighting calibration if available: refined = c * warped + b (clamped)
-                if (("ch", scale, frame_id) in outputs) and (("bh", scale, frame_id) in outputs):
-                    refined = outputs[("ch", scale, frame_id)] * warped + outputs[("bh", scale, frame_id)]
-                    outputs[("color_refined", frame_id, scale)] = torch.clamp(refined, 0.0, 1.0)
-                else:
-                    outputs[("color_refined", frame_id, scale)] = warped  # fallback
+                #if (("ch", scale, frame_id) in outputs) and (("bh", scale, frame_id) in outputs):
+                #refined = outputs[("ch", scale, frame_id)] * warped + outputs[("bh", scale, frame_id)]
+                outputs[("color_refined", frame_id, scale)] = outputs[("ch",scale, frame_id)] * outputs[("color", frame_id, scale)] + outputs[("bh", scale, frame_id)]
+                #outputs[("color_refined", frame_id, scale)] = torch.clamp(refined, 0.0, 1.0)
+                #else:
+                #outputs[("color_refined", frame_id, scale)] = warped  # fallback
 
     # ------------------------------
     # Losses
