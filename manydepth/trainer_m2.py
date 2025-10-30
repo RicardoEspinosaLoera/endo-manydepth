@@ -573,7 +573,7 @@ class Trainer_Monodepth:
                 loss_reprojection += (self.compute_reprojection_loss(pred_warp, target) * reprojection_mask).sum() / (reprojection_mask.sum() + 1e-7)
 
                 # (b) Illumination-invariant loss (use refined vs target; mask is feature-occlusion)
-                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_cal, target) * reprojection_mask_iil).sum() / (reprojection_mask_iil.sum() + 1e-7)
+                loss_ilumination_invariant += (self.get_ilumination_invariant_loss(pred_warp, target) * reprojection_mask_iil).sum() / (reprojection_mask_iil.sum() + 1e-7)
 
             # average across sources
             denom = max(1, valid_sources)
@@ -717,9 +717,9 @@ class Trainer_Monodepth:
                 
                 if s == 0 and frame_id != 0:
                     wandb.log({"color_pred_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color", frame_id, s)][j].data)},step=self.step)
-                    wandb.log({"color_pred_refined_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_refined", frame_id,s)][j].data)},step=self.step)
-                    wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("ch",s, frame_id)][j].data)},step=self.step)
-                    wandb.log({"brightness_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("bh",s, frame_id)][j].data)},step=self.step)
+                    #wandb.log({"color_pred_refined_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("color_refined", frame_id,s)][j].data)},step=self.step)
+                    #wandb.log({"contrast_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("ch",s, frame_id)][j].data)},step=self.step)
+                    #wandb.log({"brightness_{}_{}/{}".format(frame_id, s, j): wandb.Image(outputs[("bh",s, frame_id)][j].data)},step=self.step)
             disp = self.colormap(outputs[("disp", s)][j, 0])
             #wandb.log({f"{mode}/disp_inv/0": wandb.Image(vis)}, step=self.step)
             wandb.log({"disp_multi_{}/{}".format(s, j): wandb.Image(disp.transpose(1, 2, 0))},step=self.step)
