@@ -319,48 +319,85 @@ class SpatialTransformer(nn.Module):
 
         return F.grid_sample(src, new_locs, mode=self.mode, padding_mode="border",align_corners=True)
 
-def get_ilumination_invariant_features(img):
-    #ENDOVIS dataset
-    if(img.shape[1] != 1):
-        img_gray = transforms.functional.rgb_to_grayscale(img,1)
-    else: 
-        img_gray = img
+# def get_ilumination_invariant_features(img):
+#     #ENDOVIS dataset
+#     if(img.shape[1] != 1):
+#         img_gray = transforms.functional.rgb_to_grayscale(img,1)
+#     else: 
+#         img_gray = img
     
-    K1 = torch.Tensor([[-1, 0, 1],[-2, 0, 2], [-1, 0, 1]]).to(device=img_gray.device)
-    K2 = torch.Tensor([[0, 1, 2], [-1, 0, 1], [-2, -1, 0]]).to(device=img_gray.device)
-    K3 = torch.Tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]]).to(device=img_gray.device)
-    K4 = torch.Tensor([[2, 1, 0], [1, 0, -1], [0, -1, -2]]).to(device=img_gray.device)
-    K5 = torch.Tensor([[1, 0,-1], [2, 0, -2], [1, 0, -1]]).to(device=img_gray.device)
-    K6 = torch.Tensor([[0,-1,-2], [1, 0, -1], [2, 1, 0]]).to(device=img_gray.device)
-    K7 = torch.Tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]]).to(device=img_gray.device)
-    K8 = torch.Tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]]).to(device=img_gray.device)
+#     K1 = torch.Tensor([[-1, 0, 1],[-2, 0, 2], [-1, 0, 1]]).to(device=img_gray.device)
+#     K2 = torch.Tensor([[0, 1, 2], [-1, 0, 1], [-2, -1, 0]]).to(device=img_gray.device)
+#     K3 = torch.Tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]]).to(device=img_gray.device)
+#     K4 = torch.Tensor([[2, 1, 0], [1, 0, -1], [0, -1, -2]]).to(device=img_gray.device)
+#     K5 = torch.Tensor([[1, 0,-1], [2, 0, -2], [1, 0, -1]]).to(device=img_gray.device)
+#     K6 = torch.Tensor([[0,-1,-2], [1, 0, -1], [2, 1, 0]]).to(device=img_gray.device)
+#     K7 = torch.Tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]]).to(device=img_gray.device)
+#     K8 = torch.Tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]]).to(device=img_gray.device)
 
-    sq_D = torch.zeros_like(img_gray, device=img_gray.device)
-    padding = (3 - 1) // 2  # Padding to maintain input size
-    M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M1,2)
-    M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M2,2)
-    M3 = F.conv2d(img_gray, K3.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M3,2)
-    M4 = F.conv2d(img_gray, K4.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M4,2)
-    M5 = F.conv2d(img_gray, K5.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M5,2)
-    M6 = F.conv2d(img_gray, K6.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M6,2)
-    M7 = F.conv2d(img_gray, K7.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M7,2)
-    M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
-    #sq_D += torch.pow(M8,2)
+#     sq_D = torch.zeros_like(img_gray, device=img_gray.device)
+#     padding = (3 - 1) // 2  # Padding to maintain input size
+#     M1 = F.conv2d(img_gray, K1.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M1,2)
+#     M2 = F.conv2d(img_gray, K2.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M2,2)
+#     M3 = F.conv2d(img_gray, K3.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M3,2)
+#     M4 = F.conv2d(img_gray, K4.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M4,2)
+#     M5 = F.conv2d(img_gray, K5.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M5,2)
+#     M6 = F.conv2d(img_gray, K6.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M6,2)
+#     M7 = F.conv2d(img_gray, K7.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M7,2)
+#     M8 = F.conv2d(img_gray, K8.view(1, 1, 3, 3), padding=padding)
+#     #sq_D += torch.pow(M8,2)
 
-    #NormD = torch.sqrt(torch.clamp(sq_D, min=1e-9))
+#     #NormD = torch.sqrt(torch.clamp(sq_D, min=1e-9))
 
 
-    #t = torch.cat((M1/NormD,M2/NormD,M3/NormD,M4/NormD,M5/NormD,M6/NormD,M7/NormD,M8/NormD), dim = 1)
-    t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
+#     #t = torch.cat((M1/NormD,M2/NormD,M3/NormD,M4/NormD,M5/NormD,M6/NormD,M7/NormD,M8/NormD), dim = 1)
+#     t = torch.cat((M1,M2,M3,M4,M5,M6,M7,M8), dim = 1)
 
-    return t      
+#     return t      
+
+def get_illumination_invariant_features(img):
+    # Convert to grayscale if RGB
+    if img.shape[1] != 1:
+        img_gray = transforms.functional.rgb_to_grayscale(img, 1)
+    else:
+        img_gray = img
+
+    if img_gray.dim() == 3:
+        img_gray = img_gray.unsqueeze(0)
+
+    device = img_gray.device
+
+    # Robinson directional kernels
+    K = [
+        torch.tensor([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], device=device),
+        torch.tensor([[0, 1, 2], [-1, 0, 1], [-2, -1, 0]], device=device),
+        torch.tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], device=device),
+        torch.tensor([[2, 1, 0], [1, 0, -1], [0, -1, -2]], device=device),
+        torch.tensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]], device=device),
+        torch.tensor([[0, -1, -2], [1, 0, -1], [2, 1, 0]], device=device),
+        torch.tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], device=device),
+        torch.tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]], device=device),
+    ]
+
+    # Convolve
+    responses = [F.conv2d(img_gray, k.view(1, 1, 3, 3), padding=1) for k in K]
+
+    # Normalize for contrast invariance
+    sq_D = sum([r**2 for r in responses])
+    NormD = torch.sqrt(torch.clamp(sq_D, min=1e-9))
+    responses_norm = [r / NormD for r in responses]
+
+    # Concatenate into multi-channel descriptor
+    t = torch.cat(responses_norm, dim=1)
+
+    return t
 
 def get_feature_oclution_mask(img):
     kernel = torch.tensor([[1, 1, 1],[1, 1, 1],[1, 1, 1]]).to(device=img.device).type(torch.cuda.FloatTensor)
