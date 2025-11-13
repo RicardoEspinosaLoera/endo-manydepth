@@ -376,14 +376,14 @@ def get_ilumination_invariant_features(img):
 
     # Robinson directional kernels
     K = [
-        torch.tensor([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], device=device),
-        torch.tensor([[0, 1, 2], [-1, 0, 1], [-2, -1, 0]], device=device),
-        torch.tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], device=device),
-        torch.tensor([[2, 1, 0], [1, 0, -1], [0, -1, -2]], device=device),
-        torch.tensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]], device=device),
-        torch.tensor([[0, -1, -2], [1, 0, -1], [2, 1, 0]], device=device),
-        torch.tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], device=device),
-        torch.tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]], device=device),
+        torch.tensor([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=torch.float32, device=device),
+        torch.tensor([[0, 1, 2], [-1, 0, 1], [-2, -1, 0]], dtype=torch.float32, device=device),
+        torch.tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype=torch.float32, device=device),
+        torch.tensor([[2, 1, 0], [1, 0, -1], [0, -1, -2]], dtype=torch.float32, device=device),
+        torch.tensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype=torch.float32, device=device),
+        torch.tensor([[0, -1, -2], [1, 0, -1], [2, 1, 0]], dtype=torch.float32, device=device),
+        torch.tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=torch.float32, device=device),
+        torch.tensor([[-2, -1, 0], [-1, 0, 1], [0, 1, 2]], dtype=torch.float32, device=device),
     ]
 
     # Convolve
