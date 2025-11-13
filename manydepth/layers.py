@@ -362,7 +362,7 @@ class SpatialTransformer(nn.Module):
 
 #     return t      
 
-def get_illumination_invariant_features(img):
+def get_ilumination_invariant_features(img):
     # Convert to grayscale if RGB
     if img.shape[1] != 1:
         img_gray = transforms.functional.rgb_to_grayscale(img, 1)
