@@ -283,9 +283,9 @@ class Trainer_Monodepth:
         else:
             # Otherwise, we only feed the image with frame_id 0 through the depth encoder
             features = self.models["encoder"](inputs["color_aug", 0, 0])
-            #outputs = self.models["depth"](features)
+            outputs = self.models["depth"](features)
 
-            outputs = self.models["depth"](inputs["color_aug", 0, 0])
+            #outputs = self.models["depth"](inputs["color_aug", 0, 0])
         """
         if self.opt.predictive_mask:
             outputs["predictive_mask"] = self.models["predictive_mask"](features)"""
