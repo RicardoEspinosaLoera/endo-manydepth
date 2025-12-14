@@ -300,15 +300,6 @@ class Trainer_Monodepth:
             losses_A["loss"].backward()
             self.opt_pose.step()
 
-            """
-            # -------- Phase B: depth step --------
-            self.set_train_depth()
-            # re-forward to refresh graph after pose/light changed
-            outputs_B, losses_B = self.process_batch_0(inputs)
-            self.opt_depth.zero_grad(set_to_none=True)
-            losses_B["loss"].backward()
-            self.opt_depth.step()"""
-
             # pick what to log (depth phase)
             duration = time.time() - before_op_time
             losses = losses_A
@@ -343,27 +334,7 @@ class Trainer_Monodepth:
         losses = self.compute_losses_0(inputs, outputs)
 
         return outputs, losses
-    
-    def process_batch(self, inputs):
-        """Pass a minibatch through the network and generate images and losses
-        """
-        for key, ipt in inputs.items():
-            inputs[key] = ipt.to(self.device)
-        outputs = self.models["depth"](inputs["color_aug", 0, 0])
 
-        if self.use_pose_net:
-            outputs.update(self.predict_poses_0(inputs, outputs))
-
-        self.generate_images_pred(inputs, outputs)
-        losses = self.compute_losses(inputs, outputs)
-
-        return outputs, losses
-
-    def predict_poses(self, inputs):
-        """Predict poses between input frames for monocular sequences.
-        """
-        
-        return outputs
 
     def predict_poses_0(self, inputs, shared_features=None):
         """Predict relative poses and per-pixel lighting fields (contrast c, brightness b)."""
@@ -394,26 +365,22 @@ class Trainer_Monodepth:
                 )
                 
                 # Lighting decoder (only defined for separate_resnet here)
-                if self.opt.pose_model_type == "separate_resnet":
-                    lighting_dict = self.models["lighting"](pose_inputs[0])
-                    for scale in self.opt.scales:
-                        outputs[(f"b_{scale}", f_i)] = lighting_dict[("brightness", scale)]  # Bx3xhxw
-                        outputs[(f"c_{scale}", f_i)] = lighting_dict[("contrast", scale)]   # Bx3xhxw
+                lighting_dict = self.models["lighting"](pose_inputs[0])
+                for scale in self.opt.scales:
+                    outputs[(f"b_{scale}", f_i)] = lighting_dict[("brightness", scale)]  # Bx3xhxw
+                    outputs[(f"c_{scale}", f_i)] = lighting_dict[("contrast", scale)]   # Bx3xhxw
 
             # Upsample lighting maps to full res (store at keys ("bh",scale,frame_id)/("ch",...))
-            if self.opt.pose_model_type == "separate_resnet":
-                for f_i in self.opt.frame_ids[1:]:
-                    if f_i == "s":
-                        continue
-                    for scale in self.opt.scales:
-                        outputs[("bh", scale, f_i)] = F.interpolate(
-                            outputs[(f"b_{scale}", f_i)], [self.opt.height, self.opt.width],
-                            mode="bilinear", align_corners=False
-                        )
-                        outputs[("ch", scale, f_i)] = F.interpolate(
-                            outputs[(f"c_{scale}", f_i)], [self.opt.height, self.opt.width],
-                            mode="bilinear", align_corners=False
-                        )
+            for f_i in self.opt.frame_ids[1:]:
+                for scale in self.opt.scales:
+                    outputs[("bh", scale, f_i)] = F.interpolate(
+                        outputs[(f"b_{scale}", f_i)], [self.opt.height, self.opt.width],
+                        mode="bilinear", align_corners=False
+                    )
+                    outputs[("ch", scale, f_i)] = F.interpolate(
+                        outputs[(f"c_{scale}", f_i)], [self.opt.height, self.opt.width],
+                        mode="bilinear", align_corners=False
+                    )
 
         return outputs
 
@@ -473,12 +440,12 @@ class Trainer_Monodepth:
                 pix_coords = self.project_3d[source_scale](cam_points, inputs[("K", source_scale)], T)
 
                 outputs[("sample", frame_id, scale)] = pix_coords
-                warped = F.grid_sample(
+                
+                outputs[("color", frame_id, scale)] = F.grid_sample(
                     inputs[("color", frame_id, source_scale)],
                     outputs[("sample", frame_id, scale)],
                     padding_mode="border", align_corners=True
                 )
-                outputs[("color", frame_id, scale)] = warped
 
                 outputs[("color_refined", frame_id, scale)] = outputs[("ch",scale, frame_id)] * outputs[("color", frame_id, scale)] + outputs[("bh", scale, frame_id)]
                 
