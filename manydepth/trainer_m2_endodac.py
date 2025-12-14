@@ -408,11 +408,11 @@ class Trainer_Monodepth:
                     for scale in self.opt.scales:
                         outputs[("bh", scale, f_i)] = F.interpolate(
                             outputs[(f"b_{scale}", f_i)], [self.opt.height, self.opt.width],
-                            mode="bilinear", align_corners=True
+                            mode="bilinear", align_corners=False
                         )
                         outputs[("ch", scale, f_i)] = F.interpolate(
                             outputs[(f"c_{scale}", f_i)], [self.opt.height, self.opt.width],
-                            mode="bilinear", align_corners=True
+                            mode="bilinear", align_corners=False
                         )
 
         return outputs
@@ -448,7 +448,7 @@ class Trainer_Monodepth:
             if self.opt.v1_multiscale:
                 source_scale = scale
             else:
-                disp = F.interpolate(disp, [self.opt.height, self.opt.width], mode="bilinear", align_corners=True)
+                disp = F.interpolate(disp, [self.opt.height, self.opt.width], mode="bilinear", align_corners=False)
                 source_scale = 0
 
             _, depth = disp_to_depth(disp, self.opt.min_depth, self.opt.max_depth)
@@ -479,15 +479,10 @@ class Trainer_Monodepth:
                     padding_mode="border", align_corners=True
                 )
                 outputs[("color", frame_id, scale)] = warped
-                
-                # Apply lighting calibration if available: refined = c * warped + b (clamped)
-                if (("ch", scale, frame_id) in outputs) and (("bh", scale, frame_id) in outputs):
-                    refined = outputs[("ch", scale, frame_id)] * warped + outputs[("bh", scale, frame_id)]
-                    outputs[("color_refined", frame_id, scale)] = outputs[("ch",scale, frame_id)] * outputs[("color", frame_id, scale)] + outputs[("bh", scale, frame_id)]
-                    outputs[("color_refined", frame_id, scale)] = torch.clamp(refined, 0.0, 1.0)
-                else:
-                    outputs[("color_refined", frame_id, scale)] = warped  # fallback
 
+                outputs[("color_refined", frame_id, scale)] = outputs[("ch",scale, frame_id)] * outputs[("color", frame_id, scale)] + outputs[("bh", scale, frame_id)]
+                
+               
     # ------------------------------
     # Losses
     # ------------------------------
