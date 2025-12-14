@@ -38,12 +38,7 @@ _DEPTH_COLORMAP = plt.get_cmap('plasma', 256)  # for plotting
 
 
 class Trainer_Monodepth:
-    """
-    Monodepth2-style training loop augmented with:
-      - Per-pixel lighting calibration (contrast c, brightness b)
-      - Illumination-invariant (II) photometric term
-    Optical/appearance flow are NOT used.
-    """
+
     def __init__(self, options):
         self.opt = options
         self.log_path = os.path.join(self.opt.log_dir, self.opt.model_name)
