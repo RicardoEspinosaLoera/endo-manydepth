@@ -240,7 +240,7 @@ class Trainer_Monodepth:
                 param.requires_grad = True
 
         for param in self.models["depth"].parameters():
-            param.requires_grad = False
+            param.requires_grad = True
 
             
         self.models["pose_encoder"].train()
@@ -295,19 +295,19 @@ class Trainer_Monodepth:
 
             # -------- Phase A: pose + lighting step --------
             self.set_train_pose_light()
-            # forward (depth is frozen but still used for warping)
             outputs_A, losses_A = self.process_batch_0(inputs)
             self.opt_pose.zero_grad(set_to_none=True)
             losses_A["loss"].backward()
             self.opt_pose.step()
 
+            """
             # -------- Phase B: depth step --------
             self.set_train_depth()
             # re-forward to refresh graph after pose/light changed
             outputs_B, losses_B = self.process_batch_0(inputs)
             self.opt_depth.zero_grad(set_to_none=True)
             losses_B["loss"].backward()
-            self.opt_depth.step()
+            self.opt_depth.step()"""
 
             # pick what to log (depth phase)
             duration = time.time() - before_op_time
