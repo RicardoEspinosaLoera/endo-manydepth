@@ -311,8 +311,8 @@ class Trainer_Monodepth:
 
             # pick what to log (depth phase)
             duration = time.time() - before_op_time
-            losses = losses_B
-            outputs = outputs_B
+            losses = losses_A
+            outputs = outputs_A
 
             early_phase = (batch_idx % self.opt.log_frequency == 0) and (self.step < 2000)
             late_phase = (self.step % max(1, self.opt.log_frequency * 5) == 0)
