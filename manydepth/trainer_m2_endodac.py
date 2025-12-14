@@ -300,6 +300,7 @@ class Trainer_Monodepth:
             losses_A["loss"].backward()
             self.opt_pose.step()
 
+
             # pick what to log (depth phase)
             duration = time.time() - before_op_time
             losses = losses_A
@@ -400,7 +401,7 @@ class Trainer_Monodepth:
             inputs = next(self.val_iter)
 
         with torch.no_grad():
-            outputs, losses = self.process_batch(inputs)
+            outputs, losses = self.process_batch_0(inputs)
             if "depth_gt" in inputs:
                 self.compute_depth_losses(inputs, outputs, losses)
             self.log("val", inputs, outputs, losses)
