@@ -115,7 +115,7 @@ class MonodepthOptions:
         self.parser.add_argument("--illumination_invariant",
                                  type=float,
                                  help="illumination invariant weight",
-                                 default=0.2)
+                                 default=0.5)
         self.parser.add_argument("--scales",
                                  nargs="+",
                                  type=int,
